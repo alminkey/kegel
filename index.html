@@ -4,7 +4,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <title>KegelPilot — v16 • Onboarding + app</title>
+  <title>KegelPilot — v17 • Fix clicks + logo</title>
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#0B0E12">
   <style>
@@ -25,20 +25,16 @@
     main{padding:16px;display:none} main.active{display:block}
     .grid{display:grid;gap:12px}
 
-    /* Cards */
     .card{position:relative;border-radius:16px;padding:16px 14px;border:1px solid rgba(255,255,255,.12);overflow:hidden;cursor:pointer}
     .card.glass{background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.02)); backdrop-filter: blur(10px); box-shadow:0 10px 30px rgba(0,0,0,.35), inset 0 0 0 1px rgba(255,255,255,.04);}
     .card.has-art::before{content:'';position:absolute;inset:0;background-position:center;background-repeat:no-repeat;background-size:cover;opacity:.28;z-index:0;transition:transform .4s ease, opacity .25s ease; pointer-events: none;}
-    .bg-level{ --art: url('art/card-level.svg'); }
-    .bg-edu{ --art: url('art/card-edu.svg'); }
-    .bg-quick{ --art: url('art/card-quick.svg'); }
+    .bg-level{ --art: url('art/card-level.svg'); } .bg-edu{ --art: url('art/card-edu.svg'); } .bg-quick{ --art: url('art/card-quick.svg'); }
     .card.bg-level.has-art::before{ background-image: var(--art); }
     .card.bg-edu.has-art::before{ background-image: var(--art); }
     .card.bg-quick.has-art::before{ background-image: var(--art); }
     .card:hover::before{ transform: scale(1.02); opacity:.34; }
     .card > *{position:relative; z-index:1}
 
-    /* Ripple */
     .ripple{ position:absolute; border-radius:50%; transform:scale(0); pointer-events:none; background: radial-gradient(circle, rgba(255,255,255,.35) 0%, rgba(255,255,255,0) 70%); opacity:.8; animation: ripple .6s ease-out forwards; }
     @keyframes ripple{ to { transform:scale(8); opacity:0; } }
 
@@ -71,7 +67,6 @@
     @keyframes pulseText{0%,100%{transform:scale(1);opacity:.9} 50%{transform:scale(1.06);opacity:1}}
     .planchip{text-align:center; font-size:12px; color:#9aa8ff; margin-top:6px;}
 
-    /* Onboarding modal (3 koraka) */
     .ob{position:fixed;inset:0;background:rgba(5,8,12,.75);backdrop-filter:blur(10px);display:none;align-items:center;justify-content:center;z-index:9999}
     .ob.active{display:flex;}
     .ob .sheet{width:min(820px,94vw);max-height:94vh;background:#0f141c;border:1px solid rgba(255,255,255,.08);border-radius:18px;box-shadow:0 10px 60px rgba(0,0,0,.6);display:grid;grid-template-rows:auto 1fr auto}
@@ -95,8 +90,8 @@
 <div class="shell">
   <header>
     <div style="display:flex;align-items:center;gap:6px">
-      <img src="assets/logo_text.png" alt="KegelPilot" class="brandimg">
-      <span class="ver">v16</span>
+      <img src="assets/logo_text.png" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='132' height='28' viewBox='0 0 132 28' fill='none'><rect x='0' y='0' rx='8' ry='8' width='132' height='28' fill='rgba(15,20,27,0.85)'/><text x='14' y='19' font-family='Inter,Segoe UI,Arial,sans-serif' font-size='16' fill='%23A7F3D0' font-weight='700'>KegelPilot</text></svg>'" alt="KegelPilot" class="brandimg" id="brand">
+      <span class="ver">v17</span>
     </div>
     <div class="protag"><span class="pro">PRO</span> <span class="on">aktivno</span></div>
   </header>
@@ -212,7 +207,6 @@
   </nav>
 </div>
 
-<!-- Onboarding 3 koraka -->
 <div id="onboarding" class="ob" aria-hidden="true">
   <div class="sheet">
     <header>
@@ -263,7 +257,6 @@
   </div>
 </div>
 
-<!-- Var intro modals -->
 <div id="introV2" class="ob" aria-hidden="true">
   <div class="sheet">
     <header><strong>Nova varijacija: #2</strong><button class="btn" data-close="introV2">Zatvori</button></header>
@@ -290,7 +283,6 @@
 
 <script>
 (function(){
-  // Ripple
   function attachRipple(el){
     el.addEventListener('pointerdown', (e)=>{
       const r = document.createElement('span');
@@ -307,20 +299,18 @@
   document.querySelectorAll('.card').forEach(attachRipple);
 
   const DEFAULT_REPS = 10, DEFAULT_SETS = 3;
-  const VARS_R1 = {
-    1: { hold:1,   keep:0, rest:2, name:"Var 1" },
-    2: { hold:1,   keep:1, rest:1, name:"Var 2" },
-    3: { hold:0.5, keep:3, rest:2, name:"Var 3" },
-  };
+  const VARS_R1 = { 1: { hold:1, keep:0, rest:2, name:"Var 1" },
+                    2: { hold:1, keep:1, rest:1, name:"Var 2" },
+                    3: { hold:0.5, keep:3, rest:2, name:"Var 3" } };
   function todayKey(){ const d=new Date(); return d.toISOString().slice(0,10); }
   function loadState(){
-    try{ return JSON.parse(localStorage.getItem('kp_state_v6f')||'null') || {
+    try{ return JSON.parse(localStorage.getItem('kp_state_v6g')||'null') || {
       rank:1, total:0, lastDay:null, streak:0, dayCounts:{},
       r1StartDate: null, introV2Done:false, introV3Done:false
     }}catch(e){ return { rank:1, total:0, lastDay:null, streak:0, dayCounts:{},
       r1StartDate:null, introV2Done:false, introV3Done:false } }
   }
-  function saveState(s){ localStorage.setItem('kp_state_v6f', JSON.stringify(s)); }
+  function saveState(s){ localStorage.setItem('kp_state_v6g', JSON.stringify(s)); }
 
   let state = loadState();
   if(!state.r1StartDate){ state.r1StartDate = todayKey(); saveState(state); }
@@ -337,7 +327,6 @@
   }
   function planLabel(segments){ return segments.map(s=>VARS_R1[s.var].name).join(' + '); }
 
-  // Navigation
   const pages = document.querySelectorAll('main');
   const navButtons = document.querySelectorAll('nav button');
   function showTab(id){ pages.forEach(p=>p.classList.toggle('active', p.id===id)); navButtons.forEach(b=>b.classList.toggle('active', b.getAttribute('data-tab')===id)); if (navigator.vibrate) navigator.vibrate(12); }
@@ -346,7 +335,6 @@
   document.getElementById('cardEdu').addEventListener('click', ()=> showTab('edu'));
   document.getElementById('cardQuick').addEventListener('click', ()=> showTab('trainer'));
 
-  // Rank UI + spark
   const rankBar = document.getElementById('rankBar');
   for(let i=1;i<=10;i++){ const d=document.createElement('div'); d.className='dot'; d.dataset.id=i; rankBar.appendChild(d); }
   function consecutiveDays2x(counts){ const daysNeeded = 5; const now = new Date(); let streak = 0;
@@ -375,7 +363,6 @@
     drawSpark();
   }
 
-  // Trainer
   const status = document.getElementById('status');
   const ringEl = document.getElementById('ring');
   const startLabel = document.getElementById('startLabel');
@@ -454,12 +441,10 @@
   }
   function stopSession(success){ if(!running) return; finishSession(success); }
 
-  const ringEl = document.getElementById('ring');
   ringEl.addEventListener('pointerdown', ()=>{ if(!running){ maybeShowIntroThenStart(); return; } longPressed=false; longPressTO=setTimeout(()=>{ longPressed=true; stopSession(false); }, 650); });
   ringEl.addEventListener('pointerup', ()=>{ if(longPressTO) clearTimeout(longPressTO); if(running && !longPressed) pauseToggle(); });
   ringEl.addEventListener('pointerleave', ()=>{ if(longPressTO) clearTimeout(longPressTO); });
 
-  // Var modals once
   function openIntro(id){ document.getElementById(id).classList.add('active'); }
   function closeIntro(id){ document.getElementById(id).classList.remove('active'); }
   document.querySelectorAll('[data-close]').forEach(b=>b.addEventListener('click', ()=> closeIntro(b.getAttribute('data-close')) ));
@@ -476,7 +461,6 @@
     document.getElementById('varDesc').textContent = segments.map(s => (VARS_R1[s.var].name + ` (${VARS_R1[s.var].hold}s / ${VARS_R1[s.var].keep}s / ${VARS_R1[s.var].rest}s)`)).join('  •  ');
   }
 
-  // Onboarding 3-step
   const ob = document.getElementById('onboarding');
   const obDots = ob.querySelectorAll('.dotx');
   const stepEls = [document.getElementById('step1'), document.getElementById('step2'), document.getElementById('step3')];
@@ -498,9 +482,9 @@
   }
   function saveReminderPrefs(){
     const perday = Number(document.getElementById('perday').value);
-    const t1 = (document.getElementById('t1').value)||'09:00';
-    const t2 = (document.getElementById('t2').value)||'19:00';
-    const t3 = (document.getElementById('t3').value)||'21:00';
+    const t1 = (document.getElementById('t1')?.value)||'09:00';
+    const t2 = (document.getElementById('t2')?.value)||'19:00';
+    const t3 = (document.getElementById('t3')?.value)||'21:00';
     const times = perday===1 ? [t1] : perday===2 ? [t1,t2] : [t1,t2,t3];
     localStorage.setItem('kp_reminders', JSON.stringify({perday, times}));
   }
@@ -522,11 +506,10 @@
     ob.setAttribute('aria-hidden','true');
   });
 
-  // Init
   setRankUI();
   refreshTrainerLabels();
   showOnboardingIfNeeded();
-  console.log('KegelPilot loaded v16 (with onboarding + app)');
+  console.log('KegelPilot loaded v17 (fix clicks + logo fallback)');
 })();
 </script>
 
