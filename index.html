@@ -4,7 +4,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <title>KegelPilot — Rang 1 varijacije (PWA v2)</title>
+  <title>KegelPilot — Rang 1 varijacije (PWA v3)</title>
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#0B0E12">
   <style>
@@ -254,13 +254,6 @@
     checkUnlock();
   }
 
-  function setVarSel(v){
-    state.varSel = v; saveState(state);
-    document.querySelectorAll('.vbtn').forEach(b=>b.classList.toggle('active', Number(b.dataset.v)===v));
-    setRankUI();
-  }
-  document.querySelectorAll('.vbtn').forEach(b=>b.addEventListener('click', ()=> setVarSel(Number(b.dataset.v))));
-
   // Trainer state/animation
   const status = document.getElementById('status');
   const ring = document.getElementById('ring');
@@ -272,7 +265,8 @@
   progress.setAttribute('transform','rotate(-90 50 50)');
 
   let audioCtx; function beep(f=660,d=110,t='sine',g=0.03){ try{ audioCtx=audioCtx||new (window.AudioContext||window.webkitAudioContext)(); const o=audioCtx.createOscillator(); const x=audioCtx.createGain(); o.type=t; o.frequency.value=f; x.gain.value=g; o.connect(x); x.connect(audioCtx.destination); o.start(); setTimeout(()=>o.stop(), d); }catch(e){} }
-  let session=null, raf=0, lastTs=0, running=false, paused=false, longPressTO=null, longPressed=false;
+  let session=null, raf=0, lastTs=0, running=false, paused=false;
+  let longPressTO=null, longPressed=false;
 
   function setPhase(p){ if(p==='hold'){ status.textContent='STEGNI'; beep(740,110); } else if(p==='keep'){ status.textContent='ZADRŽI'; beep(640,80); } else if(p==='rest'){ status.textContent='OPUSTI'; beep(520,100); } else { status.textContent='Pripremi se'; } }
   function mapHold(t){ return { ringScale: .2+.8*t, ringAlpha: .3+.7*t, bgScale: .2+.8*t, bgAlpha: .1+.4*t } }
@@ -324,8 +318,13 @@
   }
 
   function startSession(){
+    const VARS_R1 = {
+      1: { hold:1, keep:0, rest:2 },
+      2: { hold:1, keep:1, rest:1 },
+      3: { hold:0.5, keep:3, rest:2 },
+    };
     const v = VARS_R1[state.varSel];
-    const reps = DEFAULT_REPS, sets = DEFAULT_SETS;
+    const reps = 10, sets = 3;
     const totalCycle = v.hold + v.keep + v.rest;
     const totalDuration = totalCycle * reps * sets;
     session = { hold:v.hold, keep:v.keep, rest:v.rest, reps, sets, phase:'countdown', remaining:3, rep:1, set:1, totalDuration, totalElapsed:0 };
@@ -333,11 +332,7 @@
     setPhase('countdown'); setProgress(0); startLabel.style.display='none';
     raf=requestAnimationFrame(loop);
   }
-  function pauseToggle(){
-    if(!running) return;
-    paused=!paused;
-    if(!paused) raf=requestAnimationFrame(loop);
-  }
+  function pauseToggle(){ if(!running) return; paused=!paused; if(!paused) raf=requestAnimationFrame(loop); }
   function finishSession(success){
     running=false; paused=false; cancelAnimationFrame(raf); status.textContent='Završeno'; setProgress(1); startLabel.style.display='grid';
     if(success){
@@ -348,14 +343,12 @@
         state.lastDay=today;
       }
       state.dayCounts[today] = (state.dayCounts[today]||0) + 1;
-      saveState(state);
-      setRankUI();
+      saveState(state); setRankUI();
     }
   }
   function stopSession(success){ if(!running) return; finishSession(success); }
 
-  // Ring interactions
-  let longPressTO=null, longPressed=false;
+  // Ring interactions (no duplicate declarations)
   ring.addEventListener('pointerdown', ()=>{ if(!running){ startSession(); return; } longPressed=false; longPressTO=setTimeout(()=>{ longPressed=true; stopSession(false); }, 650); });
   ring.addEventListener('pointerup', ()=>{ if(longPressTO) clearTimeout(longPressTO); if(running && !longPressed) pauseToggle(); });
   ring.addEventListener('pointerleave', ()=>{ if(longPressTO) clearTimeout(longPressTO); });

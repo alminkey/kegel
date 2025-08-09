@@ -1,1 +1,1 @@
-KegelPilot PWA — Rank 1 variations build v2 (fix: JS duplicate identifiers)
+KegelPilot PWA — Rank 1 variations build v3 (fix: removed duplicate longPress vars)
