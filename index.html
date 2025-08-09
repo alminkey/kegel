@@ -1,0 +1,377 @@
+
+<!doctype html>
+<html lang="bs">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Kegel Trener — PRO prsten + fiksna granica + napredak</title>
+  <style>
+    :root{
+      --bg:#0b0e12; --panel:#12161c; --ink:#e0e6ef; --muted:#9aa0a6; --card:#0e131a;
+      --accent:#ffd166; --danger:#ff6b6b;
+      --prog:#66e6a8;            /* boja prstena (po programu) */
+      --ring-scale: 0.2;         /* 0.2 .. 1.0 (stezanje povećava) */
+      --ring-alpha: 0.3;         /* 0.3 .. 1.0 (na vrhuncu neproziran) */
+      --bgPulse-scale: 0.2;      /* širenje plavog pulsa u pozadini */
+      --bgPulse-alpha: 0.1;      /* 0.1 .. 0.5 (90% → 50% transparentnosti) */
+      --text-grad-from:#E7F0FF;  /* premium tekst gradient */
+      --text-grad-mid:#BFD5FF;
+      --text-grad-to:#9AD0FF;
+      --progress:#FFA94D;        /* narandžasta za obrubu koja raste (sekunde) */
+      --boundary:#2a3342;        /* siva granica (ne pulsira) */
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      background:radial-gradient(1200px 600px at 20% -10%,#18202b 0%,#0b0e12 60%),var(--bg);
+      color:var(--ink);
+      font-family:Inter,system-ui,Segoe UI,Roboto,Arial,sans-serif;
+      -webkit-tap-highlight-color:transparent;
+    }
+    @font-face{
+      font-family:"Inter"; font-style:normal; font-weight:100 900; font-display:swap;
+      src: local("Inter"), local("Inter var");
+    }
+    .shell{min-height:100%;display:grid;grid-template-rows:auto 1fr auto}
+    header{position:sticky;top:0;background:rgba(12,15,20,.8);backdrop-filter:blur(8px);border-bottom:1px solid rgba(255,255,255,.06);padding:12px 16px;display:flex;align-items:center;justify-content:space-between}
+    h1{margin:0;font-size:18px;letter-spacing:.2px}
+    .muted{color:var(--muted);font-size:12px}
+    main{padding:16px;display:none}
+    main.active{display:block}
+    .grid{display:grid;gap:12px}
+    .row{display:flex;align-items:center;justify-content:space-between;gap:8px}
+    .card{position:relative;background:var(--panel);border-radius:16px;padding:14px;box-shadow:0 10px 30px rgba(0,0,0,.35), inset 0 0 0 1px rgba(255,255,255,.05)}
+    .btn{appearance:none;border:0;border-radius:12px;padding:10px 12px;font-weight:800;letter-spacing:.2px;background:#1a212b;color:white;cursor:pointer}
+    .btn.primary{background:var(--prog);color:#0e110f}
+    .btn.ghost{background:#141a22}
+    input, select{width:100%;padding:10px 12px;border-radius:12px;border:1px solid rgba(255,255,255,.07);background:#0f141b;color:white}
+    nav{position:sticky;bottom:0;background:rgba(12,15,20,.85);backdrop-filter:blur(8px);border-top:1px solid rgba(255,255,255,.06);display:grid;grid-template-columns:repeat(4,1fr)}
+    nav button{appearance:none;border:0;background:none;color:var(--muted);padding:10px 6px;font-weight:800}
+    nav button.active{color:white}
+
+    /* Premium naslov iznad kruga */
+    .status{
+      font-family: Inter, system-ui, sans-serif;
+      font-weight: 900;
+      letter-spacing:.6px;
+      background: linear-gradient(180deg, var(--text-grad-from) 0%, var(--text-grad-mid) 60%, var(--text-grad-to) 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      text-align:center;
+      text-shadow: 0 2px 20px rgba(120,170,255,.08);
+      font-size: clamp(18px, 5vw, 28px);
+    }
+    .hints{
+      text-align:center; margin-top:4px; color:var(--muted); font-size:12px;
+    }
+
+    /* Trener vizual */
+    .ring-wrap{display:grid;place-items:center;padding:12px}
+    .ring{
+      position:relative;
+      width:min(86vw,360px); height:min(86vw,360px);
+      border-radius:50%;
+      background:#0e131a;
+      box-shadow:inset 0 0 0 10px rgba(255,255,255,.04),0 10px 40px rgba(0,0,0,.4);
+      overflow:hidden;
+    }
+    /* Plavi pozadinski puls (ispod prstena) */
+    .bgpulse{
+      position:absolute; inset:0; display:grid; place-items:center; z-index:0;
+      transform: scale(var(--bgPulse-scale));
+    }
+    .bgpulse > div{
+      width:100%; height:100%; border-radius:50%;
+      background: radial-gradient(50% 50% at 50% 50%, rgba(64,196,255, var(--bgPulse-alpha)) 0%, rgba(64,196,255,0) 70%);
+      transition: opacity .02s linear, transform .02s linear;
+    }
+
+    /* SVG prsten (pulsira) */
+    .ring .pulse-layer{position:absolute; inset:0; display:block; transform:scale(var(--ring-scale)); transition:transform .02s linear; z-index:1}
+    .ring .stroke{stroke:var(--prog); stroke-width:18; fill:none; opacity: var(--ring-alpha); filter: drop-shadow(0 6px 24px rgba(0,0,0,.3));}
+
+    /* Fiksni boundary + napredak (nije skaliran) */
+    .ring .progress-layer{position:absolute; inset:0; display:block; z-index:2}
+    .ring .boundary{stroke:var(--boundary); stroke-width:6; fill:none; opacity: .9;}
+    .ring .progress{stroke:var(--progress); stroke-width:6; fill:none; opacity: .95;}
+
+  </style>
+
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#0b0e12">
+</head>
+<body>
+<div class="shell">
+  <header>
+    <h1>Kegel Trener</h1>
+    <button class="btn ghost">PRO aktivno</button>
+  </header>
+
+  <!-- HOME -->
+  <main id="home" class="active">
+    <div class="grid">
+      <div class="card">
+        <div class="row"><strong>Brzi start</strong><span class="muted">izaberi program</span></div>
+        <div class="row" style="margin-top:6px">
+          <select id="program" style="flex:1">
+            <option value="basic">Osnovni (4s / 4s)</option>
+            <option value="intermediate">Srednji (5s / 5s)</option>
+            <option value="pulses">Brzi pulsi (1s / 1s)</option>
+            <option value="endurance">Izdržljivost (10s / 10s)</option>
+          </select>
+          <a href="#" class="btn primary" data-tab="trainer">Pokreni</a>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="row"><strong>Tutorijal</strong><a href="#" data-tab="tutorial" class="btn">Otvori</a></div>
+        <div class="muted" style="margin-top:6px">Kako pravilno aktivirati i opustiti mišiće karličnog dna.</div>
+      </div>
+    </div>
+  </main>
+
+  <!-- TRAINER -->
+  <main id="trainer">
+    <div class="grid">
+      <div class="card">
+        <div class="row"><strong>Trening</strong><div id="progName" class="muted">Osnovni</div></div>
+        <div id="status" class="status" style="margin-top:4px">Pripremi se</div>
+        <div class="hints" id="hints">Stisni uz izdah • Opusti uz udah • Opušten vrat i ramena</div>
+        <div class="ring-wrap">
+          <div class="ring" id="ring">
+            <div class="bgpulse"><div></div></div>
+
+            <!-- Pulsirajući prsten (skalira se) -->
+            <svg class="pulse-layer" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+              <circle class="stroke" cx="50" cy="50" r="40" stroke-linecap="round"></circle>
+            </svg>
+
+            <!-- Fiksni boundary i napredak (ne skalira se) -->
+            <svg class="progress-layer" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+              <circle class="boundary" cx="50" cy="50" r="46" stroke-linecap="round"></circle>
+              <circle class="progress" cx="50" cy="50" r="46" stroke-linecap="round"></circle>
+            </svg>
+          </div>
+        </div>
+        <div class="row" style="gap:8px">
+          <button id="startBtn" class="btn primary">Start</button>
+          <button id="pauseBtn" class="btn">Pauza</button>
+          <button id="stopBtn" class="btn">Stop</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="row"><strong>Program</strong><span class="muted">Svi programi</span></div>
+        <div class="grid" style="grid-template-columns:repeat(2,1fr)">
+          <button class="btn primary" data-prog="basic">Osnovni</button>
+          <button class="btn" data-prog="intermediate">Srednji</button>
+          <button class="btn" data-prog="pulses">Pulsi</button>
+          <button class="btn" data-prog="endurance">Izdržljivost</button>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- TUTORIAL -->
+  <main id="tutorial">
+    <div class="grid">
+      <div class="card grid">
+        <strong>Tutorijal: kako naći pravi mišić</strong>
+        <ol class="muted" style="line-height:1.7; margin-left:18px">
+          <li>Zamisli da zaustavljaš mlaz urina – aktivacija karličnog dna.</li>
+          <li>Ne steži stomak, bedra, stražnjicu i ne zadržavaj dah.</li>
+          <li>Diši: pri <strong>stegni</strong> lagano izdiši; pri <strong>opusti</strong> udiši.</li>
+          <li>Fokus na kontrolu, ne na maksimalnu snagu.</li>
+          <li>Ako osjetiš bol — pauza i konsultacija sa stručnjakom.</li>
+        </ol>
+      </div>
+      <div class="card">
+        <div class="row"><strong>Brzi start</strong><a href="#" data-tab="trainer" class="btn primary">Pokreni</a></div>
+      </div>
+    </div>
+  </main>
+
+  <nav>
+    <button class="active" data-tab="home">Početna</button>
+    <button data-tab="trainer">Trening</button>
+    <button data-tab="tutorial">Tutorijal</button>
+  </nav>
+</div>
+
+<script>
+(function(){
+  // PRO otključan
+  const isPro = true;
+
+  // Tabs
+  const pages = document.querySelectorAll('main');
+  function showTab(id){
+    pages.forEach(p=>p.classList.toggle('active', p.id===id));
+    document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('active', b.getAttribute('data-tab')===id));
+  }
+  document.querySelectorAll('nav button, [data-tab]').forEach(btn=>{
+    btn.addEventListener('click', (e)=>{
+      e.preventDefault();
+      const id = btn.getAttribute('data-tab');
+      if(!id) return;
+      showTab(id);
+    });
+  });
+
+  // Programi i boje
+  const programs = {
+    basic:       { name:'Osnovni',      hold:4,  rest:4,  color:'#66e6a8' },
+    intermediate:{ name:'Srednji',      hold:5,  rest:5,  color:'#7c93ff' },
+    pulses:      { name:'Brzi pulsi',   hold:1,  rest:1,  color:'#ffd166' },
+    endurance:   { name:'Izdržljivost', hold:10, rest:10, color:'#40c4ff' },
+  };
+  let currentKey = 'basic';
+  const root = document.documentElement;
+  const progName = document.getElementById('progName');
+  function setProgram(key){
+    currentKey = key;
+    const p = programs[key];
+    root.style.setProperty('--prog', p.color);
+    progName.textContent = p.name;
+  }
+  document.querySelectorAll('[data-prog]').forEach(btn=>{
+    btn.addEventListener('click', ()=> setProgram(btn.getAttribute('data-prog')));
+  });
+
+  // Vizualni elementi
+  const status = document.getElementById('status');
+  const progressLayer = document.querySelector('.progress-layer');
+  const progress = progressLayer.querySelector('.progress');
+
+  let audioCtx;
+  function beep(freq=660, duration=110, type='sine', gain=0.03){
+    try{
+      audioCtx = audioCtx || new (window.AudioContext||window.webkitAudioContext)();
+      const osc = audioCtx.createOscillator(); const g = audioCtx.createGain();
+      osc.type=type; osc.frequency.value=freq; g.gain.value=gain;
+      osc.connect(g); g.connect(audioCtx.destination);
+      osc.start(); setTimeout(()=>osc.stop(), duration);
+    }catch(e){}
+  }
+
+  // Session state
+  let session=null, raf=0, lastTs=0, running=false, paused=false;
+  function getProgram(){ return programs[currentKey]; }
+
+  function setPhase(phase){
+    if(phase==='hold'){ status.textContent='STEGNI'; beep(740,110); }
+    else if(phase==='rest'){ status.textContent='OPUSTI'; beep(520,100); }
+    else { status.textContent='Pripremi se'; }
+  }
+
+  // Mapiranja skale/providnosti za prsten i pozadinu
+  function mapHold(t){
+    const ringScale = 0.2 + 0.8 * t;
+    const ringAlpha = 0.3 + 0.7 * t;
+    const bgScale   = 0.2 + 0.8 * t;
+    const bgAlpha   = 0.1 + 0.4 * t; // 0.1→0.5
+    return {ringScale, ringAlpha, bgScale, bgAlpha};
+  }
+  function mapRest(t){
+    const ringScale = 1.0 - 0.8 * t;
+    const ringAlpha = 1.0 - 0.7 * t;
+    const bgScale   = 1.0 - 0.8 * t;
+    const bgAlpha   = 0.5 - 0.4 * t;
+    return {ringScale, ringAlpha, bgScale, bgAlpha};
+  }
+  function mapCountdown(){
+    const breath = 0.02 * Math.sin(performance.now()/180);
+    return {
+      ringScale: 0.25 + breath, ringAlpha: 0.4 + 0.1*Math.sin(performance.now()/220),
+      bgScale:   0.25 + breath, bgAlpha:   0.18 + 0.06*Math.sin(performance.now()/220),
+    };
+  }
+
+  // Napredak (sekunde) — na fiksnom boundary krugu
+  const R = 46; // radijus boundary/progress kruga
+  const C = 2 * Math.PI * R;
+  progress.setAttribute('stroke-dasharray', C.toFixed(2));
+  progress.setAttribute('stroke-dashoffset', C.toFixed(2)); // start 0%
+  progress.setAttribute('transform', 'rotate(-90 50 50)'); // start iz vrha ako želiš, ili ukloni za 3h poziciju
+
+  function setProgress(pct){ // 0..1
+    const off = C * (1 - pct);
+    progress.setAttribute('stroke-dashoffset', off.toFixed(2));
+  }
+  setProgress(0);
+
+  function loop(ts){
+    if(!running || paused) return;
+    if(!lastTs) lastTs = ts;
+    const dt = (ts - lastTs)/1000; lastTs = ts;
+    session.remaining -= dt;
+
+    const total = session.phase==='hold'? session.hold : session.phase==='rest'? session.rest : 3;
+    const elapsed = (session.phase==='countdown') ? (3 - session.remaining) : (total - session.remaining);
+    const pct = Math.min(1, Math.max(0, elapsed / total));
+
+    const m = session.phase==='hold' ? mapHold(pct) : session.phase==='rest' ? mapRest(pct) : mapCountdown();
+    root.style.setProperty('--ring-scale', m.ringScale.toFixed(3));
+    root.style.setProperty('--ring-alpha', m.ringAlpha.toFixed(3));
+    root.style.setProperty('--bgPulse-scale', m.bgScale.toFixed(3));
+    root.style.setProperty('--bgPulse-alpha', m.bgAlpha.toFixed(3));
+    setProgress(pct);
+
+    if(session.remaining <= 0){
+      if(session.phase==='countdown'){ beep(880,120,'square'); }
+      nextPhase();
+    }
+    raf = requestAnimationFrame(loop);
+  }
+
+  function nextPhase(){
+    if(session.phase==='countdown'){ session.phase='hold'; session.remaining=session.hold; setPhase('hold'); setProgress(0); return; }
+    if(session.phase==='hold'){ session.phase='rest'; session.remaining=session.rest; setPhase('rest'); setProgress(0); return; }
+    if(session.phase==='rest'){
+      session.rep++;
+      if(session.rep>session.reps){
+        session.set++;
+        if(session.set>session.sets){ finishSession(true); return; }
+        else { session.rep=1; }
+      }
+      session.phase='hold'; session.remaining=session.hold; setPhase('hold'); setProgress(0);
+    }
+  }
+
+  function startSession(){
+    const p = getProgram();
+    session = { hold:p.hold, rest:p.rest, reps:10, sets:3, phase:'countdown', remaining:3, rep:1, set:1 };
+    lastTs = 0; running=true; paused=false; cancelAnimationFrame(raf);
+    root.style.setProperty('--prog', p.color);
+    setPhase('countdown'); setProgress(0);
+    raf = requestAnimationFrame(loop);
+  }
+  function pauseSession(){ paused=!paused; if(!paused) raf=requestAnimationFrame(loop); }
+  function finishSession(){ running=false; paused=false; cancelAnimationFrame(raf); status.textContent='Završeno'; setProgress(0); }
+
+  document.getElementById('startBtn').addEventListener('click', startSession);
+  document.getElementById('pauseBtn').addEventListener('click', pauseSession);
+  document.getElementById('stopBtn').addEventListener('click', finishSession);
+
+  // Home select -> set program
+  const homeSelect = document.getElementById('program');
+  if(homeSelect){
+    homeSelect.addEventListener('change', ()=> setProgram(homeSelect.value));
+  }
+
+  // default
+  setProgram('basic');
+})();
+</script>
+
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', function() {
+        navigator.serviceWorker.register('./service-worker.js').catch(function(e){ console.log('SW reg error', e); });
+      });
+    }
+  </script>
+</body>
+</html>
