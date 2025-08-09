@@ -10,20 +10,25 @@
   <style>
     :root{ --bg:#0b0e12; --ink:#e0e6ef; --muted:#9aa0a6;
            --train:#66E6A8; --progress:#FFA94D; --ring-scale:.2; --ring-alpha:.3; --bgPulse-scale:.2; --bgPulse-alpha:.1; }
-    *{box-sizing:border-box} html,body{height:100%}
+    *{box-sizing:border-box}
+    html,body{height:100%}
     body{margin:0;background:radial-gradient(1200px 600px at 20% -10%,#18202b 0%,#0b0e12 60%),var(--bg);color:var(--ink);font-family:Inter,system-ui,Segoe UI,Roboto,Arial,sans-serif;-webkit-tap-highlight-color:transparent;}
+    body, .card { touch-action: manipulation; }
+
     .shell{min-height:100%;display:grid;grid-template-rows:auto 1fr auto}
     header{position:sticky;top:0;background:rgba(12,15,20,.8);backdrop-filter:blur(8px);border-bottom:1px solid rgba(255,255,255,.06);padding:10px 14px;display:flex;align-items:center;justify-content:space-between;gap:12px;z-index:10}
-    .brand{display:block;height:28px;width:28px;background:url(icons/kegelpilot_192.png) center/contain no-repeat;filter:drop-shadow(0 0 10px rgba(102,230,168,.15));border-radius:8px}
+    .brandimg{height:34px; width:auto; display:block; object-fit:contain; filter:drop-shadow(0 0 10px rgba(102,230,168,.15));}
+
     .protag{font-weight:900;letter-spacing:.2px;padding:6px 10px;border-radius:999px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06)}
     .protag .pro{color:#ff6b6b} .protag .on{color:#66E6A8}
+
     main{padding:16px;display:none} main.active{display:block}
     .grid{display:grid;gap:12px}
 
     /* Glassmorphism + art backgrounds */
     .card{position:relative;border-radius:16px;padding:16px 14px;border:1px solid rgba(255,255,255,.12);overflow:hidden;cursor:pointer}
     .card.glass{background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.02)); backdrop-filter: blur(10px); box-shadow:0 10px 30px rgba(0,0,0,.35), inset 0 0 0 1px rgba(255,255,255,.04);}
-    .card.has-art::before{content:'';position:absolute;inset:0;background-position:center;background-repeat:no-repeat;background-size:cover;opacity:.28;z-index:0;transition:transform .4s ease, opacity .25s ease;}
+    .card.has-art::before{content:'';position:absolute;inset:0;background-position:center;background-repeat:no-repeat;background-size:cover;opacity:.28;z-index:0;transition:transform .4s ease, opacity .25s ease; pointer-events: none;}
     .bg-level{ --art: url('art/card-level.svg'); }
     .bg-edu{ --art: url('art/card-edu.svg'); }
     .bg-quick{ --art: url('art/card-quick.svg'); }
@@ -48,7 +53,7 @@
     .hint{color:var(--muted); font-size:12px; margin-top:6px}
 
     nav{position:sticky;bottom:0;background:rgba(10,12,16,.82);backdrop-filter:blur(10px);border-top:1px solid rgba(255,255,255,.06);display:grid;grid-template-columns:repeat(4,1fr)}
-    nav button{appearance:none;border:0;background:none;color:var(--muted);padding:8px 6px 12px;font-weight:800;font-size:13px;letter-spacing:.2px;display:grid;place-items:center;gap:4px;position:relative;transition:transform .08s ease-out, color .2s ease-out;outline:none}
+    nav button{appearance:none;border:0;background:none;color:var(--muted);padding:8px 6px 12px;font-weight:800;font-size:13px;letter-spacing:.2px;display:grid;place-items:center;gap:4px;position:relative;transition:transform .08s ease-out, color .2s ease-out;outline:none; cursor:pointer}
     nav button:active{transform:scale(.96)} nav button .icon{width:22px;height:22px;opacity:.9} nav button.active{color:var(--ink);}
     nav button.active .indicator{position:absolute;bottom:4px;height:4px;width:34px;border-radius:999px;background:currentColor;filter:drop-shadow(0 0 10px currentColor);opacity:.9}
     nav button.active[data-color="home"]{color:#81D4FA} nav button.active[data-color="train"]{color:#66E6A8} nav button.active[data-color="edu"]{color:#9aa8ff} nav button.active[data-color="stats"]{color:#c792ea}
@@ -70,7 +75,7 @@
 <body>
 <div class="shell">
   <header>
-    <div class="brand" aria-hidden="true"></div>
+    <img src="assets/logo_text.png" alt="KegelPilot" class="brandimg">
     <div class="protag"><span class="pro">PRO</span> <span class="on">aktivno</span></div>
   </header>
 
@@ -236,13 +241,13 @@
   };
   function todayKey(){ const d=new Date(); return d.toISOString().slice(0,10); }
   function loadState(){
-    try{ return JSON.parse(localStorage.getItem('kp_state_v6')||'null') || {
+    try{ return JSON.parse(localStorage.getItem('kp_state_v6c')||'null') || {
       rank:1, total:0, lastDay:null, streak:0, dayCounts:{},
       r1StartDate: null, introV2Done:false, introV3Done:false
     }}catch(e){ return { rank:1, total:0, lastDay:null, streak:0, dayCounts:{},
       r1StartDate:null, introV2Done:false, introV3Done:false } }
   }
-  function saveState(s){ localStorage.setItem('kp_state_v6', JSON.stringify(s)); }
+  function saveState(s){ localStorage.setItem('kp_state_v6c', JSON.stringify(s)); }
   let state = loadState();
   if(!state.r1StartDate){ state.r1StartDate = todayKey(); saveState(state); }
 

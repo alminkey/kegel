@@ -1,5 +1,5 @@
 
-const CACHE = 'kegelpilot-pwa-v12';
+const CACHE = 'kegelpilot-pwa-v13';
 const ASSETS = [
   './',
   './index.html',
@@ -9,6 +9,7 @@ const ASSETS = [
   './art/card-level.svg',
   './art/card-edu.svg',
   './art/card-quick.svg',
+  './assets/logo_text.png',
 ];
 self.addEventListener('install', (e) => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(ASSETS)));
