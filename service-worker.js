@@ -1,5 +1,5 @@
 
-const CACHE = 'kegelpilot-pwa-v4';
+const CACHE = 'kegelpilot-pwa-v5';
 const ASSETS = [
   './',
   './index.html',

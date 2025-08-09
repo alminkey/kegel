@@ -4,7 +4,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <title>KegelPilot — plan za početnike + napredak</title>
+  <title>KegelPilot — Rang 1 olakšan + manji krug</title>
   <style>
     :root{ --bg:#0b0e12; --panel:#12161c; --ink:#e0e6ef; --muted:#9aa0a6; --card:#0e131a;
            --home:#81D4FA; --train:#66E6A8; --tutor:#FFD166; --progcol:#66E6A8; --progress:#FFA94D;
@@ -30,8 +30,10 @@
     .stage .bar{display:grid;grid-template-columns:repeat(10,1fr);gap:6px} .stage .dot{height:8px;border-radius:999px;background:#202634} .stage .dot.active{background:linear-gradient(90deg,#66E6A8,#81D4FA)}
     .stage .meta{display:flex;align-items:center;justify-content:space-between;font-size:12px;color:var(--muted)} .stage .chip{display:inline-block;padding:6px 10px;border-radius:999px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);font-weight:800}
     .status{font-weight:900;letter-spacing:.6px;background:linear-gradient(180deg,#E7F0FF 0%, #BFD5FF 60%, #9AD0FF 100%);-webkit-background-clip:text;background-clip:text;color:transparent;text-align:center;text-shadow:0 2px 20px rgba(120,170,255,.08);font-size:clamp(18px,5vw,28px);}
-    .hints{text-align:center;margin-top:4px;color:var(--muted);font-size:12px;} .ring-wrap{display:grid;place-items:center;padding:12px}
-    .ring{position:relative;width:min(86vw,360px);height:min(86vw,360px);border-radius:50%;background:#0e131a;box-shadow:inset 0 0 0 10px rgba(255,255,255,.04),0 10px 40px rgba(0,0,0,.4);overflow:hidden;}
+    .hints{text-align:center;margin-top:4px;color:var(--muted);font-size:12px;}
+    /* RING 30% smaller */
+    .ring-wrap{display:grid;place-items:center;padding:12px}
+    .ring{position:relative;width:min(60vw,252px);height:min(60vw,252px);border-radius:50%;background:#0e131a;box-shadow:inset 0 0 0 10px rgba(255,255,255,.04),0 10px 40px rgba(0,0,0,.4);overflow:hidden;}
     .bgpulse{position:absolute;inset:0;display:grid;place-items:center;z-index:0;transform:scale(var(--bgPulse-scale));}
     .bgpulse > div{width:100%;height:100%;border-radius:50%;background:radial-gradient(50% 50% at 50% 50%, rgba(64,196,255, var(--bgPulse-alpha)) 0%, rgba(64,196,255,0) 70%);transition:opacity .02s linear, transform .02s linear;}
     .ring .pulse-layer{position:absolute;inset:0;display:block;transform:scale(var(--ring-scale));transition:transform .02s linear;z-index:1}
@@ -80,7 +82,6 @@
   <main id="trainer">
     <div class="grid">
       <div class="card">
-        <div class="row"><strong>Trening</strong><div id="progName" class="muted">Rang program</div></div>
         <div id="status" class="status" style="margin-top:4px">Pripremi se</div>
         <div class="hints" id="hints">Stisni uz izdah • Opusti uz udah • Opušten vrat i ramena</div>
         <div class="ring-wrap">
@@ -200,8 +201,9 @@
 
 <script>
 (function(){
+  // Ranks: Rang 1 eased (1s hold / 2s rest)
   const RANKS = [
-    {id:1,name:"Uvod / osjećaj mišića", hold:2, rest:3, color:"#66E6A8"},
+    {id:1,name:"Uvod / osjećaj mišića", hold:1, rest:2, color:"#66E6A8"},
     {id:2,name:"Stabilna osnova", hold:3, rest:3, color:"#66E6A8"},
     {id:3,name:"Kontrola disanja", hold:4, rest:4, color:"#66E6A8"},
     {id:4,name:"Prvi duži zadržaji", hold:5, rest:5, color:"#7C93FF"},
@@ -238,16 +240,12 @@
     document.getElementById('programHint').textContent = `Reps: ${DEFAULT_REPS}, Setovi: ${DEFAULT_SETS} • Boja ranga: ${r.color}`;
     document.documentElement.style.setProperty('--progcol', r.color);
     document.querySelector('.ring .stroke').style.stroke = r.color;
-    document.getElementById('progName').textContent = `Rang ${r.id} — ${r.name}`;
-    document.getElementById('rankPlan').textContent = `Cilj: ${r.hold}s stisni / ${r.rest}s opusti × ${DEFAULT_REPS} pon. × ${DEFAULT_SETS} seta`;
-    const btn = document.getElementById('advanceBtn'); btn.textContent = state.doneThisRank >= SESSIONS_TO_UNLOCK && state.rank < 10 ? "Pređi na Rang " + (state.rank+1) : "Nivo otključan"; btn.disabled = !(state.doneThisRank >= SESSIONS_TO_UNLOCK && state.rank < 10);
+    const plan = document.getElementById('rankPlan'); if(plan) plan.textContent = `Cilj: ${r.hold}s stisni / ${r.rest}s opusti × ${DEFAULT_REPS} pon. × ${DEFAULT_SETS} seta`;
+    const btn = document.getElementById('advanceBtn'); if(btn){ btn.textContent = state.doneThisRank >= SESSIONS_TO_UNLOCK && state.rank < 10 ? "Pređi na Rang " + (state.rank+1) : "Nivo otključan"; btn.disabled = !(state.doneThisRank >= SESSIONS_TO_UNLOCK && state.rank < 10); }
     document.getElementById('rankSummary').textContent = `Rang ${r.id} — ${state.doneThisRank}/${SESSIONS_TO_UNLOCK} do sljedećeg`;
     document.getElementById('kpiTotal').textContent = state.total; document.getElementById('kpiThis').textContent = `${state.doneThisRank}/${SESSIONS_TO_UNLOCK}`; document.getElementById('kpiStreak').textContent = state.streak;
     drawSpark();
   }
-
-  document.getElementById('advanceBtn').addEventListener('click', ()=>{ if(state.doneThisRank >= SESSIONS_TO_UNLOCK && state.rank < 10){ state.rank++; state.doneThisRank=0; saveState(state); setRankUI(); alert("Čestitamo! Prešao si na Rang " + state.rank + "."); } });
-  document.getElementById('resetBtn').addEventListener('click', ()=>{ if(confirm("Sigurno resetovati napredak?")){ state = {rank:1,doneThisRank:0,total:0,streak:0,lastDay:null,week:{}}; saveState(state); setRankUI(); } });
 
   const status=document.getElementById('status'); const progress=document.querySelector('.progress-layer .progress');
   const R=46; const C=2*Math.PI*R; progress.setAttribute('stroke-dasharray', C.toFixed(2)); progress.setAttribute('stroke-dashoffset', C.toFixed(2)); progress.setAttribute('transform','rotate(-90 50 50)');
@@ -263,12 +261,17 @@
   function loop(ts){ if(!running||paused) return; if(!lastTs) lastTs=ts; const dt=(ts-lastTs)/1000; lastTs=ts; session.remaining -= dt; const phaseTotal = session.phase==='hold' ? session.hold : session.phase==='rest' ? session.rest : 3; const phaseElapsed = session.phase==='countdown' ? (3 - session.remaining) : (phaseTotal - session.remaining); const pctPhase = Math.min(1, Math.max(0, phaseElapsed/phaseTotal)); const m = session.phase==='hold' ? mapHold(pctPhase) : session.phase==='rest' ? mapRest(pctPhase) : mapCountdown(); document.documentElement.style.setProperty('--ring-scale', m.ringScale.toFixed(3)); document.documentElement.style.setProperty('--ring-alpha', m.ringAlpha.toFixed(3)); document.documentElement.style.setProperty('--bgPulse-scale', m.bgScale.toFixed(3)); document.documentElement.style.setProperty('--bgPulse-alpha', m.bgAlpha.toFixed(3)); if(session.phase==='hold' || session.phase==='rest'){ session.totalElapsed += dt; setProgress(Math.min(1, session.totalElapsed/session.totalDuration)); } if(session.remaining<=0){ if(session.phase==='countdown') beep(880,120,'square'); nextPhase(); } raf=requestAnimationFrame(loop); }
 
   function nextPhase(){ if(session.phase==='countdown'){ session.phase='hold'; session.remaining=session.hold; setPhase('hold'); return; } if(session.phase==='hold'){ session.phase='rest'; session.remaining=session.rest; setPhase('rest'); return; } if(session.phase==='rest'){ session.rep++; if(session.rep>session.reps){ session.set++; if(session.set>session.sets){ finishSession(true); return; } else { session.rep=1; } } session.phase='hold'; session.remaining=session.hold; setPhase('hold'); } }
+
   function startSession(){ const r = RANKS.find(x=>x.id===state.rank); const reps = 10, sets = 3; const totalCycle = r.hold + r.rest; const totalDuration = totalCycle * reps * sets; session = { hold:r.hold, rest:r.rest, reps, sets, phase:'countdown', remaining:3, rep:1, set:1, totalDuration, totalElapsed:0 }; lastTs=0; running=true; paused=false; cancelAnimationFrame(raf); document.documentElement.style.setProperty('--progcol', r.color); document.querySelector('.ring .stroke').style.stroke = r.color; setPhase('countdown'); setProgress(0); raf=requestAnimationFrame(loop); }
   function pauseSession(){ paused=!paused; if(!paused) raf=requestAnimationFrame(loop); }
-  function finishSession(success){ running=false; paused=false; cancelAnimationFrame(raf); status.textContent='Završeno'; setProgress(1); if(success){ state.total++; const today = todayKey(); if(state.lastDay!==today){ state.streak = (state.lastDay && ((Date.parse(today)-Date.parse(state.lastDay))===24*3600*1000)) ? state.streak+1 : 1; state.lastDay=today; } state.week[today]= (state.week[today]||0) + 1; state.doneThisRank = Math.min(5, state.doneThisRank+1); saveState(state); setRankUI(); } }
-  document.getElementById('startBtn').addEventListener('click', startSession); document.getElementById('pauseBtn').addEventListener('click', pauseSession); document.getElementById('stopBtn').addEventListener('click', ()=>finishSession(false));
+  function finishSession(success){ running=false; paused=false; cancelAnimationFrame(raf); status.textContent='Završeno'; setProgress(1); if(success){ state.total++; const today = (new Date()).toISOString().slice(0,10); if(state.lastDay!==today){ state.streak = (state.lastDay && ((Date.parse(today)-Date.parse(state.lastDay))===24*3600*1000)) ? state.streak+1 : 1; state.lastDay=today; } state.week = state.week||{}; state.week[today]= (state.week[today]||0) + 1; state.doneThisRank = Math.min(5, state.doneThisRank+1); saveState(state); setRankUI(); } }
 
-  function drawSpark(){ const svg = document.getElementById('spark'); const days = 7; const now = new Date(); const keys = []; for(let i=days-1;i>=0;i--){ const d = new Date(now); d.setDate(now.getDate()-i); keys.push(d.toISOString().slice(0,10)); } const w = 140, h = 46; const barW = Math.floor((w- (days+1)*4)/days); let content = `<rect x="0" y="0" width="${w}" height="${h}" fill="none" />`; let x = 4; keys.forEach(k=>{ const v = state.week[k] ? 1 : 0; const bh = v? 34:10; const y = h - bh - 6; const col = v? '#66E6A8' : '#2a3342'; content += `<rect rx="3" ry="3" x="${x}" y="${y}" width="${barW}" height="${bh}" fill="${col}" />`; x += barW + 4; }) ; svg.innerHTML = content; }
+  document.getElementById('startBtn').addEventListener('click', startSession);
+  document.getElementById('pauseBtn').addEventListener('click', pauseSession);
+  document.getElementById('stopBtn').addEventListener('click', ()=>finishSession(false));
+
+  function drawSpark(){ const svg = document.getElementById('spark'); const days = 7; const now = new Date(); const keys = []; for(let i=days-1;i>=0;i--){ const d = new Date(now); d.setDate(now.getDate()-i); keys.push(d.toISOString().slice(0,10)); } const w = 140, h = 46; const barW = Math.floor((w- (days+1)*4)/days); let content = `<rect x="0" y="0" width="${w}" height="${h}" fill="none" />`; let x = 4; keys.forEach(k=>{ const v = (state.week&&state.week[k]) ? 1 : 0; const bh = v? 34:10; const y = h - bh - 6; const col = v? '#66E6A8' : '#2a3342'; content += `<rect rx="3" ry="3" x="${x}" y="${y}" width="${barW}" height="${bh}" fill="${col}" />`; x += barW + 4; }); svg.innerHTML = content; }
+
   setRankUI();
 })();
 </script>
