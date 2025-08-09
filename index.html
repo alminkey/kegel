@@ -1,247 +1,123 @@
-
-<!doctype html>
-<html lang="bs">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <title>KegelPilot — v22</title>
-  <link rel="manifest" href="manifest.json">
-  <meta name="theme-color" content="#0B0E12">
-  <style>
-    :root{ --bg:#0b0e12; --ink:#e0e6ef; --muted:#9aa0a6; --accent:#FFA94D; --ring-scale:.2; --ring-alpha:.3; --bgPulse-scale:.2; --bgPulse-alpha:.1; }
-    *{box-sizing:border-box} html,body{height:100%}
-    body{margin:0;background:radial-gradient(1200px 600px at 20% -10%,#18202b 0%,#0b0e12 60%),var(--bg);color:var(--ink);font-family:Inter,system-ui,Segoe UI,Roboto,Arial,sans-serif;-webkit-tap-highlight-color:transparent;}
-    .shell{min-height:100%;display:grid;grid-template-rows:auto 1fr auto}
-    header{position:sticky;top:0;background:rgba(12,15,20,.8);backdrop-filter:blur(8px);border-bottom:1px solid rgba(255,255,255,.06);padding:10px 14px;display:flex;align-items:center;justify-content:space-between;gap:12px;z-index:10}
-    .brandimg{height:34px} .ver{font-size:11px;color:#9aa0a6;margin-left:6px;opacity:.8}
-    .protag{font-weight:900;letter-spacing:.2px;padding:6px 10px;border-radius:999px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06)}
-    .protag .pro{color:#ff6b6b} .protag .on{color:#66E6A8}
-    main{padding:16px;display:none} main.active{display:block}
-    .grid{display:grid;gap:12px}
-    .card{position:relative;border-radius:16px;padding:16px 14px;border:1px solid rgba(255,255,255,.12);overflow:hidden;cursor:pointer;background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.02)); backdrop-filter: blur(10px); box-shadow:0 10px 30px rgba(0,0,0,.35), inset 0 0 0 1px rgba(255,255,255,.04);}
-    nav{position:sticky;bottom:0;background:rgba(10,12,16,.82);backdrop-filter:blur(10px);border-top:1px solid rgba(255,255,255,.06);display:grid;grid-template-columns:repeat(4,1fr)}
-    nav button{appearance:none;border:0;background:none;color:#9aa0a6;padding:8px 6px 12px;font-weight:800;font-size:13px;display:grid;place-items:center;gap:4px;position:relative} nav button.active{color:#e0e6ef}
-    /* Trainer */
-    .status{font-weight:900;letter-spacing:.8px;color:var(--accent);text-align:center;text-shadow:0 2px 12px rgba(255,169,77,.25);font-size:clamp(20px,6vw,30px);}
-    .ring-wrap{display:grid;place-items:center;padding:12px}
-    .ring{position:relative;width:min(60vw,252px);height:min(60vw,252px);border-radius:50%;background:#0e131a;box-shadow:inset 0 0 0 10px rgba(255,255,255,.04),0 10px 40px rgba(0,0,0,.4);overflow:hidden;}
-    .bgpulse{position:absolute;inset:0;display:grid;place-items:center;z-index:0;transform:scale(var(--bgPulse-scale));}
-    .bgpulse > div{width:100%;height:100%;border-radius:50%;background:radial-gradient(50% 50% at 50% 50%, rgba(64,196,255, var(--bgPulse-alpha)) 0%, rgba(64,196,255,0) 70%);transition:opacity .02s linear, transform .02s linear;}
-    .ring .pulse-layer{position:absolute;inset:0;display:block;transform:scale(var(--ring-scale));transition:transform .02s linear;z-index:1}
-    .ring .stroke{stroke:#66E6A8;stroke-width:18;fill:none;opacity:var(--ring-alpha);filter:drop-shadow(0 6px 24px rgba(0,0,0,.3));}
-    .ring .progress-layer{position:absolute;inset:0;display:block;z-index:2} .ring .boundary{stroke:#2a3342;stroke-width:6;fill:none;opacity:.9;} .ring .progress{stroke:var(--accent);stroke-width:6;fill:none;opacity:.95;}
-    .startLabel{position:absolute; inset:0; display:grid; place-items:center; z-index:3; font-weight:1000; letter-spacing:1.2px; color:var(--accent); text-shadow:0 2px 14px rgba(255,169,77,.25); animation: pulseText 1.6s ease-in-out infinite; font-size:clamp(22px,7vw,34px);}
-    @keyframes pulseText{0%,100%{transform:scale(1);opacity:.9} 50%{transform:scale(1.06);opacity:1}}
-    /* Edu accordion */
-    .accordion .ecard{border-radius:16px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.04); overflow:hidden}
-    .ecard header{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:14px 16px;cursor:pointer;user-select:none}
-    .ecard header h3{margin:0;font-size:16px}
-    .caret{transition:transform .2s ease; opacity:.9}
-    .ecard.open .caret{transform:rotate(90deg)}
-    .content{display:grid;gap:8px;padding:0 16px 14px 16px;max-height:0;overflow:hidden;transition:max-height .25s ease}
-    .ecard.open .content{padding-top:0; max-height:600px}
-    .muted{color:#9aa0a6}
-  </style>
-</head>
+<!doctype html><html lang="bs"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>KegelPilot — v23</title>
+<link rel="manifest" href="manifest.json"><meta name="theme-color" content="#0B0E12">
+<style>
+:root{ --bg:#0b0e12; --ink:#e0e6ef; --muted:#9aa0a6; --accent:#FFA94D; --accent2:#66E6A8; --ring-scale:.2; --ring-alpha:.3; --bgPulse-scale:.2; --bgPulse-alpha:.1; }
+*{box-sizing:border-box} html,body{height:100%} body{margin:0;background:radial-gradient(1200px 600px at 20% -10%,#18202b 0%,#0b0e12 60%),var(--bg);color:var(--ink);font-family:Inter,system-ui,Segoe UI,Roboto,Arial,sans-serif;-webkit-tap-highlight-color:transparent;}
+.shell{min-height:100%;display:grid;grid-template-rows:auto 1fr auto} 
+header{position:sticky;top:0;background:rgba(12,15,20,.8);backdrop-filter:blur(8px);border-bottom:1px solid rgba(255,255,255,.06);padding:10px 14px;display:flex;align-items:center;justify-content:space-between;gap:12px;z-index:10}
+.brandimg{height:34px} .ver{font-size:11px;color:#9aa0a6;margin-left:6px;opacity:.8}
+.protag{font-weight:900;letter-spacing:.2px;padding:6px 10px;border-radius:999px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06)}
+.protag .pro{color:#ff6b6b} .protag .on{color:#66E6A8}
+main{padding:16px;display:none} main.active{display:block} .grid{display:grid;gap:12px}
+.card{position:relative;border-radius:16px;padding:16px 14px;border:1px solid rgba(255,255,255,.12);overflow:hidden;cursor:pointer;background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.02)); backdrop-filter: blur(10px); box-shadow:0 10px 30px rgba(0,0,0,.35), inset 0 0 0 1px rgba(255,255,255,.04);}
+.card.has-art::before{content:'';position:absolute;inset:0;background-position:center;background-repeat:no-repeat;background-size:cover;opacity:.28;z-index:0;pointer-events:none}
+.bg-level::before{background-image:url('art/card-level.svg')} .bg-edu::before{background-image:url('art/card-edu.svg')} .bg-quick::before{background-image:url('art/card-quick.svg')}
+.card > *{position:relative;z-index:1}
+nav{position:sticky;bottom:0;background:rgba(10,12,16,.82);backdrop-filter:blur(10px);border-top:1px solid rgba(255,255,255,.06);display:grid;grid-template-columns:repeat(4,1fr)}
+nav button{appearance:none;border:0;background:none;color:#9aa0a6;padding:8px 6px 12px;font-weight:800;font-size:13px;display:grid;place-items:center;gap:4px;position:relative} nav button.active{color:#e0e6ef}
+.status{font-weight:900;letter-spacing:.8px;color:var(--accent);text-align:center;text-shadow:0 2px 12px rgba(255,169,77,.25);font-size:clamp(20px,6vw,30px);}
+.ring-wrap{display:grid;place-items:center;padding:12px} .ring{position:relative;width:min(60vw,252px);height:min(60vw,252px);border-radius:50%;background:#0e131a;box-shadow:inset 0 0 0 10px rgba(255,255,255,.04),0 10px 40px rgba(0,0,0,.4);overflow:hidden;}
+.bgpulse{position:absolute;inset:0;display:grid;place-items:center;z-index:0;transform:scale(var(--bgPulse-scale));} .bgpulse > div{width:100%;height:100%;border-radius:50%;background:radial-gradient(50% 50% at 50% 50%, rgba(64,196,255, var(--bgPulse-alpha)) 0%, rgba(64,196,255,0) 70%);transition:opacity .02s linear, transform .02s linear;}
+.ring .pulse-layer{position:absolute;inset:0;display:block;transform:scale(var(--ring-scale));transition:transform .02s linear;z-index:1} .ring .stroke{stroke:#66E6A8;stroke-width:18;fill:none;opacity:var(--ring-alpha);filter:drop-shadow(0 6px 24px rgba(0,0,0,.3));}
+.ring .progress-layer{position:absolute;inset:0;display:block;z-index:2} .ring .boundary{stroke:#2a3342;stroke-width:6;fill:none;opacity:.9;} .ring .progress{stroke:var(--accent);stroke-width:6;fill:none;opacity:.95;}
+.startLabel{position:absolute; inset:0; display:grid; place-items:center; z-index:3; font-weight:1000; letter-spacing:1.2px; color:var(--accent); text-shadow:0 2px 14px rgba(255,169,77,.25); animation: pulseText 1.6s ease-in-out infinite; font-size:clamp(22px,7vw,34px);}
+@keyframes pulseText{0%,100%{transform:scale(1);opacity:.9} 50%{transform:scale(1.06);opacity:1}}
+.accordion .ecard{border-radius:16px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.04); overflow:hidden} .ecard header{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:14px 16px;cursor:pointer;user-select:none}
+.ecard header h3{margin:0;font-size:16px} .caret{transition:transform .2s ease; opacity:.9} .ecard.open .caret{transform:rotate(90deg)}
+.content{display:grid;gap:8px;padding:0 16px 14px 16px;max-height:0;overflow:hidden;transition:max-height .25s ease} .ecard.open .content{padding-top:0; max-height:600px} .muted{color:#9aa0a6}
+.kpi{display:grid;grid-template-columns:repeat(2,1fr);gap:10px} .kpi .box{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.09);border-radius:12px;padding:12px;text-align:center} .big{font-weight:900;font-size:20px} .small{color:#9aa0a6;font-size:12px;margin-top:4px}
+.bar{height:10px;border-radius:999px;background:rgba(255,255,255,.08);overflow:hidden;margin-top:8px} .bar>div{height:100%;background:linear-gradient(90deg, var(--accent2), var(--accent));width:0%}
+.ob{position:fixed;inset:0;background:rgba(5,7,10,.85);backdrop-filter:blur(8px);display:none;z-index:100} .ob .wrap{max-width:720px;margin:0 auto;padding:20px} .slide{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.10);border-radius:16px;padding:18px}
+.controls{display:flex;gap:10px;justify-content:space-between;margin-top:12px} .btn{appearance:none;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.06);padding:10px 14px;border-radius:12px;color:var(--ink);font-weight:800;letter-spacing:.3px}
+</style></head>
 <body>
 <div class="shell">
-  <header>
-    <div style="display:flex;align-items:center;gap:6px">
-      <img id="brand" class="brandimg" alt="KegelPilot" loading="eager" fetchpriority="high" src="Logo.PNG">
-      <span class="ver">v22</span>
-    </div>
-    <div class="protag"><span class="pro">PRO</span> <span class="on">aktivno</span></div>
-  </header>
+<header><div style="display:flex;align-items:center;gap:6px"><img id="brand" class="brandimg" alt="KegelPilot" loading="eager" fetchpriority="high" src="Logo.PNG"><span class="ver">v23</span></div><div class="protag"><span class="pro">PRO</span> <span class="on">aktivno</span></div></header>
+<main id="home" class="active"><div class="grid">
+  <div id="cardLevel" class="card has-art bg-level" role="button" tabindex="0"><div><strong>Tvoj nivo</strong></div><div class="muted" id="homeLevelHint">Cilj: 2× dnevno • 5 dana zaredom</div></div>
+  <div id="cardEdu" class="card has-art bg-edu" role="button" tabindex="0"><div><strong>O Kegel vježbama (za muškarce)</strong></div><div class="muted">Kratko, jasno i ohrabrujuće — kako, zašto i kome pomažu.</div></div>
+  <div id="cardQuick" class="card has-art bg-quick" role="button" tabindex="0"><div><strong>Brzi start</strong></div><div class="muted">Tapni za pokretanje treninga.</div></div>
+</div></main>
 
-  <main id="home" class="active">
-    <div class="grid">
-      <div id="cardEdu" class="card" role="button" tabindex="0">O Kegel vježbama — tapni ili koristi tab “Edu”</div>
-      <div id="cardQuick" class="card" role="button" tabindex="0">Brzi start — otvori Trening</div>
-    </div>
-  </main>
-
-  <main id="trainer">
-    <div class="grid">
-      <div class="card">
-        <div id="status" class="status" style="margin-top:6px">PRIPREMI SE</div>
-        <div class="ring-wrap">
-          <div class="ring" id="ring" tabindex="0">
-            <div class="bgpulse"><div></div></div>
-            <svg class="pulse-layer" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
-              <circle class="stroke" cx="50" cy="50" r="40" stroke-linecap="round"></circle>
-            </svg>
-            <svg class="progress-layer" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
-              <circle class="boundary" cx="50" cy="50" r="46" stroke-linecap="round"></circle>
-              <circle class="progress" cx="50" cy="50" r="46" stroke-linecap="round"></circle>
-            </svg>
-            <div class="startLabel" id="startLabel">START</div>
-          </div>
-        </div>
-      </div>
-      <div class="card">
-        <div><strong>Plan sesije</strong></div>
-        <div class="muted">Rang 1 • Varijacije se primjenjuju po planu Dana 1–5 (test build fokus: start na prvi klik)</div>
+<main id="trainer"><div class="grid">
+  <div class="card">
+    <div id="status" class="status" style="margin-top:6px">PRIPREMI SE</div>
+    <div class="ring-wrap">
+      <div class="ring" id="ring" tabindex="0">
+        <div class="bgpulse"><div></div></div>
+        <svg class="pulse-layer" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid meet" aria-hidden="true"><circle class="stroke" cx="50" cy="50" r="40" stroke-linecap="round"></circle></svg>
+        <svg class="progress-layer" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+          <circle class="boundary" cx="50" cy="50" r="46" stroke-linecap="round"></circle>
+          <circle class="progress" cx="50" cy="50" r="46" stroke-linecap="round"></circle>
+        </svg>
+        <div class="startLabel" id="startLabel">START</div>
       </div>
     </div>
-  </main>
+  </div>
+  <div class="card"><div><strong>Plan sesije</strong></div><div class="muted">Rang 1 • Varijacije po danima (auto).</div></div>
+</div></main>
 
-  <main id="edu">
-    <div class="grid accordion" id="eduAcc"></div>
-  </main>
+<main id="edu"><div class="grid accordion" id="eduAcc"></div></main>
+<main id="progress"><div class="grid">
+  <div class="card"><div><strong>Sažetak</strong></div><div class="kpi" id="kpiGrid"></div></div>
+  <div class="card"><div><strong>Cilj Ranga 1</strong></div><div class="muted">2 sesije dnevno kroz 5 uzastopnih dana.</div><div class="bar"><div id="goalDays" style="width:0%"></div></div><div class="muted" id="goalDesc" style="margin-top:6px"></div></div>
+</div></main>
 
-  <main id="progress">
-    <div class="grid"><div class="card">Napredak — demo</div></div>
-  </main>
-
-  <nav>
-    <button class="active" data-tab="home">Početna</button>
-    <button data-tab="trainer">Trening</button>
-    <button data-tab="edu">Edu</button>
-    <button data-tab="progress">Napredak</button>
-  </nav>
+<nav><button class="active" data-tab="home">Početna</button><button data-tab="trainer">Trening</button><button data-tab="edu">Edu</button><button data-tab="progress">Napredak</button></nav>
 </div>
 
+<div id="onb" class="ob" aria-hidden="true"><div class="wrap">
+  <div class="slide" id="s1"><h3>Dobro došao u KegelPilot</h3><p class="muted">Vizuelni vodič za jačanje mišića dna karlice. Diskretno, vođeno i prilagodljivo.</p><div class="controls"><button class="btn" id="s1next">Dalje</button></div></div>
+  <div class="slide" id="s2" style="display:none"><h3>Kako pomaže</h3><p class="muted">Bolja kontrola, stabilnost core-a i podrška funkciji mokrenja. Napredak dolazi postepeno — uz dosljednost.</p><div class="controls"><button class="btn" id="s2prev">Nazad</button><button class="btn" id="s2next">Dalje</button></div></div>
+  <div class="slide" id="s3" style="display:none"><h3>Postavi navike</h3><p class="muted">Preporuka: 2 kratke sesije dnevno. Podsjetnici možeš kasnije uključiti u podešavanjima.</p><div class="controls"><button class="btn" id="s3prev">Nazad</button><button class="btn" id="s3done">Kreni</button></div></div>
+</div></div>
+
 <script>
-// Versioned hard refresh (one time) to avoid stale SW/cache
-const APP_VERSION = 'v22';
-(async function() {
-  try {
-    const saved = localStorage.getItem('kp_app_version');
-    if (saved !== APP_VERSION) {
-      if ('caches' in window) {
-        const keys = await caches.keys();
-        await Promise.all(keys.map(k => caches.delete(k)));
-      }
-      if ('serviceWorker' in navigator) {
-        const regs = await navigator.serviceWorker.getRegistrations();
-        await Promise.all(regs.map(r => r.unregister()));
-      }
-      localStorage.setItem('kp_app_version', APP_VERSION);
-      const url = new URL(window.location.href);
-      if (!url.searchParams.get('v')) {
-        url.searchParams.set('v', APP_VERSION);
-        window.location.replace(url.toString());
-      }
-    }
-  } catch(e) { console.log('refresh check err', e); }
+const APP_VERSION='v23';
+(async function(){try{const saved=localStorage.getItem('kp_app_version');if(saved!==APP_VERSION){if('caches'in window){const keys=await caches.keys();await Promise.all(keys.map(k=>caches.delete(k)));}if('serviceWorker'in navigator){const regs=await navigator.serviceWorker.getRegistrations();await Promise.all(regs.map(r=>r.unregister()));}localStorage.setItem('kp_app_version',APP_VERSION);const url=new URL(window.location.href);if(!url.searchParams.get('v')){url.searchParams.set('v',APP_VERSION);window.location.replace(url.toString());}}}catch(e){}})(); 
+(function(){const b=document.getElementById('brand');const i="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='132' height='28' viewBox='0 0 132 28' fill='none'><rect x='0' y='0' rx='8' ry='8' width='132' height='28' fill='rgba(15,20,27,0.85)'/><text x='14' y='19' font-family='Inter,Segoe UI,Arial,sans-serif' font-size='16' fill='%23A7F3D0' font-weight='700'>KegelPilot</text></svg>";function setInline(){b.src=i;}function tryAssets(){b.removeEventListener('error',tryAssets);b.addEventListener('error',setInline,{once:true});b.src='assets/logo_text.png';}b.addEventListener('error',tryAssets,{once:true});})();
+
+function todayKey(){return new Date().toISOString().slice(0,10);}
+function startOfDay(d){d.setHours(0,0,0,0);return d;}
+function loadState(){try{return JSON.parse(localStorage.getItem('kp_state_v23')||'null')||{r1Start:todayKey(),totals:{sessions:0},days:{}};}catch(e){return {r1Start:todayKey(),totals:{sessions:0},days:{}};}}
+function saveState(s){localStorage.setItem('kp_state_v23',JSON.stringify(s));}
+const state=loadState(); if(!state.r1Start){state.r1Start=todayKey();saveState(state);}
+function dayIndexFromStart(){const a=startOfDay(new Date(state.r1Start));const b=startOfDay(new Date());return Math.max(1,Math.min(5,Math.round((b-a)/86400000)+1));}
+function markSessionComplete(){const k=todayKey();state.days[k]=(state.days[k]||0)+1;state.totals.sessions++;saveState(state);renderHome();renderProgress();}
+
+(function(){const pages=document.querySelectorAll('main');const navButtons=document.querySelectorAll('nav button');function showTab(id){pages.forEach(p=>p.classList.toggle('active',p.id===id));navButtons.forEach(b=>b.classList.toggle('active',b.getAttribute('data-tab')===id));if(navigator.vibrate)navigator.vibrate(12);}
+navButtons.forEach(btn=>btn.addEventListener('click',e=>{e.preventDefault();showTab(btn.getAttribute('data-tab'));}));
+document.getElementById('cardLevel').addEventListener('click',()=> showTab('progress'));
+document.getElementById('cardEdu').addEventListener('click',()=> showTab('edu'));
+document.getElementById('cardQuick').addEventListener('click',()=> showTab('trainer'));
 })();
 
-// Logo fallback chain (Logo.PNG -> assets/logo_text.png -> inline SVG)
-(function(){
-  const brand = document.getElementById('brand');
-  const inlineSVG = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='132' height='28' viewBox='0 0 132 28' fill='none'><rect x='0' y='0' rx='8' ry='8' width='132' height='28' fill='rgba(15,20,27,0.85)'/><text x='14' y='19' font-family='Inter,Segoe UI,Arial,sans-serif' font-size='16' fill='%23A7F3D0' font-weight='700'>KegelPilot</text></svg>";
-  function setInline(){ brand.src = inlineSVG; }
-  function tryAssets(){ brand.removeEventListener('error', tryAssets); brand.addEventListener('error', setInline, {once:true}); brand.src = 'assets/logo_text.png'; }
-  brand.addEventListener('error', tryAssets, {once:true});
+(function(){const R=46,C=2*Math.PI*R;const progress=document.querySelector('.progress-layer .progress');progress.setAttribute('stroke-dasharray',C.toFixed(2));progress.setAttribute('stroke-dashoffset',C.toFixed(2));progress.setAttribute('transform','rotate(-90 50 50)');const ring=document.getElementById('ring');const status=document.getElementById('status');const startLabel=document.getElementById('startLabel');const VARS={1:{hold:1,keep:0,rest:2},2:{hold:1,keep:1,rest:1},3:{hold:0.5,keep:3,rest:2}};
+function planForDay(d){const total=30;if(d<=2)return[{var:1,reps:total}];if(d===3||d===4)return[{var:1,reps:total/2},{var:2,reps:total/2}];return[{var:1,reps:10},{var:2,reps:10},{var:3,reps:10}];}
+function totalDuration(segs){let s=0;segs.forEach(x=>{const v=VARS[x.var];s+=x.reps*(v.hold+v.keep+v.rest);});return s;}
+let running=false,paused=false,raf=0,last=0,session=null,longTO=null;
+function setStatus(p){status.textContent=p==='hold'?'STEGNI':p==='keep'?'ZADRŽI':p==='rest'?'OPUSTI':'PRIPREMI SE';}
+function setProgress(p){progress.setAttribute('stroke-dashoffset',(C*(1-p)).toFixed(2));}
+function mapHold(t){return {ring:.2+.8*t,bg:.2+.8*t,ra:.3+.7*t,ba:.1+.4*t}} function mapKeep(t){return {ring:1,bg:1,ra:.95,ba:.5-.2*t}} function mapRest(t){return {ring:1-.8*t,bg:1-.8*t,ra:1-.7*t,ba:.5-.4*t}}
+function apply(m){document.documentElement.style.setProperty('--ring-scale',m.ring.toFixed(3));document.documentElement.style.setProperty('--bgPulse-scale',m.bg.toFixed(3));document.documentElement.style.setProperty('--ring-alpha',m.ra.toFixed(3));document.documentElement.style.setProperty('--bgPulse-alpha',m.ba.toFixed(3));}
+function buildSession(){const d=dayIndexFromStart();const segs=planForDay(d).map(s=>Object.assign({},s));const tot=totalDuration(segs);return {segments:segs,seg:0,rep:1,phase:'countdown',remain:3,elapsed:0,total:tot};}
+function loop(ts){if(!running||paused)return;if(!last)last=ts;const dt=(ts-last)/1000;last=ts;session.remain-=dt;const seg=session.segments[session.seg];const v=VARS[seg.var];const phaseLen=session.phase==='hold'?v.hold:session.phase==='keep'?v.keep:session.phase==='rest'?v.rest:3;const elapsedPhase=(session.phase==='countdown')?(3-session.remain):(phaseLen-session.remain);const t=Math.min(1,Math.max(0,elapsedPhase/phaseLen));apply(session.phase==='hold'?mapHold(t):session.phase==='keep'?mapKeep(t):session.phase==='rest'?mapRest(t):{ring:.25,bg:.25,ra:.5,ba:.18});if(session.phase!=='countdown'){session.elapsed+=dt;setProgress(Math.min(1,session.elapsed/session.total));}if(session.remain<=0){if(session.phase==='countdown'){session.phase='hold';session.remain=v.hold;setStatus('hold');}else if(session.phase==='hold'){if(v.keep>0){session.phase='keep';session.remain=v.keep;setStatus('keep');}else{session.phase='rest';session.remain=v.rest;setStatus('rest');}}else if(session.phase==='keep'){session.phase='rest';session.remain=v.rest;setStatus('rest');}else{session.rep++;if(session.rep>seg.reps){session.seg++;session.rep=1;if(session.seg>=session.segments.length){return finish(true);}}const nv=VARS[session.segments[session.seg].var];session.phase='hold';session.remain=nv.hold;setStatus('hold');}} raf=requestAnimationFrame(loop);}
+function start(){session=buildSession();last=0;running=true;paused=false;startLabel.style.display='none';setProgress(0);setStatus('count');raf=requestAnimationFrame(loop);}
+function pauseToggle(){if(!running)return;paused=!paused;if(!paused)raf=requestAnimationFrame(loop);}
+function finish(success){running=false;paused=false;cancelAnimationFrame(raf);startLabel.style.display='grid';setStatus('idle');setProgress(1);if(success)markSessionComplete();}
+function handleClickStartPause(e){e.preventDefault();if(!running)start();else pauseToggle();} ring.addEventListener('click',handleClickStartPause); document.getElementById('startLabel').addEventListener('click',handleClickStartPause);
+ring.addEventListener('pointerdown',()=>{if(!running)return;longTO=setTimeout(()=>{finish(false);},650);}); ring.addEventListener('pointerup',()=>{if(longTO)clearTimeout(longTO);}); ring.addEventListener('pointerleave',()=>{if(longTO)clearTimeout(longTO);});
 })();
 
-// Navigation
-(function(){
-  const pages = document.querySelectorAll('main');
-  const navButtons = document.querySelectorAll('nav button');
-  function showTab(id){ pages.forEach(p=>p.classList.toggle('active', p.id===id)); navButtons.forEach(b=>b.classList.toggle('active', b.getAttribute('data-tab')===id)); if (navigator.vibrate) navigator.vibrate(12);}
-  navButtons.forEach(btn=>btn.addEventListener('click', (e)=>{ e.preventDefault(); showTab(btn.getAttribute('data-tab')); }));
-  document.getElementById('cardEdu').addEventListener('click', ()=> showTab('edu'));
-  document.getElementById('cardQuick').addEventListener('click', ()=> showTab('trainer'));
-})();
+(function(){const data=[["Šta su Kegel vježbe?", "Dno karlice je skup mišića koji idu od trtične do stidne kosti. Ti mišići podržavaju mokraćni mjehur, prostatu i rektum te pomažu u kontroli mokrenja i seksualnoj funkciji. Kegel vježbe su jednostavne kontrakcije ovih mišića s ciljem jačanja i bolje kontrole."], ["Zašto rade?", "Jačanjem dna karlice poboljšava se mehanička podrška i kontrola sfinktera, a često i stabilnost erekcije. Istraživanja pokazuju koristi za kontrolu mokrenja, erektilnu funkciju i neke oblike preranog svršavanja — posebno uz dosljedno vježbanje."], ["Kom je ovo korisno?", "• muškarcima sa slabijom erekcijom ili prijevremenom ejakulacijom\n• nakon operacije prostate (za curenje mokraće)\n• kod curenja pri kašljanju/kihanju/podizanju tereta\n• svima koji žele bolju kontrolu i stabilnost core-a"], ["Ko treba pauzirati i prvo se javiti doktoru?", "Pauziraj i posavjetuj se ako imaš hroničan bol u karlici/preponama, bol pri erekciji/ejakulaciji/orgazmu, učestalo i hitno mokrenje, izražen zatvor, svježu infekciju urinarnog trakta ili ako si nedavno operisan."], ["Kako ‘naći’ pravi mišić", "Kao da želiš zaustaviti mlaz mokraće ili spriječiti vjetar — to je otprilike pravi osjećaj. Ovo koristi samo kao test; ne vježbaj redovno tokom mokrenja. Ne stiskaj stomak, stražnjicu ni bedra i ne zadržavaj dah."], ["Osnovna tehnika u aplikaciji", "U KegelPilotu prati STEGNI → (ponekad ZADRŽI) → OPUSTI. Pulsirajući prsten te vodi kroz stisak i opuštanje, a narandžasta traka pokazuje napredak cijele sesije. Intenzitet neka bude umjeren (50–70%), uz mirno disanje."], ["Šta kažu studije", "Pregledi više studija pokazuju poboljšanja erektilne funkcije, kontrole mokrenja i često kod preranog svršavanja, posebno uz redovnost i/ili rad s fizioterapeutom za dno karlice. Napredak je postepen i zahtijeva dosljednost."], ["Česte greške", "• Prejak stisak i zamor — biraj umjereno.\n• Stiskanje stražnjice/stomaka/bedara — fokus na dno karlice.\n• Zadržavanje daha — diši mirno.\n• Previše serija prerano — drži se plana u appu."], ["Plan i motivacija", "Kreni s Rangom 1; aplikacija te vodi i postepeno uvodi varijacije. Cilj za prelazak: 2 sesije dnevno kroz 5 uzastopnih dana. Mnogi promjene primijete kroz nekoliko sedmica — strpljenje i kontinuitet su ključ."], ["Napomena", "Ovaj sadržaj je informativan i ne zamjenjuje savjet ljekara. Ako imaš simptome koji te brinu ili osjetiš pogoršanje tokom vježbi, stani i potraži stručni savjet."]];const host=document.getElementById('eduAcc');data.forEach((item,idx)=>{const [title,body]=item;const card=document.createElement('section');card.className='ecard';const id='ec'+idx;card.innerHTML=`<header role="button" aria-controls="${id}-content" aria-expanded="false" tabindex="0"><h3>${title}</h3><svg class="caret" width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M8 5v14l11-7z"/></svg></header><div id="${id}-content" class="content"><div class="muted" style="white-space:pre-line">${body}</div></div>`;function toggle(open){card.classList.toggle('open',open);const h=card.querySelector('header');h.setAttribute('aria-expanded',open?'true':'false');}card.querySelector('header').addEventListener('click',()=>{const isOpen=card.classList.contains('open');document.querySelectorAll('.ecard.open').forEach(el=>el.classList.remove('open'));toggle(!isOpen);});card.querySelector('header').addEventListener('keydown',(e)=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();card.querySelector('header').click();}});host.appendChild(card);});})();
 
-// Trainer logic (start on FIRST click, long-press to stop; uppercase status in orange)
-(function(){
-  const R=46, C=2*Math.PI*R;
-  const progress = document.querySelector('.progress-layer .progress');
-  progress.setAttribute('stroke-dasharray', C.toFixed(2));
-  progress.setAttribute('stroke-dashoffset', C.toFixed(2));
-  progress.setAttribute('transform','rotate(-90 50 50)');
-  const ring = document.getElementById('ring');
-  const status = document.getElementById('status');
-  const startLabel = document.getElementById('startLabel');
+function renderHome(){const k=todayKey();const today=state.days[k]||0;const dayIdx=dayIndexFromStart();const hint=document.getElementById('homeLevelHint');hint.textContent=`Dan ${dayIdx} • Danas: ${today}/2 sesije`;}
+function renderProgress(){const k=todayKey();const today=state.days[k]||0;const dayIdx=dayIndexFromStart();let streak=0;for(let i=0;i<30;i++){const d=new Date();d.setDate(d.getDate()-i);const key=d.toISOString().slice(0,10);const c=state.days[key]||0;if(c>=2)streak++;else break;} let daysCompleted=0;for(let i=0;i<5;i++){const d=new Date(startOfDay(new Date(state.r1Start)));d.setDate(d.getDate()+i);const key=d.toISOString().slice(0,10);if((state.days[key]||0)>=2)daysCompleted++;} const total=state.totals.sessions||0;const grid=document.getElementById('kpiGrid');grid.innerHTML='';const mk=(label,val)=>`<div class="box"><div class="big">${val}</div><div class="small">${label}</div></div>`;grid.insertAdjacentHTML('beforeend',mk('Dan ranga',dayIdx));grid.insertAdjacentHTML('beforeend',mk('Danas sesije',today+'/2'));grid.insertAdjacentHTML('beforeend',mk('Uzastopni dani (2+/dan)',streak));grid.insertAdjacentHTML('beforeend',mk('Ukupno sesija',total));const pct=Math.round((daysCompleted/5)*100);document.getElementById('goalDays').style.width=pct+'%';document.getElementById('goalDesc').textContent=`Završeni dani: ${daysCompleted}/5 (potrebno 5/5 sa 2 sesije dnevno)`;}
+renderHome();renderProgress();
 
-  // Simple R1 var mix for demo timing
-  const VARS = {1:{hold:1,keep:0,rest:2},2:{hold:1,keep:1,rest:1},3:{hold:0.5,keep:3,rest:2}};
-  const segs = [{var:1,reps:15}, {var:2,reps:15}]; // demo
+(function(){const onb=document.getElementById('onb');const done=localStorage.getItem('kp_onboard_v23_done')==='1';if(!done){onb.style.display='block';}function show(id){['s1','s2','s3'].forEach(x=>document.getElementById(x).style.display=(x===id?'block':'none'));}document.getElementById('s1next').onclick=()=>show('s2');document.getElementById('s2prev').onclick=()=>show('s1');document.getElementById('s2next').onclick=()=>show('s3');document.getElementById('s3prev').onclick=()=>show('s2');document.getElementById('s3done').onclick=()=>{localStorage.setItem('kp_onboard_v23_done','1');onb.style.display='none';};})();
 
-  function totalDuration(segments){ let s=0; segments.forEach(x=>{ const v=VARS[x.var]; s+=x.reps*(v.hold+v.keep+v.rest); }); return s; }
-  let running=false, paused=false, raf=0, last=0, session=null, longTO=null, longPress=false;
-  function setStatus(p){ status.textContent = p==='hold'?'STEGNI':p==='keep'?'ZADRŽI':p==='rest'?'OPUSTI':'PRIPREMI SE'; }
-  function setProgress(p){ progress.setAttribute('stroke-dashoffset', (C*(1-p)).toFixed(2)); }
-  function mapHold(t){ return {ring:.2+.8*t, bg:.2+.8*t, ra:.3+.7*t, ba:.1+.4*t} }
-  function mapKeep(t){ return {ring:1, bg:1, ra:.95, ba:.5-.2*t} }
-  function mapRest(t){ return {ring:1-.8*t, bg:1-.8*t, ra:1-.7*t, ba:.5-.4*t} }
-  function apply(m){ document.documentElement.style.setProperty('--ring-scale', m.ring.toFixed(3)); document.documentElement.style.setProperty('--bgPulse-scale', m.bg.toFixed(3)); document.documentElement.style.setProperty('--ring-alpha', m.ra.toFixed(3)); document.documentElement.style.setProperty('--bgPulse-alpha', m.ba.toFixed(3)); }
-
-  function buildSession(){
-    const tot = totalDuration(segs);
-    return {segments: JSON.parse(JSON.stringify(segs)), seg:0, rep:1, phase:'countdown', remain:3, elapsed:0, total:tot};
-  }
-  function loop(ts){
-    if(!running||paused) return;
-    if(!last) last=ts; const dt=(ts-last)/1000; last=ts;
-    session.remain -= dt;
-    const seg = session.segments[session.seg];
-    const v = VARS[seg.var];
-    const phaseLen = session.phase==='hold'?v.hold:session.phase==='keep'?v.keep:session.phase==='rest'?v.rest:3;
-    const elapsedPhase = (session.phase==='countdown')? (3-session.remain) : (phaseLen-session.remain);
-    const t = Math.min(1, Math.max(0, elapsedPhase/phaseLen));
-    apply(session.phase==='hold'?mapHold(t):session.phase==='keep'?mapKeep(t):session.phase==='rest'?mapRest(t):{ring:.25,bg:.25,ra:.5,ba:.18});
-    if(session.phase!=='countdown'){ session.elapsed += dt; setProgress(Math.min(1, session.elapsed/session.total)); }
-    if(session.remain<=0){
-      if(session.phase==='countdown'){ session.phase='hold'; session.remain=v.hold; setStatus('hold'); }
-      else if(session.phase==='hold'){ if(v.keep>0){ session.phase='keep'; session.remain=v.keep; setStatus('keep'); } else { session.phase='rest'; session.remain=v.rest; setStatus('rest'); } }
-      else if(session.phase==='keep'){ session.phase='rest'; session.remain=v.rest; setStatus('rest'); }
-      else { // rest finished
-        session.rep++;
-        if(session.rep>seg.reps){ session.seg++; session.rep=1; if(session.seg>=session.segments.length){ return finish(true); } }
-        const nv = VARS[session.segments[session.seg].var]; session.phase='hold'; session.remain=nv.hold; setStatus('hold');
-      }
-    }
-    raf=requestAnimationFrame(loop);
-  }
-  function start(){
-    session = buildSession(); last=0; running=true; paused=false; startLabel.style.display='none'; setProgress(0); setStatus('count'); raf=requestAnimationFrame(loop);
-  }
-  function pauseToggle(){ if(!running) return; paused=!paused; if(!paused) raf=requestAnimationFrame(loop); }
-  function finish(success){ running=false; paused=false; cancelAnimationFrame(raf); startLabel.style.display='grid'; setStatus('idle'); setProgress(1); }
-
-  // START on FIRST CLICK (ring or label)
-  function handleClickStartPause(e){ e.preventDefault(); if(!running) start(); else pauseToggle(); }
-  ring.addEventListener('click', handleClickStartPause);
-  document.getElementById('startLabel').addEventListener('click', handleClickStartPause);
-
-  // Long press to stop (only when running)
-  ring.addEventListener('pointerdown', ()=>{ if(!running) return; longPress=false; longTO=setTimeout(()=>{ longPress=true; finish(false); }, 650); });
-  ring.addEventListener('pointerup', ()=>{ if(longTO) clearTimeout(longTO); });
-  ring.addEventListener('pointerleave', ()=>{ if(longTO) clearTimeout(longTO); });
-})();
-
-// Populate EDU accordion
-(function(){
-  const data = [["Šta su Kegel vježbe?", "Dno karlice je skup mišića koji idu od trtične do stidne kosti. Ti mišići podržavaju mokraćni mjehur, prostatu i rektum te pomažu u kontroli mokrenja i seksualnoj funkciji. Kegel vježbe su jednostavne kontrakcije ovih mišića s ciljem jačanja i bolje kontrole."], ["Zašto rade?", "Jačanjem dna karlice poboljšava se mehanička podrška i kontrola sfinktera, a često i stabilnost erekcije. Istraživanja pokazuju koristi za kontrolu mokrenja, erektilnu funkciju i neke oblike preranog svršavanja — posebno uz dosljedno vježbanje."], ["Kom je ovo korisno?", "• muškarcima sa slabijom erekcijom ili prijevremenom ejakulacijom\n• nakon operacije prostate (za curenje mokraće)\n• kod curenja pri kašljanju/kihanju/podizanju tereta\n• svima koji žele bolju kontrolu i stabilnost core-a"], ["Ko treba pauzirati i prvo se javiti doktoru?", "Pauziraj i posavjetuj se ako imaš hroničan bol u karlici/preponama, bol pri erekciji/ejakulaciji/orgazmu, učestalo i hitno mokrenje, izražen zatvor, svježu infekciju urinarnog trakta ili ako si nedavno operisan."], ["Kako ‘naći’ pravi mišić", "Kao da želiš zaustaviti mlaz mokraće ili spriječiti vjetar — to je otprilike pravi osjećaj. Ovo koristi samo kao test; ne vježbaj redovno tokom mokrenja. Ne stiskaj stomak, stražnjicu ni bedra i ne zadržavaj dah."], ["Osnovna tehnika u aplikaciji", "U KegelPilotu prati STEGNI → (ponekad ZADRŽI) → OPUSTI. Pulsirajući prsten te vodi kroz stisak i opuštanje, a narandžasta traka pokazuje napredak cijele sesije. Intenzitet neka bude umjeren (50–70%), uz mirno disanje."], ["Šta kažu studije", "Pregledi više studija pokazuju poboljšanja erektilne funkcije, kontrole mokrenja i često kod preranog svršavanja, posebno uz redovnost i/ili rad s fizioterapeutom za dno karlice. Napredak je postepen i zahtijeva dosljednost."], ["Česte greške", "• Prejak stisak i zamor — biraj umjereno.\n• Stiskanje stražnjice/stomaka/bedara — fokus na dno karlice.\n• Zadržavanje daha — diši mirno.\n• Previše serija prerano — drži se plana u appu."], ["Plan i motivacija", "Kreni s Rangom 1; aplikacija te vodi i postepeno uvodi varijacije. Cilj za prelazak: 2 sesije dnevno kroz 5 uzastopnih dana. Mnogi promjene primijete kroz nekoliko sedmica — strpljenje i kontinuitet su ključ."], ["Napomena", "Ovaj sadržaj je informativan i ne zamjenjuje savjet ljekara. Ako imaš simptome koji te brinu ili osjetiš pogoršanje tokom vježbi, stani i potraži stručni savjet."]];
-  const host = document.getElementById('eduAcc');
-  data.forEach((item, idx)=>{
-    const [title, body] = item;
-    const card = document.createElement('section');
-    card.className = 'ecard';
-    const id = 'ec'+idx;
-    card.innerHTML = `
-      <header role="button" aria-controls="${id}-content" aria-expanded="false" tabindex="0">
-        <h3>${title}</h3>
-        <svg class="caret" width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M8 5v14l11-7z"/></svg>
-      </header>
-      <div id="${id}-content" class="content"><div class="muted" style="white-space:pre-line">${body}</div></div>
-    `;
-    function toggle(open){ card.classList.toggle('open', open); const h = card.querySelector('header'); h.setAttribute('aria-expanded', open? 'true':'false'); }
-    card.querySelector('header').addEventListener('click', ()=>{ const isOpen = card.classList.contains('open'); document.querySelectorAll('.ecard.open').forEach(el=>el.classList.remove('open')); toggle(!isOpen); });
-    card.querySelector('header').addEventListener('keydown', (e)=>{ if(e.key==='Enter' || e.key===' '){ e.preventDefault(); card.querySelector('header').click(); } });
-    host.appendChild(card);
-  });
-})();
-
-// SW register with versioned URL
-if ('serviceWorker' in navigator) { 
-  window.addEventListener('load', function() { 
-    navigator.serviceWorker.register('./service-worker.js?v='+APP_VERSION).then(()=>console.log('SW registered', APP_VERSION));
-  }); 
-}
-</script>
-</body>
-</html>
+if('serviceWorker'in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('./service-worker.js?v='+APP_VERSION);});}
+</script></body></html>
