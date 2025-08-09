@@ -1,5 +1,5 @@
 
-const CACHE = 'kegelpilot-pwa-v3';
+const CACHE = 'kegelpilot-pwa-v4';
 const ASSETS = [
   './',
   './index.html',
@@ -16,7 +16,5 @@ self.addEventListener('activate', (e) => {
   self.clients.claim();
 });
 self.addEventListener('fetch', (e) => {
-  e.respondWith(
-    caches.match(e.request).then(r => r || fetch(e.request))
-  );
+  e.respondWith(caches.match(e.request).then(r => r || fetch(e.request)));
 });

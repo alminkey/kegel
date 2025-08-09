@@ -4,67 +4,39 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <title>KegelPilot — Edu + total session progress</title>
+  <title>KegelPilot — plan za početnike + napredak</title>
   <style>
-    :root{
-      --bg:#0b0e12; --panel:#12161c; --ink:#e0e6ef; --muted:#9aa0a6; --card:#0e131a;
-      --home:#81D4FA; --train:#66E6A8; --tutor:#FFD166;
-      --accent:#ffd166; --danger:#ff6b6b;
-      --prog:#66e6a8;
-      --ring-scale: 0.2; --ring-alpha: 0.3;
-      --bgPulse-scale: 0.2; --bgPulse-alpha: 0.1;
-      --progress:#FFA94D; --boundary:#2a3342;
-    }
-    *{box-sizing:border-box}
-    html,body{height:100%}
-    body{margin:0;background:radial-gradient(1200px 600px at 20% -10%,#18202b 0%,#0b0e12 60%),var(--bg);color:var(--ink);font-family:Inter,system-ui,Segoe UI,Roboto,Arial,sans-serif;-webkit-tap-highlight-color:transparent;}
-    @font-face{font-family:"Inter";font-style:normal;font-weight:100 900;font-display:swap;src:local("Inter"),local("Inter var");}
+    :root{ --bg:#0b0e12; --panel:#12161c; --ink:#e0e6ef; --muted:#9aa0a6; --card:#0e131a;
+           --home:#81D4FA; --train:#66E6A8; --tutor:#FFD166; --progcol:#66E6A8; --progress:#FFA94D;
+           --danger:#ff6b6b; --boundary:#2a3342; --ring-scale:.2; --ring-alpha:.3; --bgPulse-scale:.2; --bgPulse-alpha:.1; }
+    *{box-sizing:border-box} html,body{height:100%} body{margin:0;background:radial-gradient(1200px 600px at 20% -10%,#18202b 0%,#0b0e12 60%),var(--bg);color:var(--ink);font-family:Inter,system-ui,Segoe UI,Roboto,Arial,sans-serif;-webkit-tap-highlight-color:transparent;}
     .shell{min-height:100%;display:grid;grid-template-rows:auto 1fr auto}
     header{position:sticky;top:0;background:rgba(12,15,20,.8);backdrop-filter:blur(8px);border-bottom:1px solid rgba(255,255,255,.06);padding:10px 14px;display:flex;align-items:center;justify-content:space-between;gap:12px}
-    .brandwrap{display:flex;align-items:center;min-height:28px;max-width:65vw}
-    .brand{display:block;max-height:30px;width:auto;object-fit:contain;filter:drop-shadow(0 0 10px rgba(102,230,168,.15));}
-    @media (min-width:420px){ .brand{max-height:34px} }
+    .brand{display:block;max-height:34px;width:auto;object-fit:contain;filter:drop-shadow(0 0 10px rgba(102,230,168,.15));}
     .protag{font-weight:900;letter-spacing:.2px;padding:6px 10px;border-radius:999px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06)}
-    .protag .pro{color:var(--danger)}
-    .protag .on{color:var(--train)}
-    .muted{color:var(--muted);font-size:12px}
+    .protag .pro{color:#ff6b6b} .protag .on{color:#66E6A8}
     main{padding:16px;display:none} main.active{display:block}
-    .grid{display:grid;gap:12px}
-    .row{display:flex;align-items:center;justify-content:space-between;gap:8px}
+    .grid{display:grid;gap:12px} .row{display:flex;align-items:center;justify-content:space-between;gap:8px}
     .card{position:relative;background:var(--panel);border-radius:16px;padding:14px;box-shadow:0 10px 30px rgba(0,0,0,.35), inset 0 0 0 1px rgba(255,255,255,.05)}
     .btn{appearance:none;border:0;border-radius:12px;padding:10px 12px;font-weight:800;letter-spacing:.2px;background:#1a212b;color:white;cursor:pointer}
-    .btn.primary{background:var(--prog);color:#0e110f} .btn.ghost{background:#141a22}
+    .btn.primary{background:var(--train);color:#0e110f} .btn.ghost{background:#141a22} .btn[disabled]{opacity:.5;cursor:not-allowed}
     input, select{width:100%;padding:10px 12px;border-radius:12px;border:1px solid rgba(255,255,255,.07);background:#0f141b;color:white}
-
-    nav{position:sticky;bottom:0;background:rgba(10,12,16,.82);backdrop-filter:blur(10px);border-top:1px solid rgba(255,255,255,.06);display:grid;grid-template-columns:repeat(3,1fr)}
+    nav{position:sticky;bottom:0;background:rgba(10,12,16,.82);backdrop-filter:blur(10px);border-top:1px solid rgba(255,255,255,.06);display:grid;grid-template-columns:repeat(4,1fr)}
     nav button{appearance:none;border:0;background:none;color:var(--muted);padding:8px 6px 12px;font-weight:800;font-size:13px;letter-spacing:.2px;display:grid;place-items:center;gap:4px;position:relative;transition:transform .08s ease-out, color .2s ease-out;outline:none}
-    nav button:active{transform:scale(.96)}
-    nav button .icon{width:22px;height:22px;opacity:.9}
-    nav button.active{color:var(--ink);}
+    nav button:active{transform:scale(.96)} nav button .icon{width:22px;height:22px;opacity:.9} nav button.active{color:var(--ink);}
     nav button.active .indicator{position:absolute;bottom:4px;height:4px;width:34px;border-radius:999px;background:currentColor;filter:drop-shadow(0 0 10px currentColor);opacity:.9}
-    nav button.active[data-color="home"]{color:var(--home)}
-    nav button.active[data-color="train"]{color:var(--train)}
-    nav button.active[data-color="tutor"]{color:var(--tutor)}
-
-    .status{font-family:Inter,system-ui,sans-serif;font-weight:900;letter-spacing:.6px;background:linear-gradient(180deg,#E7F0FF 0%, #BFD5FF 60%, #9AD0FF 100%);-webkit-background-clip:text;background-clip:text;color:transparent;text-align:center;text-shadow:0 2px 20px rgba(120,170,255,.08);font-size:clamp(18px,5vw,28px);}
-    .hints{text-align:center;margin-top:4px;color:var(--muted);font-size:12px;}
-    .ring-wrap{display:grid;place-items:center;padding:12px}
+    nav button.active[data-color="home"]{color:#81D4FA} nav button.active[data-color="train"]{color:#66E6A8} nav button.active[data-color="edu"]{color:#9aa8ff} nav button.active[data-color="stats"]{color:#c792ea}
+    .stage{display:grid;gap:10px} .stage .title{display:flex;align-items:center;justify-content:space-between}
+    .stage .bar{display:grid;grid-template-columns:repeat(10,1fr);gap:6px} .stage .dot{height:8px;border-radius:999px;background:#202634} .stage .dot.active{background:linear-gradient(90deg,#66E6A8,#81D4FA)}
+    .stage .meta{display:flex;align-items:center;justify-content:space-between;font-size:12px;color:var(--muted)} .stage .chip{display:inline-block;padding:6px 10px;border-radius:999px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);font-weight:800}
+    .status{font-weight:900;letter-spacing:.6px;background:linear-gradient(180deg,#E7F0FF 0%, #BFD5FF 60%, #9AD0FF 100%);-webkit-background-clip:text;background-clip:text;color:transparent;text-align:center;text-shadow:0 2px 20px rgba(120,170,255,.08);font-size:clamp(18px,5vw,28px);}
+    .hints{text-align:center;margin-top:4px;color:var(--muted);font-size:12px;} .ring-wrap{display:grid;place-items:center;padding:12px}
     .ring{position:relative;width:min(86vw,360px);height:min(86vw,360px);border-radius:50%;background:#0e131a;box-shadow:inset 0 0 0 10px rgba(255,255,255,.04),0 10px 40px rgba(0,0,0,.4);overflow:hidden;}
     .bgpulse{position:absolute;inset:0;display:grid;place-items:center;z-index:0;transform:scale(var(--bgPulse-scale));}
     .bgpulse > div{width:100%;height:100%;border-radius:50%;background:radial-gradient(50% 50% at 50% 50%, rgba(64,196,255, var(--bgPulse-alpha)) 0%, rgba(64,196,255,0) 70%);transition:opacity .02s linear, transform .02s linear;}
     .ring .pulse-layer{position:absolute;inset:0;display:block;transform:scale(var(--ring-scale));transition:transform .02s linear;z-index:1}
-    .ring .stroke{stroke:var(--prog);stroke-width:18;fill:none;opacity:var(--ring-alpha);filter:drop-shadow(0 6px 24px rgba(0,0,0,.3));}
-    .ring .progress-layer{position:absolute;inset:0;display:block;z-index:2}
-    .ring .boundary{stroke:var(--boundary);stroke-width:6;fill:none;opacity:.9;}
-    .ring .progress{stroke:var(--progress);stroke-width:6;fill:none;opacity:.95;}
-
-    .hero{display:grid;gap:8px;text-align:center}
-    .hero h2{margin:0;font-size:22px}
-    .hero p{margin:0;color:#cbd6e2}
-    .pill{display:inline-block;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);padding:8px 12px;border-radius:999px;font-weight:800}
-    .list{display:grid;gap:8px;margin:8px 0 0 0}
-    .list .item{display:flex;gap:8px;align-items:flex-start;color:#cbd6e2}
-    .list .dot{width:8px;height:8px;border-radius:50%;background:var(--train);margin-top:6px;flex:0 0 8px}
+    .ring .stroke{stroke:var(--progcol);stroke-width:18;fill:none;opacity:var(--ring-alpha);filter:drop-shadow(0 6px 24px rgba(0,0,0,.3));}
+    .ring .progress-layer{position:absolute;inset:0;display:block;z-index:2} .ring .boundary{stroke:#2a3342;stroke-width:6;fill:none;opacity:.9;} .ring .progress{stroke:#FFA94D;stroke-width:6;fill:none;opacity:.95;}
   </style>
 
   <link rel="manifest" href="manifest.json">
@@ -77,27 +49,27 @@
     <div class="protag"><span class="pro">PRO</span> <span class="on">aktivno</span></div>
   </header>
 
-  <!-- HOME -->
   <main id="home" class="active">
     <div class="grid">
+      <div class="card">
+        <div class="stage">
+          <div class="title"><strong>Tvoj nivo: <span id="rankLabel">Rang 1</span></strong><span class="chip" id="rankGoal">Napredak: 0/5 sesija</span></div>
+          <div class="bar" id="rankBar"></div>
+          <div class="meta"><span id="rankName" class="muted">Uvod / osjećaj mišića</span><a href="#" data-tab="progress" class="muted" style="text-decoration:none">Pogledaj napredak →</a></div>
+        </div>
+      </div>
       <div class="card">
         <div class="row"><strong>O Kegel vježbama (za muškarce)</strong><a href="#" data-tab="edu" class="btn primary">Pročitaj prvo</a></div>
         <div class="muted" style="margin-top:6px">Šta su, kome pomažu i kada očekivati rezultate — kratko, jasno, ohrabrujuće.</div>
       </div>
-
       <div class="card">
-        <div class="row"><strong>Brzi start</strong><span class="muted">izaberi program</span></div>
+        <div class="row"><strong>Brzi start</strong><span class="muted">program prema tvom rangu</span></div>
         <div class="row" style="margin-top:6px">
-          <select id="program" style="flex:1">
-            <option value="basic">Osnovni (4s / 4s)</option>
-            <option value="intermediate">Srednji (5s / 5s)</option>
-            <option value="pulses">Brzi pulsi (1s / 1s)</option>
-            <option value="endurance">Izdržljivost (10s / 10s)</option>
-          </select>
+          <select id="program" style="flex:1" disabled></select>
           <a href="#" class="btn primary" data-tab="trainer">Pokreni</a>
         </div>
+        <div class="muted" id="programHint" style="margin-top:6px"></div>
       </div>
-
       <div class="card">
         <div class="row"><strong>Tutorijal</strong><a href="#" data-tab="tutorial" class="btn">Otvori</a></div>
         <div class="muted" style="margin-top:6px">Kako pravilno aktivirati i opustiti mišiće karličnog dna.</div>
@@ -105,11 +77,10 @@
     </div>
   </main>
 
-  <!-- TRAINER -->
   <main id="trainer">
     <div class="grid">
       <div class="card">
-        <div class="row"><strong>Trening</strong><div id="progName" class="muted">Osnovni</div></div>
+        <div class="row"><strong>Trening</strong><div id="progName" class="muted">Rang program</div></div>
         <div id="status" class="status" style="margin-top:4px">Pripremi se</div>
         <div class="hints" id="hints">Stisni uz izdah • Opusti uz udah • Opušten vrat i ramena</div>
         <div class="ring-wrap">
@@ -131,18 +102,15 @@
         </div>
       </div>
       <div class="card">
-        <div class="row"><strong>Program</strong><span class="muted">Svi programi</span></div>
-        <div class="grid" style="grid-template-columns:repeat(2,1fr)">
-          <button class="btn primary" data-prog="basic">Osnovni</button>
-          <button class="btn" data-prog="intermediate">Srednji</button>
-          <button class="btn" data-prog="pulses">Pulsi</button>
-          <button class="btn" data-prog="endurance">Izdržljivost</button>
+        <div class="row"><strong>Tvoj plan</strong><span id="rankPlan" class="muted"></span></div>
+        <div class="row" style="gap:8px">
+          <button id="advanceBtn" class="btn" disabled>Nivo otključan</button>
+          <button id="resetBtn" class="btn ghost">Resetuj napredak</button>
         </div>
       </div>
     </div>
   </main>
 
-  <!-- TUTORIAL -->
   <main id="tutorial">
     <div class="grid">
       <div class="card grid">
@@ -155,40 +123,22 @@
           <li>Ako osjetiš bol — pauza i konsultacija sa stručnjakom.</li>
         </ol>
       </div>
-      <div class="card">
-        <div class="row"><strong>Brzi start</strong><a href="#" data-tab="trainer" class="btn primary">Pokreni</a></div>
-      </div>
     </div>
   </main>
 
-  <!-- EDU -->
   <main id="edu">
     <div class="grid">
       <div class="card">
-        <div class="hero">
-          <h2>O Kegel vježbama (za muškarce)</h2>
-          <p>Trening karličnog dna je jednostavan, diskretan i mnogima pravi razliku — bolja kontrola, jača erekcija, više samopouzdanja.</p>
-          <span class="pill">Kontrola • Snaga • Izdržljivost</span>
+        <div class="row"><strong>O Kegel vježbama (za muškarce)</strong></div>
+        <div class="grid" style="gap:8px">
+          <div><span class="btn ghost">Kontrola</span> <span class="btn ghost">Snaga</span> <span class="btn ghost">Izdržljivost</span></div>
+          <div class="muted">Jednostavne, diskretne vježbe koje mnogima pomažu – od bolje kontrole mokrenja do stabilnije erekcije. Ključ je ispravna tehnika i redovnost.</div>
         </div>
       </div>
-
       <div class="card">
-        <strong>Zašto raditi?</strong>
-        <div class="list">
-          <div class="item"><div class="dot"></div><div><strong>Kontrola mokrenja</strong> (npr. nakon prostate ili pri naporu).</div></div>
-          <div class="item"><div class="dot"></div><div><strong>Podrška erekciji</strong> kod nekih muškaraca — osjećaj čvrstoće i izdržljivosti.</div></div>
-          <div class="item"><div class="dot"></div><div><strong>Bolji fokus</strong> i kontrola tijela.</div></div>
-        </div>
+        <strong>Kako početi</strong>
+        <div class="muted">Počni sa lakšim ritmom, diši normalno i izbjegavaj naprezanje stomaka. Napredak očekuj za par sedmica – puni efekat 6–12 sedmica.</div>
       </div>
-
-      <div class="card">
-        <strong>Koliko i kada?</strong>
-        <div class="list">
-          <div class="item"><div class="dot"></div><div>Počni sa 10 ponavljanja × 3 seta dnevno. Cilj: 8–10 s stezanje / 8–10 s opuštanje.</div></div>
-          <div class="item"><div class="dot"></div><div>Prva poboljšanja za par sedmica; puni efekat 6–12 sedmica uz redovnost.</div></div>
-        </div>
-      </div>
-
       <div class="card">
         <div class="row">
           <a href="#" class="btn" data-tab="tutorial">Nauči tehniku</a>
@@ -198,164 +148,128 @@
     </div>
   </main>
 
+  <main id="progress">
+    <div class="grid">
+      <div class="card">
+        <div class="row"><strong>Napredak</strong><span id="rankSummary" class="muted"></span></div>
+        <div class="grid" style="gap:8px;margin-top:8px">
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px">
+            <div style="background:#151b23;padding:12px;border-radius:12px;text-align:center;border:1px solid rgba(255,255,255,.06)">
+              <div class="muted">Ukupno sesija</div><div id="kpiTotal" style="font-weight:900;font-size:18px">0</div>
+            </div>
+            <div style="background:#151b23;padding:12px;border-radius:12px;text-align:center;border:1px solid rgba(255,255,255,.06)">
+              <div class="muted">Završeno u rangu</div><div id="kpiThis" style="font-weight:900;font-size:18px">0/5</div>
+            </div>
+            <div style="background:#151b23;padding:12px;border-radius:12px;text-align:center;border:1px solid rgba(255,255,255,.06)">
+              <div class="muted">Serija dana</div><div id="kpiStreak" style="font-weight:900;font-size:18px">0</div>
+            </div>
+          </div>
+          <div>
+            <strong>Posljednjih 7 dana</strong>
+            <svg id="spark" style="height:46px;width:100%;display:block" viewBox="0 0 140 46" preserveAspectRatio="none" aria-hidden="true"></svg>
+            <div class="muted" id="sparkLabel" style="margin-top:6px">• Tamne crte označavaju dane bez sesije.</div>
+          </div>
+          <div>
+            <strong>Trenutni cilj</strong>
+            <div class="muted" id="goalText">Završi 5 sesija u ovom rangu da otključaš sljedeći.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
   <nav>
     <button class="active" data-tab="home" data-color="home" aria-label="Početna">
       <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 3l9 7-1.5 2L12 6 4.5 12 3 10l9-7zM5 12h14v8H5z"/></svg>
-      Početna
-      <span class="indicator" aria-hidden="true"></span>
+      Početna <span class="indicator" aria-hidden="true"></span>
     </button>
     <button data-tab="trainer" data-color="train" aria-label="Trening">
       <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="7" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 3a9 9 0 0 1 0 18" fill="none" stroke="currentColor" stroke-width="2"/></svg>
-      Trening
-      <span class="indicator" aria-hidden="true"></span>
+      Trening <span class="indicator" aria-hidden="true"></span>
     </button>
-    <button data-tab="tutorial" data-color="tutor" aria-label="Tutorijal">
+    <button data-tab="edu" data-color="edu" aria-label="Edu">
       <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M4 5h16v14H4zM7 8h10v2H7zm0 4h10v2H7z"/></svg>
-      Tutorijal
-      <span class="indicator" aria-hidden="true"></span>
+      Edu <span class="indicator" aria-hidden="true"></span>
+    </button>
+    <button data-tab="progress" data-color="stats" aria-label="Napredak">
+      <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M4 18h4V8H4v10zm6 0h4V4h-4v14zm6 0h4V12h-4v6z"/></svg>
+      Napredak <span class="indicator" aria-hidden="true"></span>
     </button>
   </nav>
 </div>
 
 <script>
 (function(){
-  // Tabs
+  const RANKS = [
+    {id:1,name:"Uvod / osjećaj mišića", hold:2, rest:3, color:"#66E6A8"},
+    {id:2,name:"Stabilna osnova", hold:3, rest:3, color:"#66E6A8"},
+    {id:3,name:"Kontrola disanja", hold:4, rest:4, color:"#66E6A8"},
+    {id:4,name:"Prvi duži zadržaji", hold:5, rest:5, color:"#7C93FF"},
+    {id:5,name:"Dosljednost", hold:6, rest:6, color:"#7C93FF"},
+    {id:6,name:"Izdržljivost +", hold:7, rest:7, color:"#40C4FF"},
+    {id:7,name:"Standard smjernica", hold:8, rest:8, color:"#40C4FF"},
+    {id:8,name:"Referentni cilj", hold:9, rest:9, color:"#40C4FF"},
+    {id:9,name:"Klinički cilj", hold:10, rest:10, color:"#66E6A8"},
+    {id:10,name:"Održavanje", hold:10, rest:10, color:"#66E6A8"},
+  ];
+  const SESSIONS_TO_UNLOCK = 5;
+  const DEFAULT_REPS = 10, DEFAULT_SETS = 3;
+
+  function todayKey(){ const d=new Date(); return d.toISOString().slice(0,10); }
+  function loadState(){ try{ return JSON.parse(localStorage.getItem('kp_state')||'null')||{rank:1,doneThisRank:0,total:0,streak:0,lastDay:null,week:{}} }catch(e){ return {rank:1,doneThisRank:0,total:0,streak:0,lastDay:null,week:{}}; } }
+  function saveState(s){ localStorage.setItem('kp_state', JSON.stringify(s)); }
+  let state = loadState();
+
   const pages = document.querySelectorAll('main');
   const navButtons = document.querySelectorAll('nav button');
-  function showTab(id){
-    pages.forEach(p=>p.classList.toggle('active', p.id===id));
-    navButtons.forEach(b=>b.classList.toggle('active', b.getAttribute('data-tab')===id));
-    if (navigator.vibrate) navigator.vibrate(12);
-  }
-  document.querySelectorAll('nav button, [data-tab]').forEach(btn=>btn.addEventListener('click', (e)=>{ e.preventDefault(); const id=btn.getAttribute('data-tab'); if(id) showTab(id); }));
+  function showTab(id){ pages.forEach(p=>p.classList.toggle('active', p.id===id)); navButtons.forEach(b=>b.classList.toggle('active', b.getAttribute('data-tab')===id)); if (navigator.vibrate) navigator.vibrate(12);}
+  document.querySelectorAll('nav button, [data-tab]').forEach(btn=>btn.addEventListener('click',(e)=>{ e.preventDefault(); const id=btn.getAttribute('data-tab'); if(id) showTab(id); }));
 
-  // Programs
-  const programs = {
-    basic:       { name:'Osnovni',      hold:4,  rest:4,  color:'#66e6a8' },
-    intermediate:{ name:'Srednji',      hold:5,  rest:5,  color:'#7c93ff' },
-    pulses:      { name:'Brzi pulsi',   hold:1,  rest:1,  color:'#ffd166' },
-    endurance:   { name:'Izdržljivost', hold:10, rest:10, color:'#40c4ff' },
-  };
-  let currentKey='basic'; const root=document.documentElement; const progName=document.getElementById('progName');
-  function setProgram(key){ currentKey=key; const p=programs[key]; root.style.setProperty('--prog', p.color); progName.textContent=p.name; }
-  document.querySelectorAll('[data-prog]').forEach(btn=>btn.addEventListener('click', ()=> setProgram(btn.getAttribute('data-prog'))));
+  const rankBar = document.getElementById('rankBar');
+  for(let i=1;i<=10;i++){ const d=document.createElement('div'); d.className='dot'; d.dataset.id=i; rankBar.appendChild(d); }
 
-  // Trainer visuals + session progress
-  const status=document.getElementById('status');
-  const progress=document.querySelector('.progress-layer .progress');
-  const R=46; const C=2*Math.PI*R;
-  progress.setAttribute('stroke-dasharray', C.toFixed(2));
-  progress.setAttribute('stroke-dashoffset', C.toFixed(2));
-  progress.setAttribute('transform','rotate(-90 50 50)'); // start at top
-
-  // Beep
-  let audioCtx; function beep(freq=660, duration=110, type='sine', gain=0.03){
-    try{ audioCtx=audioCtx||new (window.AudioContext||window.webkitAudioContext)(); const osc=audioCtx.createOscillator(); const g=audioCtx.createGain(); osc.type=type; osc.frequency.value=freq; g.gain.value=gain; osc.connect(g); g.connect(audioCtx.destination); osc.start(); setTimeout(()=>osc.stop(), duration); }catch(e){}
+  function setRankUI(){
+    const r = RANKS.find(x=>x.id===state.rank);
+    document.getElementById('rankLabel').textContent = "Rang " + r.id + " / 10";
+    document.getElementById('rankName').textContent = r.name;
+    document.getElementById('rankGoal').textContent = `Napredak: ${state.doneThisRank}/${SESSIONS_TO_UNLOCK} sesija`;
+    document.querySelectorAll('.dot').forEach(el=>el.classList.toggle('active', Number(el.dataset.id) <= state.rank));
+    const sel = document.getElementById('program'); sel.innerHTML = `<option>Rang ${r.id} — ${r.hold}s stisni / ${r.rest}s opusti</option>`;
+    document.getElementById('programHint').textContent = `Reps: ${DEFAULT_REPS}, Setovi: ${DEFAULT_SETS} • Boja ranga: ${r.color}`;
+    document.documentElement.style.setProperty('--progcol', r.color);
+    document.querySelector('.ring .stroke').style.stroke = r.color;
+    document.getElementById('progName').textContent = `Rang ${r.id} — ${r.name}`;
+    document.getElementById('rankPlan').textContent = `Cilj: ${r.hold}s stisni / ${r.rest}s opusti × ${DEFAULT_REPS} pon. × ${DEFAULT_SETS} seta`;
+    const btn = document.getElementById('advanceBtn'); btn.textContent = state.doneThisRank >= SESSIONS_TO_UNLOCK && state.rank < 10 ? "Pređi na Rang " + (state.rank+1) : "Nivo otključan"; btn.disabled = !(state.doneThisRank >= SESSIONS_TO_UNLOCK && state.rank < 10);
+    document.getElementById('rankSummary').textContent = `Rang ${r.id} — ${state.doneThisRank}/${SESSIONS_TO_UNLOCK} do sljedećeg`;
+    document.getElementById('kpiTotal').textContent = state.total; document.getElementById('kpiThis').textContent = `${state.doneThisRank}/${SESSIONS_TO_UNLOCK}`; document.getElementById('kpiStreak').textContent = state.streak;
+    drawSpark();
   }
 
-  // Session state
+  document.getElementById('advanceBtn').addEventListener('click', ()=>{ if(state.doneThisRank >= SESSIONS_TO_UNLOCK && state.rank < 10){ state.rank++; state.doneThisRank=0; saveState(state); setRankUI(); alert("Čestitamo! Prešao si na Rang " + state.rank + "."); } });
+  document.getElementById('resetBtn').addEventListener('click', ()=>{ if(confirm("Sigurno resetovati napredak?")){ state = {rank:1,doneThisRank:0,total:0,streak:0,lastDay:null,week:{}}; saveState(state); setRankUI(); } });
+
+  const status=document.getElementById('status'); const progress=document.querySelector('.progress-layer .progress');
+  const R=46; const C=2*Math.PI*R; progress.setAttribute('stroke-dasharray', C.toFixed(2)); progress.setAttribute('stroke-dashoffset', C.toFixed(2)); progress.setAttribute('transform','rotate(-90 50 50)');
+  let audioCtx; function beep(f=660,d=110,t='sine',g=0.03){ try{ audioCtx=audioCtx||new (window.AudioContext||window.webkitAudioContext)(); const o=audioCtx.createOscillator(); const x=audioCtx.createGain(); o.type=t; o.frequency.value=f; x.gain.value=g; o.connect(x); x.connect(audioCtx.destination); o.start(); setTimeout(()=>o.stop(), d); }catch(e){} }
   let session=null, raf=0, lastTs=0, running=false, paused=false;
 
-  function setPhase(phase){
-    if(phase==='hold'){ status.textContent='STEGNI'; beep(740,110); }
-    else if(phase==='rest'){ status.textContent='OPUSTI'; beep(520,100); }
-    else { status.textContent='Pripremi se'; }
-  }
+  function setPhase(p){ if(p==='hold'){ status.textContent='STEGNI'; beep(740,110); } else if(p==='rest'){ status.textContent='OPUSTI'; beep(520,100); } else { status.textContent='Pripremi se'; } }
+  function mapHold(t){ return { ringScale: .2+.8*t, ringAlpha: .3+.7*t, bgScale: .2+.8*t, bgAlpha: .1+.4*t } }
+  function mapRest(t){ return { ringScale: 1-.8*t, ringAlpha: 1-.7*t, bgScale: 1-.8*t, bgAlpha: .5-.4*t } }
+  function mapCountdown(){ const b=.02*Math.sin(performance.now()/180); return { ringScale: .25+b, ringAlpha: .4+.1*Math.sin(performance.now()/220), bgScale: .25+b, bgAlpha: .18+.06*Math.sin(performance.now()/220) } }
+  function setProgress(globalPct){ const off=C*(1-globalPct); progress.setAttribute('stroke-dashoffset', off.toFixed(2)); }
 
-  function mapHold(t){ return { ringScale: 0.2 + 0.8*t, ringAlpha: 0.3 + 0.7*t, bgScale: 0.2 + 0.8*t, bgAlpha: 0.1 + 0.4*t }; }
-  function mapRest(t){ return { ringScale: 1.0 - 0.8*t, ringAlpha: 1.0 - 0.7*t, bgScale: 1.0 - 0.8*t, bgAlpha: 0.5 - 0.4*t }; }
-  function mapCountdown(){ const breath=0.02*Math.sin(performance.now()/180); return { ringScale: 0.25+breath, ringAlpha: 0.4+0.1*Math.sin(performance.now()/220), bgScale: 0.25+breath, bgAlpha: 0.18+0.06*Math.sin(performance.now()/220) }; }
+  function loop(ts){ if(!running||paused) return; if(!lastTs) lastTs=ts; const dt=(ts-lastTs)/1000; lastTs=ts; session.remaining -= dt; const phaseTotal = session.phase==='hold' ? session.hold : session.phase==='rest' ? session.rest : 3; const phaseElapsed = session.phase==='countdown' ? (3 - session.remaining) : (phaseTotal - session.remaining); const pctPhase = Math.min(1, Math.max(0, phaseElapsed/phaseTotal)); const m = session.phase==='hold' ? mapHold(pctPhase) : session.phase==='rest' ? mapRest(pctPhase) : mapCountdown(); document.documentElement.style.setProperty('--ring-scale', m.ringScale.toFixed(3)); document.documentElement.style.setProperty('--ring-alpha', m.ringAlpha.toFixed(3)); document.documentElement.style.setProperty('--bgPulse-scale', m.bgScale.toFixed(3)); document.documentElement.style.setProperty('--bgPulse-alpha', m.bgAlpha.toFixed(3)); if(session.phase==='hold' || session.phase==='rest'){ session.totalElapsed += dt; setProgress(Math.min(1, session.totalElapsed/session.totalDuration)); } if(session.remaining<=0){ if(session.phase==='countdown') beep(880,120,'square'); nextPhase(); } raf=requestAnimationFrame(loop); }
 
-  function setProgress(globalPct){ // 0..1 for entire session
-    const off=C*(1-globalPct);
-    progress.setAttribute('stroke-dashoffset', off.toFixed(2));
-  }
-
-  function loop(ts){
-    if(!running||paused) return;
-    if(!lastTs) lastTs=ts;
-    const dt=(ts-lastTs)/1000; lastTs=ts;
-
-    // Per-phase countdown
-    session.remaining -= dt;
-    const phaseTotal = session.phase==='hold' ? session.hold : session.phase==='rest' ? session.rest : 3;
-    const phaseElapsed = (session.phase==='countdown') ? (3 - session.remaining) : (phaseTotal - session.remaining);
-    const pctPhase = Math.min(1, Math.max(0, phaseElapsed/phaseTotal));
-
-    // Visual pulse mapping
-    const m = session.phase==='hold' ? mapHold(pctPhase) : session.phase==='rest' ? mapRest(pctPhase) : mapCountdown();
-    root.style.setProperty('--ring-scale', m.ringScale.toFixed(3));
-    root.style.setProperty('--ring-alpha', m.ringAlpha.toFixed(3));
-    root.style.setProperty('--bgPulse-scale', m.bgScale.toFixed(3));
-    root.style.setProperty('--bgPulse-alpha', m.bgAlpha.toFixed(3));
-
-    // TOTAL SESSION PROGRESS (excludes countdown; starts with first HOLD)
-    if(session.phase==='hold' || session.phase==='rest'){
-      session.totalElapsed += dt;
-      const globalPct = Math.min(1, session.totalElapsed / session.totalDuration);
-      setProgress(globalPct);
-    }
-
-    if(session.remaining<=0){
-      if(session.phase==='countdown'){
-        beep(880,120,'square');
-      }
-      nextPhase();
-    }
-    raf=requestAnimationFrame(loop);
-  }
-
-  function nextPhase(){
-    if(session.phase==='countdown'){
-      session.phase='hold'; session.remaining=session.hold; setPhase('hold');
-      return;
-    }
-    if(session.phase==='hold'){
-      session.phase='rest'; session.remaining=session.rest; setPhase('rest');
-      return;
-    }
-    if(session.phase==='rest'){
-      session.rep++;
-      if(session.rep>session.reps){
-        session.set++;
-        if(session.set>session.sets){
-          finishSession(true);
-          return;
-        } else {
-          session.rep=1;
-        }
-      }
-      session.phase='hold'; session.remaining=session.hold; setPhase('hold');
-    }
-  }
-
-  function startSession(){
-    const p = programs[currentKey];
-    const reps=p.reps||10, sets=p.sets||3; // defaults
-    const totalCycle = p.hold + p.rest;
-    const totalDuration = totalCycle * reps * sets;
-    session = {
-      hold:p.hold, rest:p.rest, reps:reps, sets:sets,
-      phase:'countdown', remaining:3,
-      rep:1, set:1,
-      totalDuration: totalDuration, totalElapsed: 0
-    };
-    lastTs=0; running=true; paused=false; cancelAnimationFrame(raf);
-    root.style.setProperty('--prog', p.color);
-    setPhase('countdown');
-    setProgress(0); // start at 0; we won't reset on phase changes
-    raf=requestAnimationFrame(loop);
-  }
-
+  function nextPhase(){ if(session.phase==='countdown'){ session.phase='hold'; session.remaining=session.hold; setPhase('hold'); return; } if(session.phase==='hold'){ session.phase='rest'; session.remaining=session.rest; setPhase('rest'); return; } if(session.phase==='rest'){ session.rep++; if(session.rep>session.reps){ session.set++; if(session.set>session.sets){ finishSession(true); return; } else { session.rep=1; } } session.phase='hold'; session.remaining=session.hold; setPhase('hold'); } }
+  function startSession(){ const r = RANKS.find(x=>x.id===state.rank); const reps = 10, sets = 3; const totalCycle = r.hold + r.rest; const totalDuration = totalCycle * reps * sets; session = { hold:r.hold, rest:r.rest, reps, sets, phase:'countdown', remaining:3, rep:1, set:1, totalDuration, totalElapsed:0 }; lastTs=0; running=true; paused=false; cancelAnimationFrame(raf); document.documentElement.style.setProperty('--progcol', r.color); document.querySelector('.ring .stroke').style.stroke = r.color; setPhase('countdown'); setProgress(0); raf=requestAnimationFrame(loop); }
   function pauseSession(){ paused=!paused; if(!paused) raf=requestAnimationFrame(loop); }
-  function finishSession(){ running=false; paused=false; cancelAnimationFrame(raf); status.textContent='Završeno'; setProgress(1); }
+  function finishSession(success){ running=false; paused=false; cancelAnimationFrame(raf); status.textContent='Završeno'; setProgress(1); if(success){ state.total++; const today = todayKey(); if(state.lastDay!==today){ state.streak = (state.lastDay && ((Date.parse(today)-Date.parse(state.lastDay))===24*3600*1000)) ? state.streak+1 : 1; state.lastDay=today; } state.week[today]= (state.week[today]||0) + 1; state.doneThisRank = Math.min(5, state.doneThisRank+1); saveState(state); setRankUI(); } }
+  document.getElementById('startBtn').addEventListener('click', startSession); document.getElementById('pauseBtn').addEventListener('click', pauseSession); document.getElementById('stopBtn').addEventListener('click', ()=>finishSession(false));
 
-  document.getElementById('startBtn').addEventListener('click', startSession);
-  document.getElementById('pauseBtn').addEventListener('click', pauseSession);
-  document.getElementById('stopBtn').addEventListener('click', finishSession);
-
-  const homeSelect=document.getElementById('program'); if(homeSelect) homeSelect.addEventListener('change', ()=> setProgram(homeSelect.value));
-  setProgram('basic');
+  function drawSpark(){ const svg = document.getElementById('spark'); const days = 7; const now = new Date(); const keys = []; for(let i=days-1;i>=0;i--){ const d = new Date(now); d.setDate(now.getDate()-i); keys.push(d.toISOString().slice(0,10)); } const w = 140, h = 46; const barW = Math.floor((w- (days+1)*4)/days); let content = `<rect x="0" y="0" width="${w}" height="${h}" fill="none" />`; let x = 4; keys.forEach(k=>{ const v = state.week[k] ? 1 : 0; const bh = v? 34:10; const y = h - bh - 6; const col = v? '#66E6A8' : '#2a3342'; content += `<rect rx="3" ry="3" x="${x}" y="${y}" width="${barW}" height="${bh}" fill="${col}" />`; x += barW + 4; }) ; svg.innerHTML = content; }
+  setRankUI();
 })();
 </script>
 
