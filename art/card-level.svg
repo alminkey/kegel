@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="1200" height="600" viewBox="0 0 1200 600" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="glow" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#66E6A8" stop-opacity="0.18"/>
+      <stop offset="1" stop-color="#81D4FA" stop-opacity="0.12"/>
+    </linearGradient>
+    <linearGradient id="linegrad" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#66E6A8" stop-opacity="0.9"/>
+      <stop offset="1" stop-color="#81D4FA" stop-opacity="0.9"/>
+    </linearGradient>
+    <linearGradient id="bargrad" x1="0" y1="1" x2="0" y2="0">
+      <stop offset="0" stop-color="#66E6A8" stop-opacity="0"/>
+      <stop offset="1" stop-color="#66E6A8" stop-opacity="0.35"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="600" fill="none"/>
+  <ellipse cx="980" cy="120" rx="300" ry="140" fill="url(#glow)"/>
+  <g opacity="0.18" stroke="#9aa0a6">
+    <path d="M100 480H1100M100 420H1100M100 360H1100M100 300H1100M100 240H1100M100 180H1100M100 120H1100" stroke-width="1"/>
+    <path d="M100 120V480M250 120V480M400 120V480M550 120V480M700 120V480M850 120V480M1000 120V480" stroke-width="1"/>
+  </g>
+  <g>
+    <rect x="130"  y="430" width="40" height="50" fill="url(#bargrad)"/>
+    <rect x="280"  y="400" width="40" height="80" fill="url(#bargrad)"/>
+    <rect x="430"  y="360" width="40" height="120" fill="url(#bargrad)"/>
+    <rect x="580"  y="320" width="40" height="160" fill="url(#bargrad)"/>
+    <rect x="730"  y="270" width="40" height="210" fill="url(#bargrad)"/>
+    <rect x="880"  y="230" width="40" height="250" fill="url(#bargrad)"/>
+  </g>
+  <path d="M120,440 C210,420 300,390 390,380 C480,370 570,340 660,320 C750,300 840,270 930,240 C1020,210 1080,200 1100,195"
+        fill="none" stroke="url(#linegrad)" stroke-width="4" stroke-linecap="round" opacity="0.9"/>
+  <g>
+    <circle cx="390" cy="380" r="4" fill="#FFA94D" opacity="0.9"/>
+    <circle cx="660" cy="320" r="4" fill="#FFA94D" opacity="0.9"/>
+    <circle cx="930" cy="240" r="4" fill="#FFA94D" opacity="0.9"/>
+  </g>
+</svg>

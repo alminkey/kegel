@@ -4,13 +4,12 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <title>KegelPilot — Rang 1 (auto plan)</title>
+  <title>KegelPilot — Rang 1 (auto plan) • Glass cards</title>
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#0B0E12">
   <style>
-    :root{ --bg:#0b0e12; --panel:#12161c; --ink:#e0e6ef; --muted:#9aa0a6;
-           --train:#66E6A8; --progress:#FFA94D; --boundary:#2a3342;
-           --ring-scale:.2; --ring-alpha:.3; --bgPulse-scale:.2; --bgPulse-alpha:.1; }
+    :root{ --bg:#0b0e12; --ink:#e0e6ef; --muted:#9aa0a6;
+           --train:#66E6A8; --progress:#FFA94D; --ring-scale:.2; --ring-alpha:.3; --bgPulse-scale:.2; --bgPulse-alpha:.1; }
     *{box-sizing:border-box} html,body{height:100%}
     body{margin:0;background:radial-gradient(1200px 600px at 20% -10%,#18202b 0%,#0b0e12 60%),var(--bg);color:var(--ink);font-family:Inter,system-ui,Segoe UI,Roboto,Arial,sans-serif;-webkit-tap-highlight-color:transparent;}
     .shell{min-height:100%;display:grid;grid-template-rows:auto 1fr auto}
@@ -20,12 +19,25 @@
     .protag .pro{color:#ff6b6b} .protag .on{color:#66E6A8}
     main{padding:16px;display:none} main.active{display:block}
     .grid{display:grid;gap:12px}
+
+    /* Glassmorphism + art backgrounds */
+    .card{position:relative;border-radius:16px;padding:16px 14px;border:1px solid rgba(255,255,255,.12);overflow:hidden;cursor:pointer}
+    .card.glass{background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.02)); backdrop-filter: blur(10px); box-shadow:0 10px 30px rgba(0,0,0,.35), inset 0 0 0 1px rgba(255,255,255,.04);}
+    .card.has-art::before{content:'';position:absolute;inset:0;background-position:center;background-repeat:no-repeat;background-size:cover;opacity:.28;z-index:0;transition:transform .4s ease, opacity .25s ease;}
+    .bg-level{ --art: url('art/card-level.svg'); }
+    .bg-edu{ --art: url('art/card-edu.svg'); }
+    .bg-quick{ --art: url('art/card-quick.svg'); }
+    .card.bg-level.has-art::before{ background-image: var(--art); }
+    .card.bg-edu.has-art::before{ background-image: var(--art); }
+    .card.bg-quick.has-art::before{ background-image: var(--art); }
+    .card:hover::before{ transform: scale(1.02); opacity:.34; }
+    .card > *{position:relative; z-index:1}
+
+    /* Ripple effect */
+    .ripple{ position:absolute; border-radius:50%; transform:scale(0); pointer-events:none; background: radial-gradient(circle, rgba(255,255,255,.35) 0%, rgba(255,255,255,0) 70%); opacity:.8; animation: ripple .6s ease-out forwards; }
+    @keyframes ripple{ to { transform:scale(8); opacity:0; } }
+
     .row{display:flex;align-items:center;justify-content:space-between;gap:8px}
-    .card{position:relative;background:#0f141b;border-radius:16px;padding:14px;border:1px solid rgba(255,255,255,.06);box-shadow:0 10px 30px rgba(0,0,0,.35), inset 0 0 0 1px rgba(255,255,255,.03)}
-    .clicky{cursor:pointer;transition:transform .08s ease, box-shadow .2s ease, border-color .2s ease}
-    .clicky:active{transform:translateY(1px) scale(.995)}
-    .clicky::after{content:''; position:absolute; inset:0; border-radius:16px; pointer-events:none; box-shadow:0 8px 26px rgba(0,0,0,.28);}
-    .clicky:hover{box-shadow:0 14px 40px rgba(0,0,0,.45)}
     .stage{display:grid;gap:10px}
     .stage .title{display:flex;align-items:center;justify-content:space-between}
     .stage .bar{display:grid;grid-template-columns:repeat(10,1fr);gap:6px}
@@ -53,13 +65,6 @@
     .startLabel{position:absolute; inset:0; display:grid; place-items:center; z-index:3; font-weight:900; letter-spacing:.6px; color:#FFA94D; text-shadow:0 2px 14px rgba(255,169,77,.25); animation: pulseText 1.6s ease-in-out infinite;}
     @keyframes pulseText{0%,100%{transform:scale(1);opacity:.9} 50%{transform:scale(1.06);opacity:1}}
     .planchip{text-align:center; font-size:12px; color:#9aa8ff; margin-top:6px;}
-
-    .ob{position:fixed;inset:0;background:rgba(5,8,12,.75);backdrop-filter:blur(10px);display:none;align-items:center;justify-content:center;z-index:9999}
-    .ob.active{display:flex;}
-    .ob .sheet{width:min(720px,92vw);max-height:92vh;background:#0f141c;border:1px solid rgba(255,255,255,.08);border-radius:18px;box-shadow:0 10px 60px rgba(0,0,0,.6);display:grid;grid-template-rows:auto 1fr auto}
-    .ob header{position:relative;background:transparent;border-bottom:1px solid rgba(255,255,255,.06);padding:12px 16px;display:flex;align-items:center;justify-content:space-between}
-    .ob .slides{padding:14px;overflow:auto}
-    .ob footer{border-top:1px solid rgba(255,255,255,.06);padding:12px 14px;display:flex;align-items:center;justify-content:space-between}
   </style>
 </head>
 <body>
@@ -71,20 +76,20 @@
 
   <main id="home" class="active">
     <div class="grid">
-      <div id="cardLevel" class="card clicky" role="button" tabindex="0" aria-label="Otvorite napredak">
+      <div id="cardLevel" class="card glass has-art bg-level" role="button" tabindex="0" aria-label="Otvorite napredak">
         <div class="stage">
           <div class="title"><strong>Tvoj nivo: <span id="rankLabel">Rang 1</span></strong><span class="chip" id="rankGoal">2× dnevno 5 dana zaredom</span></div>
           <div class="bar" id="rankBar"></div>
-          <div class="meta"><span id="rankName" class="muted">Uvod / planirane varijacije</span><span class="muted">Tapni da vidiš detalje →</span></div>
+          <div class="stage meta"><span id="rankName" class="muted">Uvod / planirane varijacije</span><span class="muted">Tapni da vidiš detalje →</span></div>
         </div>
       </div>
 
-      <div id="cardEdu" class="card clicky" role="button" tabindex="0" aria-label="O Kegel vježbama">
+      <div id="cardEdu" class="card glass has-art bg-edu" role="button" tabindex="0" aria-label="O Kegel vježbama">
         <div class="row"><strong>O Kegel vježbama (za muškarce)</strong></div>
         <div class="hint">Šta su, kome pomažu i kada očekivati rezultate — kratko, jasno, ohrabrujuće.</div>
       </div>
 
-      <div id="cardQuick" class="card clicky" role="button" tabindex="0" aria-label="Brzi start treninga">
+      <div id="cardQuick" class="card glass has-art bg-quick" role="button" tabindex="0" aria-label="Brzi start treninga">
         <div class="row"><strong>Brzi start</strong><span class="muted" id="quickPlan">Današnji plan će se primijeniti automatski</span></div>
         <div class="hint">Tapni bilo gdje za pokretanje treninga.</div>
       </div>
@@ -93,7 +98,7 @@
 
   <main id="trainer">
     <div class="grid">
-      <div class="card">
+      <div class="card glass">
         <div id="status" class="status" style="margin-top:4px">Pripremi se</div>
         <div class="planchip" id="planchip">Dan 1 • Varijacija 1</div>
         <div class="hints" id="hints">Dodirni krug za Start/Pauzu • Dugi dodir za Stop</div>
@@ -112,7 +117,7 @@
         </div>
       </div>
 
-      <div class="card">
+      <div class="card glass">
         <div class="row"><strong>Plan sesije</strong><span id="varDesc" class="muted"></span></div>
         <div class="hint">Varijacije su zaključane i primjenjuju se po planu (Dan 1–5).</div>
       </div>
@@ -121,7 +126,7 @@
 
   <main id="edu">
     <div class="grid">
-      <div class="card">
+      <div class="card glass">
         <div class="row"><strong>O Kegel vježbama (za muškarce)</strong></div>
         <div class="grid" style="gap:8px">
           <div class="hint">Jednostavne, diskretne vježbe koje mnogima pomažu – od bolje kontrole mokrenja do stabilnije erekcije. Ključ je ispravna tehnika i redovnost.</div>
@@ -132,25 +137,25 @@
 
   <main id="progress">
     <div class="grid">
-      <div class="card">
+      <div class="card glass">
         <div class="row"><strong>Napredak</strong><span id="rankSummary" class="muted"></span></div>
         <div class="grid" style="gap:8px;margin-top:8px">
           <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px">
-            <div style="background:#151b23;padding:12px;border-radius:12px;text-align:center;border:1px solid rgba(255,255,255,.06)">
+            <div class="card glass" style="padding:12px">
               <div class="muted">Ukupno sesija</div><div id="kpiTotal" style="font-weight:900;font-size:18px">0</div>
             </div>
-            <div style="background:#151b23;padding:12px;border-radius:12px;text-align:center;border:1px solid rgba(255,255,255,.06)">
+            <div class="card glass" style="padding:12px">
               <div class="muted">Dani zaredom (≥2/dan)</div><div id="kpiDays2x" style="font-weight:900;font-size:18px">0/5</div>
             </div>
-            <div style="background:#151b23;padding:12px;border-radius:12px;text-align:center;border:1px solid rgba(255,255,255,.06)">
+            <div class="card glass" style="padding:12px">
               <div class="muted">Dana u nizu</div><div id="kpiStreak" style="font-weight:900;font-size:18px">0</div>
             </div>
           </div>
-          <div>
+          <div class="card glass" style="padding:12px">
             <strong>Posljednjih 7 dana</strong>
             <svg id="spark" style="height:46px;width:100%;display:block" viewBox="0 0 140 46" preserveAspectRatio="none" aria-hidden="true"></svg>
           </div>
-          <div>
+          <div class="card glass" style="padding:12px">
             <strong>Trenutni cilj</strong>
             <div class="muted" id="goalText">2× dnevno tokom 5 uzastopnih dana — onda prelazak na Rang 2.</div>
             <div class="muted" id="r1DayInfo"></div>
@@ -180,7 +185,7 @@
   </nav>
 </div>
 
-<!-- Intro popups for Var 2 & Var 3 -->
+<!-- Intros -->
 <div id="introV2" class="ob">
   <div class="sheet">
     <header><strong>Nova varijacija: #2</strong><button class="btn" data-close="introV2">Zatvori</button></header>
@@ -207,6 +212,22 @@
 
 <script>
 (function(){
+  // Ripple on .card
+  function attachRipple(el){
+    el.addEventListener('pointerdown', (e)=>{
+      const r = document.createElement('span');
+      r.className = 'ripple';
+      const rect = el.getBoundingClientRect();
+      const size = Math.max(rect.width, rect.height);
+      r.style.width = r.style.height = size + 'px';
+      r.style.left = (e.clientX - rect.left - size/2) + 'px';
+      r.style.top  = (e.clientY - rect.top  - size/2) + 'px';
+      el.appendChild(r);
+      setTimeout(()=>{ r.remove(); }, 650);
+    });
+  }
+  document.querySelectorAll('.card').forEach(attachRipple);
+
   const DEFAULT_REPS = 10, DEFAULT_SETS = 3;
   const VARS_R1 = {
     1: { hold:1,   keep:0, rest:2, name:"Var 1" },
@@ -215,13 +236,13 @@
   };
   function todayKey(){ const d=new Date(); return d.toISOString().slice(0,10); }
   function loadState(){
-    try{ return JSON.parse(localStorage.getItem('kp_state_v5b')||'null') || {
+    try{ return JSON.parse(localStorage.getItem('kp_state_v6')||'null') || {
       rank:1, total:0, lastDay:null, streak:0, dayCounts:{},
       r1StartDate: null, introV2Done:false, introV3Done:false
     }}catch(e){ return { rank:1, total:0, lastDay:null, streak:0, dayCounts:{},
       r1StartDate:null, introV2Done:false, introV3Done:false } }
   }
-  function saveState(s){ localStorage.setItem('kp_state_v5b', JSON.stringify(s)); }
+  function saveState(s){ localStorage.setItem('kp_state_v6', JSON.stringify(s)); }
   let state = loadState();
   if(!state.r1StartDate){ state.r1StartDate = todayKey(); saveState(state); }
 
@@ -241,8 +262,7 @@
   const pages = document.querySelectorAll('main');
   const navButtons = document.querySelectorAll('nav button');
   function showTab(id){ pages.forEach(p=>p.classList.toggle('active', p.id===id)); navButtons.forEach(b=>b.classList.toggle('active', b.getAttribute('data-tab')===id)); if (navigator.vibrate) navigator.vibrate(12); }
-  document.querySelectorAll('nav button, [data-tab]').forEach(btn=>btn.addEventListener('click',(e)=>{ e.preventDefault(); const id=btn.getAttribute('data-tab'); if(id) showTab(id); }));
-  // Clickable cards
+  document.querySelectorAll('nav button').forEach(btn=>btn.addEventListener('click',(e)=>{ e.preventDefault(); const id=btn.getAttribute('data-tab'); if(id) showTab(id); }));
   document.getElementById('cardLevel').addEventListener('click', ()=> showTab('progress'));
   document.getElementById('cardEdu').addEventListener('click', ()=> showTab('edu'));
   document.getElementById('cardQuick').addEventListener('click', ()=> showTab('trainer'));
@@ -355,6 +375,7 @@
   }
   function stopSession(success){ if(!running) return; finishSession(success); }
 
+  const ring = document.getElementById('ring');
   ring.addEventListener('pointerdown', ()=>{ if(!running){ maybeShowIntroThenStart(); return; } longPressed=false; longPressTO=setTimeout(()=>{ longPressed=true; stopSession(false); }, 650); });
   ring.addEventListener('pointerup', ()=>{ if(longPressTO) clearTimeout(longPressTO); if(running && !longPressed) pauseToggle(); });
   ring.addEventListener('pointerleave', ()=>{ if(longPressTO) clearTimeout(longPressTO); });
@@ -370,7 +391,6 @@
     startSession();
   }
 
-  // Labels
   function refreshTrainerLabels(){
     const d = r1Day(); const segments = buildPlanForDay(d);
     document.getElementById('planchip').textContent = "Dan " + d + " • " + planLabel(segments);
@@ -378,6 +398,20 @@
   }
 
   // Init
+  function setRankUI(){
+    const rDay = r1Day();
+    document.getElementById('rankLabel').textContent = "Rang " + state.rank + " / 10";
+    document.querySelectorAll('.dot').forEach(el=>el.classList.toggle('active', Number(el.dataset.id) <= state.rank));
+    document.getElementById('rankName').textContent = "Uvod / planirane varijacije • Dan " + rDay;
+    document.getElementById('quickPlan').textContent = "Današnji plan: " + planLabel(buildPlanForDay(rDay));
+    document.getElementById('r1DayInfo').textContent = "Rang 1 • Dan " + rDay + " — " + planLabel(buildPlanForDay(rDay));
+    const streak2x = (function(counts){ const daysNeeded = 5; const now = new Date(); let streak = 0; for(let i=0;i<daysNeeded;i++){ const d=new Date(now); d.setDate(now.getDate()-i); const key=d.toISOString().slice(0,10); if((counts[key]||0) >= 2) streak++; else break; } return streak; })(state.dayCounts);
+    document.getElementById('rankSummary').textContent = `${streak2x}/5`;
+    document.getElementById('kpiTotal').textContent = state.total;
+    document.getElementById('kpiDays2x').textContent = `${streak2x}/5`;
+    document.getElementById('kpiStreak').textContent = state.streak;
+    drawSpark();
+  }
   setRankUI();
   refreshTrainerLabels();
 })();
