@@ -1,13 +1,13 @@
 
-const CACHE = 'kegelpilot-pwa-v21';
+const CACHE = 'kegelpilot-pwa-v22';
 const PRECACHE = [
   './',
   './index.html',
   './manifest.json',
   './icons/kegelpilot_192.png',
   './icons/kegelpilot_512.png',
-  './assets/logo_text.png',
   './Logo.PNG',
+  './assets/logo_text.png',
   './art/soft-bg.svg',
 ];
 self.addEventListener('install', (e) => {
@@ -19,7 +19,6 @@ self.addEventListener('activate', (e) => {
   self.clients.claim();
 });
 self.addEventListener('fetch', (e) => {
-  // Network-first for navigations (HTML) to avoid stale index
   if (e.request.mode === 'navigate') {
     e.respondWith((async () => {
       try {
@@ -34,6 +33,5 @@ self.addEventListener('fetch', (e) => {
     })());
     return;
   }
-  // Cache-first for everything else
   e.respondWith(caches.match(e.request).then(r => r || fetch(e.request)));
 });

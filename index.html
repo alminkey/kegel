@@ -4,13 +4,13 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <title>KegelPilot — v21 • Edu kartice</title>
+  <title>KegelPilot — v22</title>
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#0B0E12">
   <style>
-    :root{ --bg:#0b0e12; --ink:#e0e6ef; --muted:#9aa0a6; }
+    :root{ --bg:#0b0e12; --ink:#e0e6ef; --muted:#9aa0a6; --accent:#FFA94D; --ring-scale:.2; --ring-alpha:.3; --bgPulse-scale:.2; --bgPulse-alpha:.1; }
     *{box-sizing:border-box} html,body{height:100%}
-    body{margin:0;background:radial-gradient(1200px 600px at 20% -10%,#18202b 0%,#0b0e12 60%),#0b0e12;color:#e0e6ef;font-family:Inter,system-ui,Segoe UI,Roboto,Arial,sans-serif;-webkit-tap-highlight-color:transparent;}
+    body{margin:0;background:radial-gradient(1200px 600px at 20% -10%,#18202b 0%,#0b0e12 60%),var(--bg);color:var(--ink);font-family:Inter,system-ui,Segoe UI,Roboto,Arial,sans-serif;-webkit-tap-highlight-color:transparent;}
     .shell{min-height:100%;display:grid;grid-template-rows:auto 1fr auto}
     header{position:sticky;top:0;background:rgba(12,15,20,.8);backdrop-filter:blur(8px);border-bottom:1px solid rgba(255,255,255,.06);padding:10px 14px;display:flex;align-items:center;justify-content:space-between;gap:12px;z-index:10}
     .brandimg{height:34px} .ver{font-size:11px;color:#9aa0a6;margin-left:6px;opacity:.8}
@@ -21,7 +21,18 @@
     .card{position:relative;border-radius:16px;padding:16px 14px;border:1px solid rgba(255,255,255,.12);overflow:hidden;cursor:pointer;background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.02)); backdrop-filter: blur(10px); box-shadow:0 10px 30px rgba(0,0,0,.35), inset 0 0 0 1px rgba(255,255,255,.04);}
     nav{position:sticky;bottom:0;background:rgba(10,12,16,.82);backdrop-filter:blur(10px);border-top:1px solid rgba(255,255,255,.06);display:grid;grid-template-columns:repeat(4,1fr)}
     nav button{appearance:none;border:0;background:none;color:#9aa0a6;padding:8px 6px 12px;font-weight:800;font-size:13px;display:grid;place-items:center;gap:4px;position:relative} nav button.active{color:#e0e6ef}
-    /* Accordion */
+    /* Trainer */
+    .status{font-weight:900;letter-spacing:.8px;color:var(--accent);text-align:center;text-shadow:0 2px 12px rgba(255,169,77,.25);font-size:clamp(20px,6vw,30px);}
+    .ring-wrap{display:grid;place-items:center;padding:12px}
+    .ring{position:relative;width:min(60vw,252px);height:min(60vw,252px);border-radius:50%;background:#0e131a;box-shadow:inset 0 0 0 10px rgba(255,255,255,.04),0 10px 40px rgba(0,0,0,.4);overflow:hidden;}
+    .bgpulse{position:absolute;inset:0;display:grid;place-items:center;z-index:0;transform:scale(var(--bgPulse-scale));}
+    .bgpulse > div{width:100%;height:100%;border-radius:50%;background:radial-gradient(50% 50% at 50% 50%, rgba(64,196,255, var(--bgPulse-alpha)) 0%, rgba(64,196,255,0) 70%);transition:opacity .02s linear, transform .02s linear;}
+    .ring .pulse-layer{position:absolute;inset:0;display:block;transform:scale(var(--ring-scale));transition:transform .02s linear;z-index:1}
+    .ring .stroke{stroke:#66E6A8;stroke-width:18;fill:none;opacity:var(--ring-alpha);filter:drop-shadow(0 6px 24px rgba(0,0,0,.3));}
+    .ring .progress-layer{position:absolute;inset:0;display:block;z-index:2} .ring .boundary{stroke:#2a3342;stroke-width:6;fill:none;opacity:.9;} .ring .progress{stroke:var(--accent);stroke-width:6;fill:none;opacity:.95;}
+    .startLabel{position:absolute; inset:0; display:grid; place-items:center; z-index:3; font-weight:1000; letter-spacing:1.2px; color:var(--accent); text-shadow:0 2px 14px rgba(255,169,77,.25); animation: pulseText 1.6s ease-in-out infinite; font-size:clamp(22px,7vw,34px);}
+    @keyframes pulseText{0%,100%{transform:scale(1);opacity:.9} 50%{transform:scale(1.06);opacity:1}}
+    /* Edu accordion */
     .accordion .ecard{border-radius:16px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.04); overflow:hidden}
     .ecard header{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:14px 16px;cursor:pointer;user-select:none}
     .ecard header h3{margin:0;font-size:16px}
@@ -36,8 +47,8 @@
 <div class="shell">
   <header>
     <div style="display:flex;align-items:center;gap:6px">
-      <img id="brand" class="brandimg" alt="KegelPilot" loading="eager" fetchpriority="high" src="assets/logo_text.png">
-      <span class="ver">v21</span>
+      <img id="brand" class="brandimg" alt="KegelPilot" loading="eager" fetchpriority="high" src="Logo.PNG">
+      <span class="ver">v22</span>
     </div>
     <div class="protag"><span class="pro">PRO</span> <span class="on">aktivno</span></div>
   </header>
@@ -50,7 +61,28 @@
   </main>
 
   <main id="trainer">
-    <div class="grid"><div class="card">Trening (fokus test: Edu kartice)</div></div>
+    <div class="grid">
+      <div class="card">
+        <div id="status" class="status" style="margin-top:6px">PRIPREMI SE</div>
+        <div class="ring-wrap">
+          <div class="ring" id="ring" tabindex="0">
+            <div class="bgpulse"><div></div></div>
+            <svg class="pulse-layer" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+              <circle class="stroke" cx="50" cy="50" r="40" stroke-linecap="round"></circle>
+            </svg>
+            <svg class="progress-layer" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+              <circle class="boundary" cx="50" cy="50" r="46" stroke-linecap="round"></circle>
+              <circle class="progress" cx="50" cy="50" r="46" stroke-linecap="round"></circle>
+            </svg>
+            <div class="startLabel" id="startLabel">START</div>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div><strong>Plan sesije</strong></div>
+        <div class="muted">Rang 1 • Varijacije se primjenjuju po planu Dana 1–5 (test build fokus: start na prvi klik)</div>
+      </div>
+    </div>
   </main>
 
   <main id="edu">
@@ -70,8 +102,8 @@
 </div>
 
 <script>
-// HARD REFRESH once if stariji build (clears caches + SW) 
-const APP_VERSION = 'v21';
+// Versioned hard refresh (one time) to avoid stale SW/cache
+const APP_VERSION = 'v22';
 (async function() {
   try {
     const saved = localStorage.getItem('kp_app_version');
@@ -94,16 +126,16 @@ const APP_VERSION = 'v21';
   } catch(e) { console.log('refresh check err', e); }
 })();
 
-// Logo fallback
+// Logo fallback chain (Logo.PNG -> assets/logo_text.png -> inline SVG)
 (function(){
   const brand = document.getElementById('brand');
   const inlineSVG = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='132' height='28' viewBox='0 0 132 28' fill='none'><rect x='0' y='0' rx='8' ry='8' width='132' height='28' fill='rgba(15,20,27,0.85)'/><text x='14' y='19' font-family='Inter,Segoe UI,Arial,sans-serif' font-size='16' fill='%23A7F3D0' font-weight='700'>KegelPilot</text></svg>";
   function setInline(){ brand.src = inlineSVG; }
-  function tryRoot(){ brand.removeEventListener('error', tryRoot); brand.addEventListener('error', setInline, {once:true}); brand.src = 'Logo.PNG'; }
-  brand.addEventListener('error', tryRoot, {once:true});
+  function tryAssets(){ brand.removeEventListener('error', tryAssets); brand.addEventListener('error', setInline, {once:true}); brand.src = 'assets/logo_text.png'; }
+  brand.addEventListener('error', tryAssets, {once:true});
 })();
 
-// Nav
+// Navigation
 (function(){
   const pages = document.querySelectorAll('main');
   const navButtons = document.querySelectorAll('nav button');
@@ -113,7 +145,75 @@ const APP_VERSION = 'v21';
   document.getElementById('cardQuick').addEventListener('click', ()=> showTab('trainer'));
 })();
 
-// EDU accordion
+// Trainer logic (start on FIRST click, long-press to stop; uppercase status in orange)
+(function(){
+  const R=46, C=2*Math.PI*R;
+  const progress = document.querySelector('.progress-layer .progress');
+  progress.setAttribute('stroke-dasharray', C.toFixed(2));
+  progress.setAttribute('stroke-dashoffset', C.toFixed(2));
+  progress.setAttribute('transform','rotate(-90 50 50)');
+  const ring = document.getElementById('ring');
+  const status = document.getElementById('status');
+  const startLabel = document.getElementById('startLabel');
+
+  // Simple R1 var mix for demo timing
+  const VARS = {1:{hold:1,keep:0,rest:2},2:{hold:1,keep:1,rest:1},3:{hold:0.5,keep:3,rest:2}};
+  const segs = [{var:1,reps:15}, {var:2,reps:15}]; // demo
+
+  function totalDuration(segments){ let s=0; segments.forEach(x=>{ const v=VARS[x.var]; s+=x.reps*(v.hold+v.keep+v.rest); }); return s; }
+  let running=false, paused=false, raf=0, last=0, session=null, longTO=null, longPress=false;
+  function setStatus(p){ status.textContent = p==='hold'?'STEGNI':p==='keep'?'ZADRŽI':p==='rest'?'OPUSTI':'PRIPREMI SE'; }
+  function setProgress(p){ progress.setAttribute('stroke-dashoffset', (C*(1-p)).toFixed(2)); }
+  function mapHold(t){ return {ring:.2+.8*t, bg:.2+.8*t, ra:.3+.7*t, ba:.1+.4*t} }
+  function mapKeep(t){ return {ring:1, bg:1, ra:.95, ba:.5-.2*t} }
+  function mapRest(t){ return {ring:1-.8*t, bg:1-.8*t, ra:1-.7*t, ba:.5-.4*t} }
+  function apply(m){ document.documentElement.style.setProperty('--ring-scale', m.ring.toFixed(3)); document.documentElement.style.setProperty('--bgPulse-scale', m.bg.toFixed(3)); document.documentElement.style.setProperty('--ring-alpha', m.ra.toFixed(3)); document.documentElement.style.setProperty('--bgPulse-alpha', m.ba.toFixed(3)); }
+
+  function buildSession(){
+    const tot = totalDuration(segs);
+    return {segments: JSON.parse(JSON.stringify(segs)), seg:0, rep:1, phase:'countdown', remain:3, elapsed:0, total:tot};
+  }
+  function loop(ts){
+    if(!running||paused) return;
+    if(!last) last=ts; const dt=(ts-last)/1000; last=ts;
+    session.remain -= dt;
+    const seg = session.segments[session.seg];
+    const v = VARS[seg.var];
+    const phaseLen = session.phase==='hold'?v.hold:session.phase==='keep'?v.keep:session.phase==='rest'?v.rest:3;
+    const elapsedPhase = (session.phase==='countdown')? (3-session.remain) : (phaseLen-session.remain);
+    const t = Math.min(1, Math.max(0, elapsedPhase/phaseLen));
+    apply(session.phase==='hold'?mapHold(t):session.phase==='keep'?mapKeep(t):session.phase==='rest'?mapRest(t):{ring:.25,bg:.25,ra:.5,ba:.18});
+    if(session.phase!=='countdown'){ session.elapsed += dt; setProgress(Math.min(1, session.elapsed/session.total)); }
+    if(session.remain<=0){
+      if(session.phase==='countdown'){ session.phase='hold'; session.remain=v.hold; setStatus('hold'); }
+      else if(session.phase==='hold'){ if(v.keep>0){ session.phase='keep'; session.remain=v.keep; setStatus('keep'); } else { session.phase='rest'; session.remain=v.rest; setStatus('rest'); } }
+      else if(session.phase==='keep'){ session.phase='rest'; session.remain=v.rest; setStatus('rest'); }
+      else { // rest finished
+        session.rep++;
+        if(session.rep>seg.reps){ session.seg++; session.rep=1; if(session.seg>=session.segments.length){ return finish(true); } }
+        const nv = VARS[session.segments[session.seg].var]; session.phase='hold'; session.remain=nv.hold; setStatus('hold');
+      }
+    }
+    raf=requestAnimationFrame(loop);
+  }
+  function start(){
+    session = buildSession(); last=0; running=true; paused=false; startLabel.style.display='none'; setProgress(0); setStatus('count'); raf=requestAnimationFrame(loop);
+  }
+  function pauseToggle(){ if(!running) return; paused=!paused; if(!paused) raf=requestAnimationFrame(loop); }
+  function finish(success){ running=false; paused=false; cancelAnimationFrame(raf); startLabel.style.display='grid'; setStatus('idle'); setProgress(1); }
+
+  // START on FIRST CLICK (ring or label)
+  function handleClickStartPause(e){ e.preventDefault(); if(!running) start(); else pauseToggle(); }
+  ring.addEventListener('click', handleClickStartPause);
+  document.getElementById('startLabel').addEventListener('click', handleClickStartPause);
+
+  // Long press to stop (only when running)
+  ring.addEventListener('pointerdown', ()=>{ if(!running) return; longPress=false; longTO=setTimeout(()=>{ longPress=true; finish(false); }, 650); });
+  ring.addEventListener('pointerup', ()=>{ if(longTO) clearTimeout(longTO); });
+  ring.addEventListener('pointerleave', ()=>{ if(longTO) clearTimeout(longTO); });
+})();
+
+// Populate EDU accordion
 (function(){
   const data = [["Šta su Kegel vježbe?", "Dno karlice je skup mišića koji idu od trtične do stidne kosti. Ti mišići podržavaju mokraćni mjehur, prostatu i rektum te pomažu u kontroli mokrenja i seksualnoj funkciji. Kegel vježbe su jednostavne kontrakcije ovih mišića s ciljem jačanja i bolje kontrole."], ["Zašto rade?", "Jačanjem dna karlice poboljšava se mehanička podrška i kontrola sfinktera, a često i stabilnost erekcije. Istraživanja pokazuju koristi za kontrolu mokrenja, erektilnu funkciju i neke oblike preranog svršavanja — posebno uz dosljedno vježbanje."], ["Kom je ovo korisno?", "• muškarcima sa slabijom erekcijom ili prijevremenom ejakulacijom\n• nakon operacije prostate (za curenje mokraće)\n• kod curenja pri kašljanju/kihanju/podizanju tereta\n• svima koji žele bolju kontrolu i stabilnost core-a"], ["Ko treba pauzirati i prvo se javiti doktoru?", "Pauziraj i posavjetuj se ako imaš hroničan bol u karlici/preponama, bol pri erekciji/ejakulaciji/orgazmu, učestalo i hitno mokrenje, izražen zatvor, svježu infekciju urinarnog trakta ili ako si nedavno operisan."], ["Kako ‘naći’ pravi mišić", "Kao da želiš zaustaviti mlaz mokraće ili spriječiti vjetar — to je otprilike pravi osjećaj. Ovo koristi samo kao test; ne vježbaj redovno tokom mokrenja. Ne stiskaj stomak, stražnjicu ni bedra i ne zadržavaj dah."], ["Osnovna tehnika u aplikaciji", "U KegelPilotu prati STEGNI → (ponekad ZADRŽI) → OPUSTI. Pulsirajući prsten te vodi kroz stisak i opuštanje, a narandžasta traka pokazuje napredak cijele sesije. Intenzitet neka bude umjeren (50–70%), uz mirno disanje."], ["Šta kažu studije", "Pregledi više studija pokazuju poboljšanja erektilne funkcije, kontrole mokrenja i često kod preranog svršavanja, posebno uz redovnost i/ili rad s fizioterapeutom za dno karlice. Napredak je postepen i zahtijeva dosljednost."], ["Česte greške", "• Prejak stisak i zamor — biraj umjereno.\n• Stiskanje stražnjice/stomaka/bedara — fokus na dno karlice.\n• Zadržavanje daha — diši mirno.\n• Previše serija prerano — drži se plana u appu."], ["Plan i motivacija", "Kreni s Rangom 1; aplikacija te vodi i postepeno uvodi varijacije. Cilj za prelazak: 2 sesije dnevno kroz 5 uzastopnih dana. Mnogi promjene primijete kroz nekoliko sedmica — strpljenje i kontinuitet su ključ."], ["Napomena", "Ovaj sadržaj je informativan i ne zamjenjuje savjet ljekara. Ako imaš simptome koji te brinu ili osjetiš pogoršanje tokom vježbi, stani i potraži stručni savjet."]];
   const host = document.getElementById('eduAcc');
@@ -136,7 +236,7 @@ const APP_VERSION = 'v21';
   });
 })();
 
-// SW register with versioned URL (cache-bust)
+// SW register with versioned URL
 if ('serviceWorker' in navigator) { 
   window.addEventListener('load', function() { 
     navigator.serviceWorker.register('./service-worker.js?v='+APP_VERSION).then(()=>console.log('SW registered', APP_VERSION));
