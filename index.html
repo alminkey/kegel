@@ -3,96 +3,539 @@
 <html lang="bs">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>KegelPilot v15 (onboarding)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>KegelPilot — v16 • Onboarding + app</title>
   <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#0B0E12">
   <style>
-    body{margin:0;font-family:Inter,system-ui,Segoe UI,Roboto,Arial,sans-serif;background:#0b0e12;color:#e0e6ef}
-    header{display:flex;justify-content:space-between;align-items:center;padding:12px 14px;background:#0f141c;position:sticky;top:0}
-    .brandimg{height:34px}
-    .ver{font-size:11px;color:#9aa0a6}
-    main{padding:16px}
-    .card{border:1px solid rgba(255,255,255,.12);border-radius:16px;padding:16px;margin-bottom:12px;background:rgba(255,255,255,.03)}
-    /* onboarding */
+    :root{ --bg:#0b0e12; --ink:#e0e6ef; --muted:#9aa0a6;
+           --train:#66E6A8; --progress:#FFA94D; --ring-scale:.2; --ring-alpha:.3; --bgPulse-scale:.2; --bgPulse-alpha:.1; }
+    *{box-sizing:border-box} html,body{height:100%}
+    body{margin:0;background:radial-gradient(1200px 600px at 20% -10%,#18202b 0%,#0b0e12 60%),var(--bg);color:var(--ink);font-family:Inter,system-ui,Segoe UI,Roboto,Arial,sans-serif;-webkit-tap-highlight-color:transparent;}
+    body, .card { touch-action: manipulation; }
+
+    .shell{min-height:100%;display:grid;grid-template-rows:auto 1fr auto}
+    header{position:sticky;top:0;background:rgba(12,15,20,.8);backdrop-filter:blur(8px);border-bottom:1px solid rgba(255,255,255,.06);padding:10px 14px;display:flex;align-items:center;justify-content:space-between;gap:12px;z-index:10}
+    .brandimg{height:34px; width:auto; display:block; object-fit:contain; filter:drop-shadow(0 0 10px rgba(102,230,168,.15));}
+    .ver{font-size:11px;color:#9aa0a6;margin-left:6px;opacity:.8}
+
+    .protag{font-weight:900;letter-spacing:.2px;padding:6px 10px;border-radius:999px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06)}
+    .protag .pro{color:#ff6b6b} .protag .on{color:#66E6A8}
+
+    main{padding:16px;display:none} main.active{display:block}
+    .grid{display:grid;gap:12px}
+
+    /* Cards */
+    .card{position:relative;border-radius:16px;padding:16px 14px;border:1px solid rgba(255,255,255,.12);overflow:hidden;cursor:pointer}
+    .card.glass{background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.02)); backdrop-filter: blur(10px); box-shadow:0 10px 30px rgba(0,0,0,.35), inset 0 0 0 1px rgba(255,255,255,.04);}
+    .card.has-art::before{content:'';position:absolute;inset:0;background-position:center;background-repeat:no-repeat;background-size:cover;opacity:.28;z-index:0;transition:transform .4s ease, opacity .25s ease; pointer-events: none;}
+    .bg-level{ --art: url('art/card-level.svg'); }
+    .bg-edu{ --art: url('art/card-edu.svg'); }
+    .bg-quick{ --art: url('art/card-quick.svg'); }
+    .card.bg-level.has-art::before{ background-image: var(--art); }
+    .card.bg-edu.has-art::before{ background-image: var(--art); }
+    .card.bg-quick.has-art::before{ background-image: var(--art); }
+    .card:hover::before{ transform: scale(1.02); opacity:.34; }
+    .card > *{position:relative; z-index:1}
+
+    /* Ripple */
+    .ripple{ position:absolute; border-radius:50%; transform:scale(0); pointer-events:none; background: radial-gradient(circle, rgba(255,255,255,.35) 0%, rgba(255,255,255,0) 70%); opacity:.8; animation: ripple .6s ease-out forwards; }
+    @keyframes ripple{ to { transform:scale(8); opacity:0; } }
+
+    .row{display:flex;align-items:center;justify-content:space-between;gap:8px}
+    .stage{display:grid;gap:10px}
+    .stage .title{display:flex;align-items:center;justify-content:space-between}
+    .stage .bar{display:grid;grid-template-columns:repeat(10,1fr);gap:6px}
+    .stage .dot{height:8px;border-radius:999px;background:#202634}
+    .stage .dot.active{background:linear-gradient(90deg,#66E6A8,#81D4FA)}
+    .stage .meta{display:flex;align-items:center;justify-content:space-between;font-size:12px;color:var(--muted)}
+    .stage .chip{display:inline-block;padding:6px 10px;border-radius:999px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);font-weight:800}
+    .hint{color:var(--muted); font-size:12px; margin-top:6px}
+
+    nav{position:sticky;bottom:0;background:rgba(10,12,16,.82);backdrop-filter:blur(10px);border-top:1px solid rgba(255,255,255,.06);display:grid;grid-template-columns:repeat(4,1fr)}
+    nav button{appearance:none;border:0;background:none;color:var(--muted);padding:8px 6px 12px;font-weight:800;font-size:13px;letter-spacing:.2px;display:grid;place-items:center;gap:4px;position:relative;transition:transform .08s ease-out, color .2s ease-out;outline:none; cursor:pointer}
+    nav button:active{transform:scale(.96)} nav button .icon{width:22px;height:22px;opacity:.9} nav button.active{color:var(--ink);}
+    nav button.active .indicator{position:absolute;bottom:4px;height:4px;width:34px;border-radius:999px;background:currentColor;filter:drop-shadow(0 0 10px currentColor);opacity:.9}
+    nav button.active[data-color="home"]{color:#81D4FA} nav button.active[data-color="train"]{color:#66E6A8} nav button.active[data-color="edu"]{color:#9aa8ff} nav button.active[data-color="stats"]{color:#c792ea}
+
+    .status{font-weight:900;letter-spacing:.6px;background:linear-gradient(180deg,#E7F0FF 0%, #BFD5FF 60%, #9AD0FF 100%);-webkit-background-clip:text;background-clip:text;color:transparent;text-align:center;text-shadow:0 2px 20px rgba(120,170,255,.08);font-size:clamp(18px,5vw,28px);}
+    .hints{text-align:center;margin-top:4px;color:var(--muted);font-size:12px;}
+    .ring-wrap{display:grid;place-items:center;padding:12px}
+    .ring{position:relative;width:min(60vw,252px);height:min(60vw,252px);border-radius:50%;background:#0e131a;box-shadow:inset 0 0 0 10px rgba(255,255,255,.04),0 10px 40px rgba(0,0,0,.4);overflow:hidden;}
+    .bgpulse{position:absolute;inset:0;display:grid;place-items:center;z-index:0;transform:scale(var(--bgPulse-scale));}
+    .bgpulse > div{width:100%;height:100%;border-radius:50%;background:radial-gradient(50% 50% at 50% 50%, rgba(64,196,255, var(--bgPulse-alpha)) 0%, rgba(64,196,255,0) 70%);transition:opacity .02s linear, transform .02s linear;}
+    .ring .pulse-layer{position:absolute;inset:0;display:block;transform:scale(var(--ring-scale));transition:transform .02s linear;z-index:1}
+    .ring .stroke{stroke:#66E6A8;stroke-width:18;fill:none;opacity:var(--ring-alpha);filter:drop-shadow(0 6px 24px rgba(0,0,0,.3));}
+    .ring .progress-layer{position:absolute;inset:0;display:block;z-index:2} .ring .boundary{stroke:#2a3342;stroke-width:6;fill:none;opacity:.9;} .ring .progress{stroke:#FFA94D;stroke-width:6;fill:none;opacity:.95;}
+    .startLabel{position:absolute; inset:0; display:grid; place-items:center; z-index:3; font-weight:900; letter-spacing:.6px; color:#FFA94D; text-shadow:0 2px 14px rgba(255,169,77,.25); animation: pulseText 1.6s ease-in-out infinite;}
+    @keyframes pulseText{0%,100%{transform:scale(1);opacity:.9} 50%{transform:scale(1.06);opacity:1}}
+    .planchip{text-align:center; font-size:12px; color:#9aa8ff; margin-top:6px;}
+
+    /* Onboarding modal (3 koraka) */
     .ob{position:fixed;inset:0;background:rgba(5,8,12,.75);backdrop-filter:blur(10px);display:none;align-items:center;justify-content:center;z-index:9999}
     .ob.active{display:flex;}
-    .sheet{width:min(820px,94vw);max-height:94vh;background:#0f141c;border:1px solid rgba(255,255,255,.08);border-radius:18px;box-shadow:0 10px 60px rgba(0,0,0,.6);display:grid;grid-template-rows:auto 1fr auto}
-    .sheet header,.sheet footer{padding:12px 16px;border-bottom:1px solid rgba(255,255,255,.06);display:flex;justify-content:space-between;align-items:center}
-    .sheet footer{border-top:1px solid rgba(255,255,255,.06);border-bottom:0}
-    .slides{padding:14px;overflow:auto}
-    .btn{appearance:none;border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.06);color:#e0e6ef;padding:10px 14px;border-radius:10px;cursor:pointer;font-weight:800}
-    .btn.primary{border-color:transparent;background:linear-gradient(90deg,#66E6A8,#81D4FA); color:#0b0e12}
+    .ob .sheet{width:min(820px,94vw);max-height:94vh;background:#0f141c;border:1px solid rgba(255,255,255,.08);border-radius:18px;box-shadow:0 10px 60px rgba(0,0,0,.6);display:grid;grid-template-rows:auto 1fr auto}
+    .ob header{position:relative;background:transparent;border-bottom:1px solid rgba(255,255,255,.06);padding:12px 16px;display:flex;align-items:center;justify-content:space-between}
+    .ob .slides{padding:14px;overflow:auto}
+    .ob footer{border-top:1px solid rgba(255,255,255,.06);padding:12px 14px;display:flex;align-items:center;justify-content:space-between}
     .stepdots{display:flex;gap:8px}
     .dotx{width:8px;height:8px;border-radius:999px;background:#2a3342} .dotx.active{background:#66E6A8; box-shadow:0 0 0 4px rgba(102,230,168,.15)}
+    .btn{appearance:none;border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.06);color:#e0e6ef;padding:10px 14px;border-radius:10px;cursor:pointer;font-weight:800}
+    .btn.primary{border-color:transparent;background:linear-gradient(90deg,#66E6A8,#81D4FA); color:#0b0e12}
+    .btn.ghost{background:transparent;border-color:rgba(255,255,255,.14)}
+
+    .grid2{display:grid;gap:10px}
+    .field{display:grid;gap:6px}
+    .field label{font-size:12px;color:#9aa0a6}
+    .field input, .field select{appearance:none;background:#121823;border:1px solid rgba(255,255,255,.12);color:#e0e6ef;border-radius:10px;padding:10px 12px;font-size:14px;outline:none}
+    .flex{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
   </style>
 </head>
 <body>
+<div class="shell">
   <header>
     <div style="display:flex;align-items:center;gap:6px">
-      <img src="assets/logo_text.png" class="brandimg" alt="KegelPilot"><span class="ver">v15</span>
+      <img src="assets/logo_text.png" alt="KegelPilot" class="brandimg">
+      <span class="ver">v16</span>
     </div>
+    <div class="protag"><span class="pro">PRO</span> <span class="on">aktivno</span></div>
   </header>
-  <main>
-    <div class="card">Naslovna (demo) — Onboarding bi se trebao pojaviti odmah na prvom otvaranju.</div>
+
+  <main id="home" class="active">
+    <div class="grid">
+      <div id="cardLevel" class="card glass has-art bg-level" role="button" tabindex="0" aria-label="Otvorite napredak">
+        <div class="stage">
+          <div class="title"><strong>Tvoj nivo: <span id="rankLabel">Rang 1</span></strong><span class="chip" id="rankGoal">2× dnevno 5 dana zaredom</span></div>
+          <div class="bar" id="rankBar"></div>
+          <div class="stage meta"><span id="rankName" class="muted">Uvod / planirane varijacije</span><span class="muted">Tapni da vidiš detalje →</span></div>
+        </div>
+      </div>
+
+      <div id="cardEdu" class="card glass has-art bg-edu" role="button" tabindex="0" aria-label="O Kegel vježbama">
+        <div class="row"><strong>O Kegel vježbama (za muškarce)</strong></div>
+        <div class="hint">Šta su, kome pomažu i kada očekivati rezultate — kratko, jasno, ohrabrujuće.</div>
+      </div>
+
+      <div id="cardQuick" class="card glass has-art bg-quick" role="button" tabindex="0" aria-label="Brzi start treninga">
+        <div class="row"><strong>Brzi start</strong><span class="muted" id="quickPlan">Današnji plan će se primijeniti automatski</span></div>
+        <div class="hint">Tapni bilo gdje za pokretanje treninga.</div>
+      </div>
+    </div>
   </main>
 
-  <div id="onboarding" class="ob" aria-hidden="true">
-    <div class="sheet">
-      <header>
-        <strong>Dobrodošao u KegelPilot</strong>
-        <button class="btn" id="obSkip">Preskoči</button>
-      </header>
-      <div class="slides">
-        <div id="s1"><h2>Počni jednostavno, napreduj pametno</h2><p>Kratke, diskretne vježbe za mišiće karličnog dna. Plan Rang 1 te vodi postepeno.</p></div>
-        <div id="s2" style="display:none"><h2>Video uvod (uskoro)</h2><img src="assets/instructor_placeholder.png" style="width:100%;border-radius:14px;border:1px solid rgba(255,255,255,.08)"></div>
-        <div id="s3" style="display:none"><h2>Odaberi koliko puta dnevno</h2><select id="perday"><option value="1">1×</option><option value="2" selected>2×</option><option value="3">3×</option></select></div>
+  <main id="trainer">
+    <div class="grid">
+      <div class="card glass">
+        <div id="status" class="status" style="margin-top:4px">Pripremi se</div>
+        <div class="planchip" id="planchip">Dan 1 • Varijacija 1</div>
+        <div class="hints" id="hints">Dodirni krug za Start/Pauzu • Dugi dodir za Stop</div>
+        <div class="ring-wrap">
+          <div class="ring" id="ring" tabindex="0">
+            <div class="bgpulse"><div></div></div>
+            <svg class="pulse-layer" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+              <circle class="stroke" cx="50" cy="50" r="40" stroke-linecap="round"></circle>
+            </svg>
+            <svg class="progress-layer" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+              <circle class="boundary" cx="50" cy="50" r="46" stroke-linecap="round"></circle>
+              <circle class="progress" cx="50" cy="50" r="46" stroke-linecap="round"></circle>
+            </svg>
+            <div class="startLabel" id="startLabel">START</div>
+          </div>
+        </div>
       </div>
-      <footer>
-        <div class="stepdots">
-          <div class="dotx active" data-step="1"></div>
-          <div class="dotx" data-step="2"></div>
-          <div class="dotx" data-step="3"></div>
-        </div>
-        <div>
-          <button class="btn" id="obBack" disabled>Nazad</button>
-          <button class="btn primary" id="obNext">Dalje</button>
-          <button class="btn primary" id="obDone" style="display:none">Završi</button>
-        </div>
-      </footer>
+
+      <div class="card glass">
+        <div class="row"><strong>Plan sesije</strong><span id="varDesc" class="muted"></span></div>
+        <div class="hint">Varijacije su zaključane i primjenjuju se po planu (Dan 1–5).</div>
+      </div>
     </div>
+  </main>
+
+  <main id="edu">
+    <div class="grid">
+      <div class="card glass">
+        <div class="row"><strong>O Kegel vježbama (za muškarce)</strong></div>
+        <div class="grid" style="gap:8px">
+          <div class="hint">Jednostavne, diskretne vježbe koje mnogima pomažu – od bolje kontrole mokrenja do stabilnije erekcije. Ključ je ispravna tehnika i redovnost.</div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <main id="progress">
+    <div class="grid">
+      <div class="card glass">
+        <div class="row"><strong>Napredak</strong><span id="rankSummary" class="muted"></span></div>
+        <div class="grid" style="gap:8px;margin-top:8px">
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px">
+            <div class="card glass" style="padding:12px">
+              <div class="muted">Ukupno sesija</div><div id="kpiTotal" style="font-weight:900;font-size:18px">0</div>
+            </div>
+            <div class="card glass" style="padding:12px">
+              <div class="muted">Dani zaredom (≥2/dan)</div><div id="kpiDays2x" style="font-weight:900;font-size:18px">0/5</div>
+            </div>
+            <div class="card glass" style="padding:12px">
+              <div class="muted">Dana u nizu</div><div id="kpiStreak" style="font-weight:900;font-size:18px">0</div>
+            </div>
+          </div>
+          <div class="card glass" style="padding:12px">
+            <strong>Posljednjih 7 dana</strong>
+            <svg id="spark" style="height:46px;width:100%;display:block" viewBox="0 0 140 46" preserveAspectRatio="none" aria-hidden="true"></svg>
+          </div>
+          <div class="card glass" style="padding:12px">
+            <strong>Trenutni cilj</strong>
+            <div class="muted" id="goalText">2× dnevno tokom 5 uzastopnih dana — onda prelazak na Rang 2.</div>
+            <div class="muted" id="r1DayInfo"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <nav>
+    <button class="active" data-tab="home" data-color="home" aria-label="Početna">
+      <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 3l9 7-1.5 2L12 6 4.5 12 3 10l9-7zM5 12h14v8H5z"/></svg>
+      Početna <span class="indicator" aria-hidden="true"></span>
+    </button>
+    <button data-tab="trainer" data-color="train" aria-label="Trening">
+      <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="7" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 3a9 9 0 0 1 0 18" fill="none" stroke="currentColor" stroke-width="2"/></svg>
+      Trening <span class="indicator" aria-hidden="true"></span>
+    </button>
+    <button data-tab="edu" data-color="edu" aria-label="Edu">
+      <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M4 5h16v14H4zM7 8h10v2H7zm0 4h10v2H7z"/></svg>
+      Edu <span class="indicator" aria-hidden="true"></span>
+    </button>
+    <button data-tab="progress" data-color="stats" aria-label="Napredak">
+      <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M4 18h4V8H4v10zm6 0h4V4h-4v14zm6 0h4V12h-4v6z"/></svg>
+      Napredak <span class="indicator" aria-hidden="true"></span>
+    </button>
+  </nav>
+</div>
+
+<!-- Onboarding 3 koraka -->
+<div id="onboarding" class="ob" aria-hidden="true">
+  <div class="sheet">
+    <header>
+      <strong>Dobrodošao u KegelPilot</strong>
+      <button class="btn ghost" id="obSkip">Preskoči</button>
+    </header>
+    <div class="slides">
+      <div id="step1" class="grid2">
+        <h2>Počni jednostavno, napreduj pametno</h2>
+        <p>App te vodi kroz kratke, diskretne vježbe za mišiće karličnog dna. Kroz plan Ranga 1 učiš pravilnu tehniku, gradiš kontrolu i postepeno povećavaš izazov.</p>
+        <p class="hint">Rezultati su individualni — mnogi prijavljuju bolju kontrolu mokrenja i stabilniju erekciju uz redovnost.</p>
+      </div>
+      <div id="step2" class="grid2" style="display:none">
+        <h2>Kratak video tutorijal (uskoro)</h2>
+        <img src="assets/instructor_placeholder.png" alt="Instruktor" style="width:100%;border-radius:14px;border:1px solid rgba(255,255,255,.08)">
+        <p class="hint">Ovdje će ići 15–20s video uvod instruktora — za sada ilustracija.</p>
+      </div>
+      <div id="step3" class="grid2" style="display:none">
+        <h2>Koliko puta dnevno želiš da treniraš?</h2>
+        <div class="field">
+          <label for="perday">Broj sesija dnevno</label>
+          <select id="perday">
+            <option value="1">1× dnevno</option>
+            <option value="2" selected>2× dnevno (preporučeno)</option>
+            <option value="3">3× dnevno</option>
+          </select>
+        </div>
+        <div class="flex" id="timePickers">
+          <div class="field"><label>Termin 1</label><input type="time" id="t1" value="09:00"></div>
+          <div class="field"><label>Termin 2</label><input type="time" id="t2" value="19:00"></div>
+          <div class="field" id="t3wrap" style="display:none"><label>Termin 3</label><input type="time" id="t3" value="21:00"></div>
+        </div>
+        <p class="hint">Ako propustiš podsjetnik, app će ga ponoviti još do 2 puta u narednih sat vremena (implementacija podsjetnika uskoro).</p>
+      </div>
+    </div>
+    <footer>
+      <div class="stepdots" role="tablist" aria-label="Koraci">
+        <div class="dotx active" data-step="1"></div>
+        <div class="dotx" data-step="2"></div>
+        <div class="dotx" data-step="3"></div>
+      </div>
+      <div class="flex">
+        <button class="btn ghost" id="obBack" disabled>Nazad</button>
+        <button class="btn primary" id="obNext">Dalje</button>
+        <button class="btn primary" id="obDone" style="display:none">Završi</button>
+      </div>
+    </footer>
   </div>
+</div>
+
+<!-- Var intro modals -->
+<div id="introV2" class="ob" aria-hidden="true">
+  <div class="sheet">
+    <header><strong>Nova varijacija: #2</strong><button class="btn" data-close="introV2">Zatvori</button></header>
+    <div class="slides">
+      <h2>Dodaj zadržavanje (1s)</h2>
+      <p>Stegni, kratko zadrži (1 sekundu), pa opusti. Ovaj ritam uči kontrolu i izdržljivost bez pretjeranog zamora.</p>
+      <p class="hint">Savjet: disanje ostaje mirno — izdah pri opuštanju.</p>
+    </div>
+    <footer><span></span><button class="btn primary" data-close="introV2">Razumijem</button></footer>
+  </div>
+</div>
+
+<div id="introV3" class="ob" aria-hidden="true">
+  <div class="sheet">
+    <header><strong>Nova varijacija: #3</strong><button class="btn" data-close="introV3">Zatvori</button></header>
+    <div class="slides">
+      <h2>Brzi stisak + duže zadržavanje (3s)</h2>
+      <p>Aktiviraj brzo, zadrži 3 sekunde, pa opusti 2 sekunde. Fokus na stabilnosti i finijoj kontroli.</p>
+      <p class="hint">Ako osjetiš napetost ili tremor — smanji intenzitet, ne forsiraj.</p>
+    </div>
+    <footer><span></span><button class="btn primary" data-close="introV3">Kreni</button></footer>
+  </div>
+</div>
 
 <script>
 (function(){
-  const ob = document.getElementById('onboarding');
-  const s = [document.getElementById('s1'),document.getElementById('s2'),document.getElementById('s3')];
-  const dots = document.querySelectorAll('.dotx');
-  let i=0;
-  function setStep(n){
-    i = Math.max(0, Math.min(2, n));
-    s.forEach((el,idx)=> el.style.display = idx===i ? '' : 'none');
-    dots.forEach((d,idx)=> d.classList.toggle('active', idx===i));
-    document.getElementById('obBack').disabled = (i===0);
-    document.getElementById('obNext').style.display = (i<2)? '' : 'none';
-    document.getElementById('obDone').style.display = (i===2)? '' : 'none';
+  // Ripple
+  function attachRipple(el){
+    el.addEventListener('pointerdown', (e)=>{
+      const r = document.createElement('span');
+      r.className = 'ripple';
+      const rect = el.getBoundingClientRect();
+      const size = Math.max(rect.width, rect.height);
+      r.style.width = r.style.height = size + 'px';
+      r.style.left = (e.clientX - rect.left - size/2) + 'px';
+      r.style.top  = (e.clientY - rect.top  - size/2) + 'px';
+      el.appendChild(r);
+      setTimeout(()=>{ r.remove(); }, 650);
+    });
   }
-  function showIfNeeded(){
-    if(!localStorage.getItem('kp_onboard_v1')){
-      ob.classList.add('active'); ob.setAttribute('aria-hidden','false'); setStep(0);
+  document.querySelectorAll('.card').forEach(attachRipple);
+
+  const DEFAULT_REPS = 10, DEFAULT_SETS = 3;
+  const VARS_R1 = {
+    1: { hold:1,   keep:0, rest:2, name:"Var 1" },
+    2: { hold:1,   keep:1, rest:1, name:"Var 2" },
+    3: { hold:0.5, keep:3, rest:2, name:"Var 3" },
+  };
+  function todayKey(){ const d=new Date(); return d.toISOString().slice(0,10); }
+  function loadState(){
+    try{ return JSON.parse(localStorage.getItem('kp_state_v6f')||'null') || {
+      rank:1, total:0, lastDay:null, streak:0, dayCounts:{},
+      r1StartDate: null, introV2Done:false, introV3Done:false
+    }}catch(e){ return { rank:1, total:0, lastDay:null, streak:0, dayCounts:{},
+      r1StartDate:null, introV2Done:false, introV3Done:false } }
+  }
+  function saveState(s){ localStorage.setItem('kp_state_v6f', JSON.stringify(s)); }
+
+  let state = loadState();
+  if(!state.r1StartDate){ state.r1StartDate = todayKey(); saveState(state); }
+
+  function daysBetween(a,b){ const A=new Date(a+'T00:00:00'); const B=new Date(b+'T00:00:00'); return Math.floor((B-A)/(24*3600*1000)); }
+  function r1Day(){ const d = daysBetween(state.r1StartDate, todayKey()) + 1; return Math.max(1, Math.min(5, d)); }
+
+  function buildPlanForDay(day){
+    const totalReps = DEFAULT_REPS * DEFAULT_SETS;
+    if(day<=2){ return [{ var:1, reps: totalReps }]; }
+    else if(day===3){ return [{ var:1, reps: Math.ceil(totalReps/2) }, { var:2, reps: Math.floor(totalReps/2) }]; }
+    else if(day===4){ return [{ var:1, reps: Math.ceil(totalReps/2) }, { var:2, reps: Math.floor(totalReps/2) }]; }
+    else { const part = Math.floor(totalReps/3); const rem = totalReps - part*3; return [{ var:1, reps: part }, { var:2, reps: part }, { var:3, reps: part+rem }]; }
+  }
+  function planLabel(segments){ return segments.map(s=>VARS_R1[s.var].name).join(' + '); }
+
+  // Navigation
+  const pages = document.querySelectorAll('main');
+  const navButtons = document.querySelectorAll('nav button');
+  function showTab(id){ pages.forEach(p=>p.classList.toggle('active', p.id===id)); navButtons.forEach(b=>b.classList.toggle('active', b.getAttribute('data-tab')===id)); if (navigator.vibrate) navigator.vibrate(12); }
+  document.querySelectorAll('nav button').forEach(btn=>btn.addEventListener('click',(e)=>{ e.preventDefault(); const id=btn.getAttribute('data-tab'); if(id) showTab(id); }));
+  document.getElementById('cardLevel').addEventListener('click', ()=> showTab('progress'));
+  document.getElementById('cardEdu').addEventListener('click', ()=> showTab('edu'));
+  document.getElementById('cardQuick').addEventListener('click', ()=> showTab('trainer'));
+
+  // Rank UI + spark
+  const rankBar = document.getElementById('rankBar');
+  for(let i=1;i<=10;i++){ const d=document.createElement('div'); d.className='dot'; d.dataset.id=i; rankBar.appendChild(d); }
+  function consecutiveDays2x(counts){ const daysNeeded = 5; const now = new Date(); let streak = 0;
+    for(let i=0; i<daysNeeded; i++){ const d=new Date(now); d.setDate(now.getDate()-i); const key=d.toISOString().slice(0,10); if((counts[key]||0) >= 2) streak++; else break; } return streak; }
+  function drawSpark(){
+    const svg = document.getElementById('spark'); if(!svg) return;
+    const days = 7; const now = new Date(); const keys = [];
+    for(let i=days-1;i>=0;i--){ const d = new Date(now); d.setDate(now.getDate()-i); keys.push(d.toISOString().slice(0,10)); }
+    const w = 140, h = 46; const barW = Math.floor((w- (days+1)*4)/days);
+    let content = `<rect x="0" y="0" width="${w}" height="${h}" fill="none" />`; let x = 4;
+    keys.forEach(k=>{ const v = (state.dayCounts && state.dayCounts[k]) ? Math.min(3, state.dayCounts[k]) : 0; const bh = 10 + v*8; const y = h - bh - 6; const col = v>0? '#66E6A8' : '#2a3342'; content += `<rect rx="3" ry="3" x="${x}" y="${y}" width="${barW}" height="${bh}" fill="${col}" />`; x += barW + 4; });
+    svg.innerHTML = content;
+  }
+  function setRankUI(){
+    const rDay = r1Day();
+    document.getElementById('rankLabel').textContent = "Rang " + state.rank + " / 10";
+    document.querySelectorAll('.dot').forEach(el=>el.classList.toggle('active', Number(el.dataset.id) <= state.rank));
+    document.getElementById('rankName').textContent = "Uvod / planirane varijacije • Dan " + rDay;
+    document.getElementById('quickPlan').textContent = "Današnji plan: " + planLabel(buildPlanForDay(rDay));
+    document.getElementById('r1DayInfo').textContent = "Rang 1 • Dan " + rDay + " — " + planLabel(buildPlanForDay(rDay));
+    const streak2x = consecutiveDays2x(state.dayCounts);
+    document.getElementById('rankSummary').textContent = `${streak2x}/5`;
+    document.getElementById('kpiTotal').textContent = state.total;
+    document.getElementById('kpiDays2x').textContent = `${streak2x}/5`;
+    document.getElementById('kpiStreak').textContent = state.streak;
+    drawSpark();
+  }
+
+  // Trainer
+  const status = document.getElementById('status');
+  const ringEl = document.getElementById('ring');
+  const startLabel = document.getElementById('startLabel');
+  const progress = document.querySelector('.progress-layer .progress');
+  const planchip = document.getElementById('planchip');
+  const varDesc = document.getElementById('varDesc');
+  const R=46; const C=2*Math.PI*R;
+  progress.setAttribute('stroke-dasharray', C.toFixed(2));
+  progress.setAttribute('stroke-dashoffset', C.toFixed(2));
+  progress.setAttribute('transform','rotate(-90 50 50)');
+  let audioCtx; function beep(f=660,d=110,t='sine',g=0.03){ try{ audioCtx=audioCtx||new (window.AudioContext||window.webkitAudioContext)(); const o=audioCtx.createOscillator(); const x=audioCtx.createGain(); o.type=t; o.frequency.value=f; x.gain.value=g; o.connect(x); x.connect(audioCtx.destination); o.start(); setTimeout(()=>o.stop(), d); }catch(e){} }
+  let session=null, raf=0, lastTs=0, running=false, paused=false, longPressTO=null, longPressed=false;
+
+  function buildSegmentsQueue(day){
+    const segs = buildPlanForDay(day).map(seg => ({...seg}));
+    return segs.map(s=>({ ...s, hold:VARS_R1[s.var].hold, keep:VARS_R1[s.var].keep, rest:VARS_R1[s.var].rest }));
+  }
+  function totalDurationOf(segments){
+    let totalReps = 0, totalTime = 0;
+    segments.forEach(s => { totalReps += s.reps; totalTime += s.reps * (s.hold + s.keep + s.rest); });
+    return { reps: totalReps, seconds: totalTime };
+  }
+  function setPhase(p){ if(p==='hold'){ status.textContent='STEGNI'; beep(740,110); } else if(p==='keep'){ status.textContent='ZADRŽI'; beep(640,80); } else if(p==='rest'){ status.textContent='OPUSTI'; beep(520,100); } else { status.textContent='Pripremi se'; } }
+  function mapHold(t){ return { ringScale: .2+.8*t, ringAlpha: .3+.7*t, bgScale: .2+.8*t, bgAlpha: .1+.4*t } }
+  function mapKeep(t){ return { ringScale: 1.0, ringAlpha: .95, bgScale: 1.0, bgAlpha: .5 - .2*t } }
+  function mapRest(t){ return { ringScale: 1-.8*t, ringAlpha: 1-.7*t, bgScale: 1-.8*t, bgAlpha: .5-.4*t } }
+  function mapCountdown(){ const b=.02*Math.sin(performance.now()/180); return { ringScale: .25+b, ringAlpha: .4+.1*Math.sin(performance.now()/220), bgScale: .25+b, bgAlpha: .18+.06*Math.sin(performance.now()/220) } }
+  function setProgress(globalPct){ const off=C*(1-globalPct); progress.setAttribute('stroke-dashoffset', off.toFixed(2)); }
+
+  function loop(ts){
+    if(!running||paused) return; if(!lastTs) lastTs=ts; const dt=(ts-lastTs)/1000; lastTs=ts;
+    session.remaining -= dt;
+    const phaseTotal = session.phase==='hold' ? session.hold : session.phase==='keep' ? session.keep : session.phase==='rest' ? session.rest : 3;
+    const elapsed = (session.phase==='countdown') ? (3 - session.remaining) : (phaseTotal - session.remaining);
+    const pctPhase = Math.min(1, Math.max(0, elapsed/phaseTotal));
+    const m = session.phase==='hold' ? mapHold(pctPhase) : session.phase==='keep' ? mapKeep(pctPhase) : session.phase==='rest' ? mapRest(pctPhase) : mapCountdown();
+    document.documentElement.style.setProperty('--ring-scale', m.ringScale.toFixed(3));
+    document.documentElement.style.setProperty('--ring-alpha', m.ringAlpha.toFixed(3));
+    document.documentElement.style.setProperty('--bgPulse-scale', m.bgScale.toFixed(3));
+    document.documentElement.style.setProperty('--bgPulse-alpha', m.bgAlpha.toFixed(3));
+    if(session.phase!=='countdown'){ session.totalElapsed += dt; setProgress(Math.min(1, session.totalElapsed/session.totalDuration)); }
+    if(session.remaining<=0){ if(session.phase==='countdown') beep(880,120,'square'); advance(); }
+    raf=requestAnimationFrame(loop);
+  }
+  function advance(){
+    if(session.phase==='countdown'){ session.phase='hold'; session.remaining=session.hold; setPhase('hold'); return; }
+    if(session.phase==='hold'){ if(session.keep>0){ session.phase='keep'; session.remaining=session.keep; setPhase('keep'); return; } session.phase='rest'; session.remaining=session.rest; setPhase('rest'); return; }
+    if(session.phase==='keep'){ session.phase='rest'; session.remaining=session.rest; setPhase('rest'); return; }
+    if(session.phase==='rest'){
+      session.repInSeg++;
+      if(session.repInSeg > session.segments[session.segIndex].reps){
+        session.segIndex++;
+        if(session.segIndex >= session.segments.length){ finishSession(true); return; }
+        const seg = session.segments[session.segIndex];
+        session.hold = seg.hold; session.keep = seg.keep; session.rest = seg.rest;
+        session.repInSeg = 1;
+      }
+      session.phase='hold'; session.remaining=session.hold; setPhase('hold');
     }
   }
-  document.getElementById('obNext').addEventListener('click', ()=> setStep(i+1));
-  document.getElementById('obBack').addEventListener('click', ()=> setStep(i-1));
-  document.getElementById('obDone').addEventListener('click', ()=>{ localStorage.setItem('kp_onboard_v1','1'); ob.classList.remove('active'); });
-  document.getElementById('obSkip').addEventListener('click', ()=>{ localStorage.setItem('kp_onboard_v1','1'); ob.classList.remove('active'); });
-  showIfNeeded();
+  function startSession(){
+    const day = r1Day();
+    const segments = buildSegmentsQueue(day);
+    const totals = totalDurationOf(segments);
+    session = { segments, segIndex:0, repInSeg:1, hold:segments[0].hold, keep:segments[0].keep, rest:segments[0].rest, phase:'countdown', remaining:3, totalDuration: totals.seconds, totalElapsed:0 };
+    lastTs=0; running=true; paused=false; cancelAnimationFrame(raf); setPhase('countdown'); setProgress(0); startLabel.style.display='none'; raf=requestAnimationFrame(loop);
+  }
+  function pauseToggle(){ if(!running) return; paused=!paused; if(!paused) raf=requestAnimationFrame(loop); }
+  function finishSession(success){
+    running=false; paused=false; cancelAnimationFrame(raf); status.textContent='Završeno'; setProgress(1); startLabel.style.display='grid';
+    if(success){
+      state.total++; const today=todayKey();
+      if(state.lastDay!==today){ state.streak = (state.lastDay && ((Date.parse(today)-Date.parse(state.lastDay))===24*3600*1000)) ? state.streak+1 : 1; state.lastDay=today; }
+      state.dayCounts[today] = (state.dayCounts[today]||0) + 1; saveState(state); setRankUI();
+    }
+  }
+  function stopSession(success){ if(!running) return; finishSession(success); }
+
+  const ringEl = document.getElementById('ring');
+  ringEl.addEventListener('pointerdown', ()=>{ if(!running){ maybeShowIntroThenStart(); return; } longPressed=false; longPressTO=setTimeout(()=>{ longPressed=true; stopSession(false); }, 650); });
+  ringEl.addEventListener('pointerup', ()=>{ if(longPressTO) clearTimeout(longPressTO); if(running && !longPressed) pauseToggle(); });
+  ringEl.addEventListener('pointerleave', ()=>{ if(longPressTO) clearTimeout(longPressTO); });
+
+  // Var modals once
+  function openIntro(id){ document.getElementById(id).classList.add('active'); }
+  function closeIntro(id){ document.getElementById(id).classList.remove('active'); }
+  document.querySelectorAll('[data-close]').forEach(b=>b.addEventListener('click', ()=> closeIntro(b.getAttribute('data-close')) ));
+  function maybeShowIntroThenStart(){
+    const d = r1Day();
+    if(d===3 && !state.introV2Done){ openIntro('introV2'); state.introV2Done=true; saveState(state); setTimeout(()=>startSession(), 300); return; }
+    if(d>=5 && !state.introV3Done){ openIntro('introV3'); state.introV3Done=true; saveState(state); setTimeout(()=>startSession(), 300); return; }
+    startSession();
+  }
+
+  function refreshTrainerLabels(){
+    const d = r1Day(); const segments = buildPlanForDay(d);
+    document.getElementById('planchip').textContent = "Dan " + d + " • " + planLabel(segments);
+    document.getElementById('varDesc').textContent = segments.map(s => (VARS_R1[s.var].name + ` (${VARS_R1[s.var].hold}s / ${VARS_R1[s.var].keep}s / ${VARS_R1[s.var].rest}s)`)).join('  •  ');
+  }
+
+  // Onboarding 3-step
+  const ob = document.getElementById('onboarding');
+  const obDots = ob.querySelectorAll('.dotx');
+  const stepEls = [document.getElementById('step1'), document.getElementById('step2'), document.getElementById('step3')];
+  let step = 0;
+  function setStep(i){
+    step = Math.max(0, Math.min(2, i));
+    stepEls.forEach((el,idx)=> el.style.display = idx===step ? '' : 'none');
+    obDots.forEach((d,idx)=> d.classList.toggle('active', idx===step));
+    document.getElementById('obBack').disabled = (step===0);
+    document.getElementById('obNext').style.display = (step<2)? '' : 'none';
+    document.getElementById('obDone').style.display = (step===2)? '' : 'none';
+  }
+  function showOnboardingIfNeeded(){
+    if(!localStorage.getItem('kp_onboard_v1')){
+      ob.classList.add('active');
+      ob.setAttribute('aria-hidden','false');
+      setStep(0);
+    }
+  }
+  function saveReminderPrefs(){
+    const perday = Number(document.getElementById('perday').value);
+    const t1 = (document.getElementById('t1').value)||'09:00';
+    const t2 = (document.getElementById('t2').value)||'19:00';
+    const t3 = (document.getElementById('t3').value)||'21:00';
+    const times = perday===1 ? [t1] : perday===2 ? [t1,t2] : [t1,t2,t3];
+    localStorage.setItem('kp_reminders', JSON.stringify({perday, times}));
+  }
+  document.getElementById('perday').addEventListener('change', (e)=>{
+    const v = Number(e.target.value);
+    document.getElementById('t3wrap').style.display = v===3 ? '' : 'none';
+  });
+  document.getElementById('obNext').addEventListener('click', ()=> setStep(step+1));
+  document.getElementById('obBack').addEventListener('click', ()=> setStep(step-1));
+  document.getElementById('obDone').addEventListener('click', ()=>{
+    saveReminderPrefs();
+    localStorage.setItem('kp_onboard_v1','1');
+    ob.classList.remove('active');
+    ob.setAttribute('aria-hidden','true');
+  });
+  document.getElementById('obSkip').addEventListener('click', ()=>{
+    localStorage.setItem('kp_onboard_v1','1');
+    ob.classList.remove('active');
+    ob.setAttribute('aria-hidden','true');
+  });
+
+  // Init
+  setRankUI();
+  refreshTrainerLabels();
+  showOnboardingIfNeeded();
+  console.log('KegelPilot loaded v16 (with onboarding + app)');
 })();
 </script>
 
 <script>
-if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('./service-worker.js');
-}
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', function() {
+      navigator.serviceWorker.register('./service-worker.js').catch(function(e){ console.log('SW reg error', e); });
+    });
+  }
 </script>
 </body>
 </html>
