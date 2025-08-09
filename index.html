@@ -4,7 +4,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <title>KegelPilot — Rang 1 varijacije (PWA)</title>
+  <title>KegelPilot — Rang 1 varijacije (PWA v2)</title>
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#0B0E12">
   <style>
@@ -119,7 +119,7 @@
       </div>
       <div class="card">
         <div class="row"><strong>Tvoj plan</strong><span id="rankPlan" class="muted">Reps: 10 × Setovi: 3</span></div>
-        <div class="muted" style="margin-top:6px">Cilj za Rang 2: **2 sesije/dan** tokom **5 uzastopnih dana**.</div>
+        <div class="muted" style="margin-top:6px">Cilj za Rang 2: 2 sesije/dan tokom 5 uzastopnih dana.</div>
       </div>
     </div>
   </main>
@@ -184,7 +184,6 @@
       Napredak <span class="indicator" aria-hidden="true"></span>
     </button>
   </nav>
-</div>
 
 <script>
 (function(){
@@ -228,6 +227,17 @@
     }
   }
 
+  function drawSpark(){
+    const svg = document.getElementById('spark');
+    const days = 7; const now = new Date(); const keys = [];
+    for(let i=days-1;i>=0;i--){ const d = new Date(now); d.setDate(now.getDate()-i); keys.push(d.toISOString().slice(0,10)); }
+    const w = 140, h = 46; const barW = Math.floor((w- (days+1)*4)/days);
+    let content = `<rect x="0" y="0" width="${w}" height="${h}" fill="none" />`;
+    let x = 4;
+    keys.forEach(k=>{ const v = (state.dayCounts[k]||0); const bh = 10 + Math.min(3, v)*8; const y = h - bh - 6; const col = v>0? '#66E6A8' : '#2a3342'; content += `<rect rx="3" ry="3" x="${x}" y="${y}" width="${barW}" height="${bh}" fill="${col}" />`; x += barW + 4; });
+    svg.innerHTML = content;
+  }
+
   function setRankUI(){
     document.getElementById('rankLabel').textContent = "Rang " + state.rank + " / 10";
     document.querySelectorAll('.dot').forEach(el=>el.classList.toggle('active', Number(el.dataset.id) <= state.rank));
@@ -251,6 +261,7 @@
   }
   document.querySelectorAll('.vbtn').forEach(b=>b.addEventListener('click', ()=> setVarSel(Number(b.dataset.v))));
 
+  // Trainer state/animation
   const status = document.getElementById('status');
   const ring = document.getElementById('ring');
   const startLabel = document.getElementById('startLabel');
@@ -327,8 +338,7 @@
     paused=!paused;
     if(!paused) raf=requestAnimationFrame(loop);
   }
-  function stopSession(success){
-    if(!running) return;
+  function finishSession(success){
     running=false; paused=false; cancelAnimationFrame(raf); status.textContent='Završeno'; setProgress(1); startLabel.style.display='grid';
     if(success){
       state.total++;
@@ -342,23 +352,13 @@
       setRankUI();
     }
   }
+  function stopSession(success){ if(!running) return; finishSession(success); }
 
-  const ring = document.getElementById('ring');
+  // Ring interactions
   let longPressTO=null, longPressed=false;
   ring.addEventListener('pointerdown', ()=>{ if(!running){ startSession(); return; } longPressed=false; longPressTO=setTimeout(()=>{ longPressed=true; stopSession(false); }, 650); });
   ring.addEventListener('pointerup', ()=>{ if(longPressTO) clearTimeout(longPressTO); if(running && !longPressed) pauseToggle(); });
   ring.addEventListener('pointerleave', ()=>{ if(longPressTO) clearTimeout(longPressTO); });
-
-  function drawSpark(){
-    const svg = document.getElementById('spark');
-    const days = 7; const now = new Date(); const keys = [];
-    for(let i=days-1;i>=0;i--){ const d = new Date(now); d.setDate(now.getDate()-i); keys.push(d.toISOString().slice(0,10)); }
-    const w = 140, h = 46; const barW = Math.floor((w- (days+1)*4)/days);
-    let content = `<rect x="0" y="0" width="${w}" height="${h}" fill="none" />`;
-    let x = 4;
-    keys.forEach(k=>{ const v = (state.dayCounts[k]||0); const bh = 10 + Math.min(3, v)*8; const y = h - bh - 6; const col = v>0? '#66E6A8' : '#2a3342'; content += `<rect rx="3" ry="3" x="${x}" y="${y}" width="${barW}" height="${bh}" fill="${col}" />`; x += barW + 4; });
-    svg.innerHTML = content;
-  }
 
   // Init
   document.querySelectorAll('.dot').forEach(el=>el.classList.toggle('active', Number(el.dataset.id) <= state.rank));
