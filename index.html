@@ -1,6 +1,6 @@
 <!doctype html><html lang="bs"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>KegelPilot — v35</title>
+<title>KegelPilot — v36</title>
 <link rel="manifest" href="manifest.json"><meta name="theme-color" content="#0B0E12">
 <style>
 :root{
@@ -161,13 +161,25 @@ header, nav { width: 100%; max-width: 100%; }
   .grid { max-width: 640px; }
 }
 
+
+/* Runtime guard: when body.has 'home-compact', clamp home widths to avoid horizontal overflow */
+body.home-compact #home { overflow-x: hidden; }
+body.home-compact #home .grid { padding-left: 12px; padding-right: 12px; }
+body.home-compact #home .hero,
+body.home-compact #home .widget,
+body.home-compact #home .advice,
+body.home-compact #home .chips,
+body.home-compact #home .badges,
+body.home-compact #home .card { max-width: calc(100vw - 24px); width: 100%; margin-left: auto; margin-right: auto; }
+body.home-compact nav { overflow: hidden; }
+
 </style></head>
 <body>
 <div class="shell">
 <header>
   <div style="display:flex;align-items:center;gap:6px">
     <img id="brand" class="brandimg" alt="KegelPilot" loading="eager" fetchpriority="high" src="Logo.PNG">
-    <span class="ver">v35</span>
+    <span class="ver">v36</span>
   </div>
   <div class="protag"><span class="pro">PRO</span> <span class="on">aktivno</span></div>
 </header>
@@ -312,7 +324,7 @@ header, nav { width: 100%; max-width: 100%; }
 </div>
 
 <script>
-const APP_VERSION='v35';
+const APP_VERSION='v36';
 
 (async function(){try{const saved=localStorage.getItem('kp_app_version');if(saved!==APP_VERSION){if('caches'in window){const keys=await caches.keys();await Promise.all(keys.map(k=>caches.delete(k)));}if('serviceWorker'in navigator){const regs=await navigator.serviceWorker.getRegistrations();await Promise.all(regs.map(r=>r.unregister()));}localStorage.setItem('kp_app_version',APP_VERSION);const url=new URL(window.location.href);if(!url.searchParams.get('v')){url.searchParams.set('v',APP_VERSION);window.location.replace(url.toString());}}}catch(e){}})(); 
 (function(){const b=document.getElementById('brand');const i="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='132' height='28' viewBox='0 0 132 28' fill='none'><rect x='0' y='0' rx='8' ry='8' width='132' height='28' fill='rgba(15,20,27,0.85)'/><text x='14' y='19' font-family='Inter,Segoe UI,Arial,sans-serif' font-size='16' fill='%23A7F3D0' font-weight='700'>KegelPilot</text></svg>";function setInline(){b.src=i;}function tryAssets(){b.removeEventListener('error',tryAssets);b.addEventListener('error',setInline,{once:true});b.src='assets/logo_text.png';}b.addEventListener('error',tryAssets,{once:true});})();
