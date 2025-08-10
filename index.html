@@ -1,6 +1,6 @@
 <!doctype html><html lang="bs"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>KegelPilot — v39</title>
+<title>KegelPilot — v38</title>
 <link rel="manifest" href="manifest.json"><meta name="theme-color" content="#0B0E12">
 <style>
 :root{
@@ -214,68 +214,30 @@ nav button { min-width: 0; max-width: 100%; overflow: hidden; text-overflow: cli
 .home2 .badges2 { display:flex; gap:10px; overflow-x:auto; overflow-y:hidden; padding-bottom:4px; }
 .home2 .badge2 { min-width:92px; padding:12px; border-radius:14px; text-align:center; background:linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.02)); border:1px solid rgba(255,255,255,.14); opacity:.9; flex:0 0 auto; }
 
-
-/* --- v39-merge MATTE overrides --- */
-nav{background:rgba(12,15,20,.92)!important;backdrop-filter:blur(8px)!important;border-top:1px solid rgba(255,255,255,.08)!important;overflow:hidden!important}
-nav button.active{color:var(--ink)!important;background:rgba(255,255,255,.06)!important;border:1px solid rgba(255,255,255,.12)!important;transform:scale(1.0)!important}
-nav button::before{display:none!important}
-nav button.active::after{content:'';width:36px;height:3px;margin-top:6px;border-radius:999px;background:var(--navGlow, var(--accent2))!important;box-shadow:none!important}
-.card,.card2,.hero2{border:1px solid rgba(255,255,255,.10)!important;background:rgba(255,255,255,.03)!important;box-shadow:0 6px 16px rgba(0,0,0,.28)!important}
-/* Program pills */
-.pill{appearance:none;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.05);color:var(--ink);padding:10px 14px;border-radius:999px;font-weight:900;white-space:nowrap}
-.pill.pro{opacity:.45}
-.btn2,.btn{appearance:none;border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.06);padding:10px 14px;border-radius:12px;color:var(--ink);font-weight:900;letter-spacing:.3px}
-/* Bars */
-.bar2,.bar{position:relative;height:8px;background:rgba(255,255,255,.06);border-radius:999px;overflow:hidden}
-.bar2>div,.bar>i{position:absolute;inset:0;width:0%;background:linear-gradient(90deg, var(--accent2), #66e6a899, var(--accent));border-radius:999px}
-/* Chips grid safety */
-.chips,.chips2{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
-@media(max-width:420px){.chips,.chips2{grid-template-columns:repeat(2,minmax(0,1fr))}}
-@media(max-width:340px){.chips,.chips2{grid-template-columns:1fr}}
-/* Home width safety */
-#home .grid, #home .stack, #home .home-stack{max-width:720px;margin:0 auto}
-
 </style></head>
 <body>
 <div class="shell">
 <header>
   <div style="display:flex;align-items:center;gap:6px">
     <img id="brand" class="brandimg" alt="KegelPilot" loading="eager" fetchpriority="high" src="Logo.PNG">
-    <span class="ver">v39</span>
+    <span class="ver">v38</span>
   </div>
   <div class="protag"><span class="pro">PRO</span> <span class="on">aktivno</span></div>
 </header>
 
 
-
 <main id="home" class="active home2">
-  <div class="stack home-stack">
-    <section class="card2" id="goalStrip">
-      <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;">
-        <div style="font-weight:900">Trenutni cilj</div>
-        <div id="goalBadge" class="muted" style="font-size:12px"></div>
-      </div>
-      <div id="goalText" class="muted" style="margin:6px 0 10px 0">Rang 1 • Dan 1/5 — današnje sesije 0/2</div>
-      <div class="bar2"><div id="goalBar" style="width:0%"></div></div>
-    </section>
-
+  <div class="stack">
     <section class="hero2">
       <h2>Treniraj pametno, napreduj sigurno</h2>
       <p>Vođene Kegel vježbe sa vizuelnim feedbackom — diskretno, efikasno i prilagođeno tebi.</p>
-      <button id="ctaQuick" class="btn2" style="background:var(--accent2);color:#0b0e12;border-color:color-mix(in sRGB, var(--accent2) 60%, white)">Brzi start</button>
+      <button id="ctaQuick" class="cta2">Brzi start</button>
     </section>
 
-    <section class="card2">
-      <div style="display:flex;align-items:center;justify-content:space-between; margin-bottom:8px;">
-        <strong>Programi</strong><a id="seeAllProg" class="muted" style="text-decoration:none">Vidi sve</a>
-      </div>
-      <div class="progRow" style="display:flex; gap:10px; overflow:auto; padding-bottom:4px;">
-        <button class="pill" data-prog="base">Osnovni</button>
-        <button class="pill" data-prog="hold">Zadrži</button>
-        <button class="pill" data-prog="quick">Brzi stisak</button>
-        <button class="pill pro" disabled>Interval PRO</button>
-        <button class="pill pro" disabled>Tempo PRO</button>
-      </div>
+    <section class="chips2">
+      <div id="chipDay" class="chip2"><strong id="chipDayVal">Dan 1/5</strong><span>Dan ranga</span></div>
+      <div id="chipToday" class="chip2"><strong id="chipTodayVal">0/2</strong><span>Danas sesije</span><div class="bar2"><div id="chipTodayBar"></div></div></div>
+      <div id="chipStreak" class="chip2"><strong id="chipStreakVal">0</strong><span>Streak (2+/dan)</span></div>
     </section>
 
     <section class="card2">
@@ -295,21 +257,9 @@ nav button.active::after{content:'';width:36px;height:3px;margin-top:6px;border-
       <div class="muted" id="adviceText">Diši mirno: nosom udah, ustima izdah. Izbjegavaj zadržavanje daha tokom stiska.</div>
     </section>
 
-    <section class="card2" id="stretchCard">
-      <div style="display:flex;align-items:center;justify-content:space-between; gap:10px;">
-        <div><strong>Istezanje & disanje</strong><div class="muted">Kratki setovi za opuštanje karlice i bolji osjećaj.</div></div>
-        <button id="openStretch" class="btn2">Otvori</button>
-      </div>
-    </section>
-
     <section class="card2">
       <div style="margin-bottom:8px; font-weight:900">Značke</div>
       <div id="badges" class="badges2"></div>
-    </section>
-
-    <section class="card2">
-      <div style="display:flex;align-items:center;justify-content:space-between"><strong>Kalendar</strong><span class="muted" id="calMonth"></span></div>
-      <div id="miniCal" style="margin-top:8px; display:grid; grid-template-columns: repeat(7, 1fr); gap:6px;"></div>
     </section>
 
     <section id="cardLevel" class="card2" role="button" tabindex="0">
@@ -328,7 +278,6 @@ nav button.active::after{content:'';width:36px;height:3px;margin-top:6px;border-
     </section>
   </div>
 </main>
-
     
 
 <main id="trainer">
@@ -362,35 +311,20 @@ nav button.active::after{content:'';width:36px;height:3px;margin-top:6px;border-
   <div class="grid accordion" id="eduAcc"></div>
 </main>
 
-
 <main id="progress">
   <div class="grid">
     <div class="card">
       <div><strong>Sažetak</strong></div>
-      <div id="kpiRow" style="display:grid; grid-template-columns: repeat(2, 1fr); gap:10px; margin-top:8px;"></div>
+      <div class="kpi" id="kpiGrid"></div>
     </div>
-
     <div class="card">
-      <div style="display:flex;align-items:center;justify-content:space-between">
-        <strong>Dnevne sesije (poslednjih 14 dana)</strong>
-        <span class="muted" id="sparkRange"></span>
-      </div>
-      <div id="chart14" style="height:140px; margin-top:8px;"></div>
-    </div>
-
-    <div class="card" style="display:grid; grid-template-columns: 1fr 1fr; gap:16px;">
-      <div>
-        <div><strong>Nedjeljni pregled</strong></div>
-        <div id="barWeek" style="height:160px; margin-top:8px;"></div>
-      </div>
-      <div>
-        <div><strong>Napredak ranga</strong></div>
-        <div id="donut" style="height:160px; display:grid; place-items:center;"></div>
-      </div>
+      <div><strong>Cilj Ranga 1</strong></div>
+      <div class="muted">2 sesije dnevno kroz 5 uzastopnih dana.</div>
+      <div class="bar"><div id="goalDays" style="width:0%"></div></div>
+      <div class="muted" id="goalDesc" style="margin-top:6px"></div>
     </div>
   </div>
 </main>
-
 
 <nav id="nav">
   <button class="active" data-tab="home">Početna</button>
@@ -433,7 +367,7 @@ nav button.active::after{content:'';width:36px;height:3px;margin-top:6px;border-
 </div>
 
 <script>
-const APP_VERSION='v39';
+const APP_VERSION='v38';
 
 (async function(){try{const saved=localStorage.getItem('kp_app_version');if(saved!==APP_VERSION){if('caches'in window){const keys=await caches.keys();await Promise.all(keys.map(k=>caches.delete(k)));}if('serviceWorker'in navigator){const regs=await navigator.serviceWorker.getRegistrations();await Promise.all(regs.map(r=>r.unregister()));}localStorage.setItem('kp_app_version',APP_VERSION);const url=new URL(window.location.href);if(!url.searchParams.get('v')){url.searchParams.set('v',APP_VERSION);window.location.replace(url.toString());}}}catch(e){}})(); 
 (function(){const b=document.getElementById('brand');const i="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='132' height='28' viewBox='0 0 132 28' fill='none'><rect x='0' y='0' rx='8' ry='8' width='132' height='28' fill='rgba(15,20,27,0.85)'/><text x='14' y='19' font-family='Inter,Segoe UI,Arial,sans-serif' font-size='16' fill='%23A7F3D0' font-weight='700'>KegelPilot</text></svg>";function setInline(){b.src=i;}function tryAssets(){b.removeEventListener('error',tryAssets);b.addEventListener('error',setInline,{once:true});b.src='assets/logo_text.png';}b.addEventListener('error',tryAssets,{once:true});})();
@@ -465,27 +399,7 @@ const tabColor = {home:'#66E6A8', trainer:'#FFA94D', edu:'#81D4FA', progress:'#A
 })();
 
 function dayIndexFromStart(){const a=startOfDay(new Date(state.r1Start));const b=startOfDay(new Date());return Math.max(1,Math.min(5,Math.round((b-a)/86400000)+1));}
-function markSessionComplete(){const k=todayKey();state.days[k]=(state.days[k]||0)+1;state.totals.sessions++;saveState(state);renderHome();renderProgress();
-
-// v39-merge: update goal strip, calendar and charts after render
-(function(){
-  try{
-    const last14 = lastNDays(14);
-    const k = todayKey(); const todayCount = (state.days?.[k]||0);
-    const dIdx = dayIndexFromStart();
-    const goalText = document.getElementById('goalText'); if(goalText) goalText.textContent = `Rang 1 • Dan ${dIdx}/5 — današnje sesije ${todayCount}/2`;
-    let done=0; for(let i=0;i<5;i++){const d=new Date(new Date(state.r1Start).setHours(0,0,0,0)); d.setDate(d.getDate()+i); const key=d.toISOString().slice(0,10); if((state.days?.[key]||0)>=2) done++;}
-    const goalBar = document.getElementById('goalBar'); if(goalBar) goalBar.style.width = Math.round((done/5)*100)+'%';
-    const goalBadge = document.getElementById('goalBadge'); if(goalBadge) goalBadge.textContent = (dIdx===3||dIdx===5)?'Nova varijacija':'';
-    const miniCal = document.getElementById('miniCal'); if(miniCal) makeMiniCalendar(miniCal, state);
-    const spark = document.getElementById('sparkRange'); const last14Arr = last14; if(spark) spark.textContent = last14Arr[0].key+' — '+last14Arr[last14Arr.length-1].key;
-    renderKPIs(state);
-    renderLine14(document.getElementById('chart14'), last14);
-    renderBarsWeek(document.getElementById('barWeek'), state);
-    renderDonut(document.getElementById('donut'), state);
-  }catch(e){console.warn('v39-merge augment', e);}
-})();
-}
+function markSessionComplete(){const k=todayKey();state.days[k]=(state.days[k]||0)+1;state.totals.sessions++;saveState(state);renderHome();renderProgress();}
 function renderHome(){
   const k=todayKey();const today=state.days[k]||0;const dayIdx=dayIndexFromStart();
   document.getElementById('chipDayVal').textContent='Dan '+dayIdx+'/5';
@@ -518,100 +432,6 @@ function renderProgress(){
   const goalDesc = document.getElementById('goalDesc'); if(goalDesc) goalDesc.textContent=`Završeni dani: ${daysCompleted}/5 (potrebno 5/5 sa 2 sesije dnevno)`;
 }
 renderHome(); renderProgress();
-
-
-// === v39-merge helpers ===
-function daysInMonth(y,m){ return new Date(y, m+1, 0).getDate(); }
-function makeMiniCalendar(host, state){
-  const now = new Date();
-  const y = now.getFullYear(), m = now.getMonth();
-  const dim = daysInMonth(y,m);
-  const first = (new Date(y,m,1).getDay()+6)%7; // Monday-first
-  const calMonth = document.getElementById('calMonth'); if(calMonth) calMonth.textContent = now.toLocaleString('bs-BA', {month:'long', year:'numeric'});
-  host.innerHTML='';
-  for(let i=0;i<first;i++){ const ph = document.createElement('div'); ph.style.opacity='.25'; host.appendChild(ph); }
-  for(let d=1; d<=dim; d++){
-    const cell = document.createElement('div');
-    cell.style = 'aspect-ratio:1/1; border-radius:10px; display:grid; place-items:center; border:1px solid rgba(255,255,255,.10); background:rgba(255,255,255,.03)';
-    const key = new Date(y,m,d).toISOString().slice(0,10);
-    const c = (state.days?.[key]||0);
-    let dot = '';
-    if(c>=2) dot = '<div style="width:8px;height:8px;border-radius:50%;background:var(--accent2)"></div>';
-    else if(c===1) dot = '<div style="width:8px;height:8px;border-radius:50%;background:var(--accent)"></div>';
-    cell.innerHTML = '<div style="text-align:center;font-weight:900">'+d+'</div>' + (dot? '<div style="margin-top:2px;display:grid;place-items:center">'+dot+'</div>':'');
-    host.appendChild(cell);
-  }
-}
-function renderKPIs(state){
-  const k = todayKey(); const today = (state.days?.[k]||0);
-  let streak=0;for(let i=0;i<60;i++){const d=new Date();d.setDate(d.getDate()-i);const key=d.toISOString().slice(0,10);const c=state.days?.[key]||0;if(c>=2)streak++;else break;}
-  const total=state.totals?.sessions||0;
-  const dayIdx = dayIndexFromStart();
-  const row = document.getElementById('kpiRow'); if(!row) return; row.innerHTML='';
-  const mk = (label,val)=>{
-    const box = document.createElement('div'); 
-    box.style = 'border:1px solid rgba(255,255,255,.12); border-radius:12px; padding:12px; background:rgba(255,255,255,.03)';
-    box.innerHTML = '<div style="font-size:22px;font-weight:1000">'+val+'</div><div class="muted">'+label+'</div>';
-    row.appendChild(box);
-  };
-  mk('Danas sesije', today+'/2');
-  mk('Uzastopni dani (2+/dan)', streak);
-  mk('Ukupno sesija', total);
-  mk('Dan ranga', dayIdx+'/5');
-}
-function lastNDays(n){
-  const arr=[]; for(let i=n-1;i>=0;i--){ const d=new Date(); d.setDate(d.getDate()-i); const key=d.toISOString().slice(0,10); arr.push({key, c:(state.days?.[key]||0)}); } return arr;
-}
-function svgEl(tag, attrs){ const el = document.createElementNS('http://www.w3.org/2000/svg', tag); for(const k in attrs){ el.setAttribute(k, attrs[k]); } return el; }
-function renderLine14(host, data){
-  if(!host) return;
-  host.innerHTML='';
-  const w = host.clientWidth || 320, h = host.clientHeight || 140, p=14;
-  const svg = svgEl('svg', {viewBox:`0 0 ${w} ${h}`, width:'100%', height:'100%'});
-  const gx = svgEl('path', {d:`M${p},${h-p} H${w-p}`, stroke:'rgba(255,255,255,.12)', 'stroke-width':'1', fill:'none'}); svg.appendChild(gx);
-  const maxV=2, dx=(w-2*p)/(data.length-1);
-  const pts=data.map((d,i)=>({x:p+i*dx, y:h-p - (d.c/maxV)*(h-2*p)}));
-  let dPath=`M ${p},${h-p} `; pts.forEach((pt)=>{ dPath += `L ${pt.x},${pt.y} `; }); dPath+=`L ${w-p},${h-p} Z`;
-  svg.appendChild(svgEl('path', {d:dPath, fill:'rgba(129,212,250,.20)'}));
-  let dLine = `M ${pts[0].x},${pts[0].y} `; for(let i=1;i<pts.length;i++){ dLine+=`L ${pts[i].x},${pts[i].y} `; }
-  svg.appendChild(svgEl('path', {d:dLine, stroke:'#81D4FA', 'stroke-width':'2.5', fill:'none'}));
-  pts.forEach((pt,i)=>{
-    const color = data[i].c>=2 ? 'var(--accent2)': (data[i].c===1? 'var(--accent)':'#2a3342');
-    svg.appendChild(svgEl('circle', {cx:pt.x, cy:pt.y, r:'3.5', fill:color}));
-  });
-  host.appendChild(svg);
-}
-function renderBarsWeek(host, state){
-  if(!host) return;
-  host.innerHTML='';
-  const w = host.clientWidth || 320, h = host.clientHeight || 160, p=14;
-  const svg = svgEl('svg', {viewBox:`0 0 ${w} ${h}`, width:'100%', height:'100%'});
-  const now=new Date(); const start=new Date(); start.setDate(now.getDate()-6);
-  const bw=(w-2*p)/7 - 6;
-  for(let i=0;i<7;i++){
-    const d=new Date(start); d.setDate(start.getDate()+i);
-    const key=d.toISOString().slice(0,10); const c = state.days?.[key]||0;
-    const x=p + i*((w-2*p)/7);
-    const hval = (c/2)*(h-2*p); const y=h-p-hval;
-    const col = c>=2? 'var(--accent2)': c===1? 'var(--accent)': 'rgba(255,255,255,.10)';
-    svg.appendChild(svgEl('rect', {x:String(x), y:String(y), width:String(bw), height:String(Math.max(2,hval)), rx:'6', fill:col}));
-  }
-  host.appendChild(svg);
-}
-function renderDonut(host, state){
-  if(!host) return;
-  host.innerHTML='';
-  let done=0; for(let i=0;i<5;i++){const d=new Date(new Date(state.r1Start).setHours(0,0,0,0)); d.setDate(d.getDate()+i); const key=d.toISOString().slice(0,10); if((state.days?.[key]||0)>=2) done++;}
-  const pct = Math.round((done/5)*100);
-  const size=140, r=52, cx=size/2, cy=size/2, C=2*Math.PI*r;
-  const svg = svgEl('svg', {viewBox:`0 0 ${size} ${size}`, width:'100%', height:'100%'});
-  svg.appendChild(svgEl('circle', {cx, cy, r, fill:'none', stroke:'rgba(255,255,255,.10)', 'stroke-width':'14'}));
-  const prog = svgEl('circle', {cx, cy, r, fill:'none', stroke:'var(--accent2)', 'stroke-width':'14', 'stroke-dasharray':String(C), 'stroke-dashoffset':String(C*(1-pct/100)), transform:`rotate(-90 ${cx} ${cy})`});
-  svg.appendChild(prog);
-  const text = svgEl('text', {x:cx, y:cy+5, 'text-anchor':'middle', 'font-size':'22', fill:'var(--ink)', 'font-weight':'800'}); text.textContent = pct+'%'; svg.appendChild(text);
-  const sub = svgEl('text', {x:cx, y:cy+26, 'text-anchor':'middle', 'font-size':'11', fill:'#9aa0a6'}); sub.textContent = `Dani: ${done}/5`; svg.appendChild(sub);
-  host.appendChild(svg);
-}
 
 // Advice slider
 (function(){
@@ -777,19 +597,5 @@ document.getElementById('chipStreak').onclick=()=>{ if(document.body.classList.c
 })();
 
 if('serviceWorker' in navigator){ window.addEventListener('load', function(){ navigator.serviceWorker.register('./service-worker.js?v='+APP_VERSION); }); }
-
-// v39-merge actions
-document.querySelectorAll('.pill').forEach(el=>{
-  el.addEventListener('click', ()=>{
-    if(el.classList.contains('pro')){ if(navigator.vibrate) navigator.vibrate(8); return; }
-    (document.querySelector('nav button[data-tab="trainer"]')||document.querySelector('nav button[data-tab=trainer]'))?.click();
-  });
-});
-document.getElementById('ctaQuick')?.addEventListener('click', ()=>{
-  document.querySelector('nav button[data-tab="trainer"]')?.click();
-});
-document.getElementById('openStretch')?.addEventListener('click', ()=>{
-  document.querySelector('nav button[data-tab="edu"]')?.click();
-});
-
-</script></body></html>
+</script>
+</body></html>
