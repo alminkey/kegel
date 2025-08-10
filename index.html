@@ -1,6 +1,6 @@
 <!doctype html><html lang="bs"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>KegelPilot — v38.2a</title>
+<title>KegelPilot — v38.2b</title>
 <link rel="manifest" href="manifest.json"><meta name="theme-color" content="#0B0E12">
 <style>
 :root{
@@ -215,7 +215,7 @@ nav button { min-width: 0; max-width: 100%; overflow: hidden; text-overflow: cli
 .home2 .badge2 { min-width:92px; padding:12px; border-radius:14px; text-align:center; background:linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.02)); border:1px solid rgba(255,255,255,.14); opacity:.9; flex:0 0 auto; }
 
 
-/* === KP v38.2a.1: MATTE bottom nav (safe override) === */
+/* === KP v38.2b.1: MATTE bottom nav (safe override) === */
 nav{background:rgba(12,15,20,.92)!important;backdrop-filter:blur(8px)!important;border-top:1px solid rgba(255,255,255,.08)!important;overflow:hidden!important}
 nav button.active{color:var(--ink)!important;background:rgba(255,255,255,.06)!important;border:1px solid rgba(255,255,255,.12)!important;transform:scale(1.0)!important}
 nav button::before{display:none!important}
@@ -224,7 +224,7 @@ nav button.active::after{content:'';width:36px;height:3px;margin-top:6px;border-
 .card,.card2,.hero2{border:1px solid rgba(255,255,255,.10)!important;background:rgba(255,255,255,.03)!important;box-shadow:0 6px 16px rgba(0,0,0,.28)!important}
 
 
-/* === KP v38.2a: Minimalist icon tabs === */
+/* === KP v38.2b: Minimalist icon tabs === */
 nav{background:rgba(12,15,20,.92)!important;border-top:1px solid rgba(255,255,255,.08)!important;overflow:hidden!important}
 .nav-inner{display:flex;justify-content:space-around;gap:6px;max-width:960px;margin:0 auto}
 nav button{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:8px 6px;border-radius:10px;border:1px solid transparent;background:transparent;color:var(--muted)!important}
@@ -234,9 +234,22 @@ nav button.active{color:var(--ink)!important;border-color:transparent;background
 nav button.active::after{content:'';width:22px;height:3px;border-radius:999px;background:var(--ink);margin-top:4px}
 
 
-/* === KP v38.2aa: Full-width, evenly-spaced nav === */
+/* === KP v38.2ba: Full-width, evenly-spaced nav === */
 .nav-inner{display:grid!important;grid-template-columns:repeat(4,1fr)!important;gap:0!important;width:100%!important;margin:0 auto!important}
 nav button{width:100%!important;justify-content:center!important}
+
+
+/* === KP v38.2b: Force fixed full-width nav with equal columns === */
+nav{position:fixed!important; left:0!important; right:0!important; bottom:0!important; width:100vw!important; box-sizing:border-box!important;
+    background:rgba(12,15,20,.96)!important; border-top:1px solid rgba(255,255,255,.08)!important; z-index:999!important}
+.nav-inner{display:grid!important; grid-template-columns:repeat(4, 1fr)!important; justify-items:center!important; align-items:center!important;
+    gap:0!important; width:100%!important; max-width:none!important; margin:0 auto!important; padding:8px 8px calc(8px + env(safe-area-inset-bottom, 0px)) 8px!important}
+nav button{width:100%!important; justify-content:center!important; text-align:center!important; color:var(--muted)!important; border:none!important; background:transparent!important}
+nav button svg{margin:0 auto!important; display:block!important}
+nav button.active{color:#ffffff!important}
+nav button.active::after{content:''; width:24px; height:3px; border-radius:999px; background:#ffffff; margin-top:4px; display:block}
+/* ensure page content not hidden behind fixed nav */
+body{padding-bottom:72px!important}
 
 </style></head>
 <body>
@@ -244,7 +257,7 @@ nav button{width:100%!important;justify-content:center!important}
 <header>
   <div style="display:flex;align-items:center;gap:6px">
     <img id="brand" class="brandimg" alt="KegelPilot" loading="eager" fetchpriority="high" src="Logo.PNG">
-    <span class="ver">v38.2a</span>
+    <span class="ver">v38.2b</span>
   </div>
   <div class="protag"><span class="pro">PRO</span> <span class="on">aktivno</span></div>
 </header>
@@ -407,7 +420,7 @@ nav button{width:100%!important;justify-content:center!important}
 </div>
 
 <script>
-const APP_VERSION='v38.2a';
+const APP_VERSION='v38.2b';
 
 (async function(){try{const saved=localStorage.getItem('kp_app_version');if(saved!==APP_VERSION){if('caches'in window){const keys=await caches.keys();await Promise.all(keys.map(k=>caches.delete(k)));}if('serviceWorker'in navigator){const regs=await navigator.serviceWorker.getRegistrations();await Promise.all(regs.map(r=>r.unregister()));}localStorage.setItem('kp_app_version',APP_VERSION);const url=new URL(window.location.href);if(!url.searchParams.get('v')){url.searchParams.set('v',APP_VERSION);window.location.replace(url.toString());}}}catch(e){}})(); 
 (function(){const b=document.getElementById('brand');const i="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='132' height='28' viewBox='0 0 132 28' fill='none'><rect x='0' y='0' rx='8' ry='8' width='132' height='28' fill='rgba(15,20,27,0.85)'/><text x='14' y='19' font-family='Inter,Segoe UI,Arial,sans-serif' font-size='16' fill='%23A7F3D0' font-weight='700'>KegelPilot</text></svg>";function setInline(){b.src=i;}function tryAssets(){b.removeEventListener('error',tryAssets);b.addEventListener('error',setInline,{once:true});b.src='assets/logo_text.png';}b.addEventListener('error',tryAssets,{once:true});})();
