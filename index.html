@@ -1,6 +1,6 @@
 <!doctype html><html lang="bs"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>KegelPilot — v37</title>
+<title>KegelPilot — v38</title>
 <link rel="manifest" href="manifest.json"><meta name="theme-color" content="#0B0E12">
 <style>
 :root{
@@ -183,69 +183,102 @@ nav button { min-width: 0; max-width: 100%; overflow: hidden; text-overflow: cli
 .badges { overflow-x: auto; overflow-y: hidden; }
 .badge { flex: 0 0 auto; }
 
+
+/* ===== Home2: simplified, fully responsive stack (no masks, no fancy overflows) ===== */
+#home.home2 { padding: 16px 12px; }
+.home2 .stack { display:flex; flex-direction:column; gap:12px; width:100%; max-width:720px; margin:0 auto; }
+.home2 .hero2, .home2 .card2 { width:100%; border-radius:16px; border:1px solid rgba(255,255,255,.12);
+  background:linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.02)); box-shadow:0 10px 28px rgba(0,0,0,.35); padding:16px; overflow:hidden; }
+.home2 .hero2 h2 { margin:0 0 6px 0; font-size:clamp(20px,6vw,28px); }
+.home2 .hero2 p { margin:0 0 12px 0; color:#b8c0cc; }
+.home2 .cta2 { display:inline-flex; align-items:center; gap:10px; padding:12px 16px; border-radius:12px; border:1px solid color-mix(in sRGB, var(--accent2) 60%, white); background:var(--accent2); color:#0b0e12; font-weight:1000; letter-spacing:.3px; box-shadow:0 10px 24px color-mix(in sRGB, var(--accent2) 40%, transparent); }
+
+.home2 .chips2 { display:grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap:10px; width:100%; }
+.home2 .chip2 { padding:12px; border-radius:12px; background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.12); text-align:center; }
+.home2 .chip2 strong { display:block; font-weight:900; }
+
+@media (max-width: 420px){ .home2 .chips2{ grid-template-columns: repeat(2, minmax(0,1fr)); } }
+@media (max-width: 340px){ .home2 .chips2{ grid-template-columns: 1fr; } }
+
+.home2 .bar2 { position:relative; height:8px; background:rgba(255,255,255,.06); border-radius:999px; margin-top:6px; overflow:hidden; }
+.home2 .bar2 > div { position:absolute; inset:0; width:0%; background:linear-gradient(90deg, var(--accent2), #a8ffd7); border-radius:999px; }
+
+.home2 .row2 { display:flex; flex-direction:column; gap:12px; width:100%; }
+.home2 .widget2-title { font-weight:900; }
+.home2 .muted { color:#9aa0a6; }
+
+.home2 .advice2 { display:flex; flex-direction:column; gap:8px; }
+.home2 .advice2 .controls { display:flex; gap:8px; justify-content:flex-end; position:static; }
+.home2 .btn2 { appearance:none; border:1px solid rgba(255,255,255,.18); background:rgba(255,255,255,.06); padding:10px 14px; border-radius:12px; color:var(--ink); font-weight:900; letter-spacing:.3px; }
+
+.home2 .badges2 { display:flex; gap:10px; overflow-x:auto; overflow-y:hidden; padding-bottom:4px; }
+.home2 .badge2 { min-width:92px; padding:12px; border-radius:14px; text-align:center; background:linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.02)); border:1px solid rgba(255,255,255,.14); opacity:.9; flex:0 0 auto; }
+
 </style></head>
 <body>
 <div class="shell">
 <header>
   <div style="display:flex;align-items:center;gap:6px">
     <img id="brand" class="brandimg" alt="KegelPilot" loading="eager" fetchpriority="high" src="Logo.PNG">
-    <span class="ver">v37</span>
+    <span class="ver">v38</span>
   </div>
   <div class="protag"><span class="pro">PRO</span> <span class="on">aktivno</span></div>
 </header>
 
-<main id="home" class="active">
-  <div class="grid">
-    <section class="hero">
+
+<main id="home" class="active home2">
+  <div class="stack">
+    <section class="hero2">
       <h2>Treniraj pametno, napreduj sigurno</h2>
       <p>Vođene Kegel vježbe sa vizuelnim feedbackom — diskretno, efikasno i prilagođeno tebi.</p>
-      <button id="ctaQuick" class="cta">Brzi start</button>
+      <button id="ctaQuick" class="cta2">Brzi start</button>
     </section>
 
-    <section class="chips">
-      <div id="chipDay" class="chip"><strong id="chipDayVal">Dan 1/5</strong><span>Dan ranga</span></div>
-      <div id="chipToday" class="chip"><strong id="chipTodayVal">0/2</strong><span>Danas sesije</span><div class="bar"><div id="chipTodayBar"></div></div></div>
-      <div id="chipStreak" class="chip"><strong id="chipStreakVal">0</strong><span>Streak (2+/dan)</span></div>
+    <section class="chips2">
+      <div id="chipDay" class="chip2"><strong id="chipDayVal">Dan 1/5</strong><span>Dan ranga</span></div>
+      <div id="chipToday" class="chip2"><strong id="chipTodayVal">0/2</strong><span>Danas sesije</span><div class="bar2"><div id="chipTodayBar"></div></div></div>
+      <div id="chipStreak" class="chip2"><strong id="chipStreakVal">0</strong><span>Streak (2+/dan)</span></div>
     </section>
 
-    <section class="widget" id="nextTimes">
-      <div>
-        <div style="font-weight:900">Sljedeći termin</div>
-        <div class="muted" id="nextTimesText">Danas u 10:30 i 19:00</div>
-      </div>
-      <button id="toggleRem" class="toggle">Podsjetnici: ON</button>
+    <section class="card2">
+      <div class="widget2-title">Sljedeći termin</div>
+      <div class="muted" id="nextTimesText">Danas u 10:30 i 19:00</div>
+      <div style="margin-top:10px"><button id="toggleRem" class="btn2">Podsjetnici: ON</button></div>
     </section>
 
-    <section class="advice">
-      <div style="display:flex;align-items:center;justify-content:space-between">
+    <section class="card2 advice2">
+      <div style="display:flex; align-items:center; justify-content:space-between">
         <strong>Savjet dana</strong>
         <div class="controls">
-          <button id="advPrev" class="btn">◀</button>
-          <button id="advNext" class="btn">▶</button>
+          <button id="advPrev" class="btn2">◀</button>
+          <button id="advNext" class="btn2">▶</button>
         </div>
       </div>
       <div class="muted" id="adviceText">Diši mirno: nosom udah, ustima izdah. Izbjegavaj zadržavanje daha tokom stiska.</div>
     </section>
 
-    <section>
-      <div style="margin:8px 0; font-weight:900">Značke</div>
-      <div id="badges" class="badges"></div>
+    <section class="card2">
+      <div style="margin-bottom:8px; font-weight:900">Značke</div>
+      <div id="badges" class="badges2"></div>
     </section>
 
-    <div id="cardLevel" class="card has-art bg-level" role="button" tabindex="0">
+    <section id="cardLevel" class="card2" role="button" tabindex="0">
       <div><strong>Tvoj nivo</strong></div>
       <div class="muted" id="homeLevelHint">Cilj: 2× dnevno • 5 dana zaredom</div>
-    </div>
-    <div id="cardEdu" class="card has-art bg-edu" role="button" tabindex="0">
+    </section>
+
+    <section id="cardEdu" class="card2" role="button" tabindex="0">
       <div><strong>O Kegel vježbama (za muškarce)</strong></div>
       <div class="muted">Kratko, jasno i ohrabrujuće — kako, zašto i kome pomažu.</div>
-    </div>
-    <div id="cardQuick" class="card has-art bg-quick" role="button" tabindex="0">
+    </section>
+
+    <section id="cardQuick" class="card2" role="button" tabindex="0">
       <div><strong>Brzi start</strong></div>
       <div class="muted">Tapni za pokretanje treninga.</div>
-    </div>
+    </section>
   </div>
 </main>
+    
 
 <main id="trainer">
   <div class="grid">
@@ -334,7 +367,7 @@ nav button { min-width: 0; max-width: 100%; overflow: hidden; text-overflow: cli
 </div>
 
 <script>
-const APP_VERSION='v37';
+const APP_VERSION='v38';
 
 (async function(){try{const saved=localStorage.getItem('kp_app_version');if(saved!==APP_VERSION){if('caches'in window){const keys=await caches.keys();await Promise.all(keys.map(k=>caches.delete(k)));}if('serviceWorker'in navigator){const regs=await navigator.serviceWorker.getRegistrations();await Promise.all(regs.map(r=>r.unregister()));}localStorage.setItem('kp_app_version',APP_VERSION);const url=new URL(window.location.href);if(!url.searchParams.get('v')){url.searchParams.set('v',APP_VERSION);window.location.replace(url.toString());}}}catch(e){}})(); 
 (function(){const b=document.getElementById('brand');const i="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='132' height='28' viewBox='0 0 132 28' fill='none'><rect x='0' y='0' rx='8' ry='8' width='132' height='28' fill='rgba(15,20,27,0.85)'/><text x='14' y='19' font-family='Inter,Segoe UI,Arial,sans-serif' font-size='16' fill='%23A7F3D0' font-weight='700'>KegelPilot</text></svg>";function setInline(){b.src=i;}function tryAssets(){b.removeEventListener('error',tryAssets);b.addEventListener('error',setInline,{once:true});b.src='assets/logo_text.png';}b.addEventListener('error',tryAssets,{once:true});})();
