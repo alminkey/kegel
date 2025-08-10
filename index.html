@@ -1,0 +1,588 @@
+<!doctype html>
+<html lang="bs">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0b0e12">
+<link rel="manifest" href="manifest.json">
+<title>KegelPilot — v39</title>
+<style>
+:root{
+  --bg:#0b0e12;
+  --bg2:#11161f;
+  --ink:#e7f2ef;
+  --muted:#9aa0a6;
+  --card:#ffffff08;
+  --border:#ffffff1a;
+  --shadow:0 6px 16px rgba(0,0,0,.28);
+  --accent:#ff9a3c;      /* narandžasta — trajanje */
+  --accent2:#42e4c6;     /* mint — akcije */
+  --edu:#81D4FA;         /* plava — edukacija/grafovi */
+}
+*{box-sizing:border-box}
+html,body{height:100%; background:var(--bg); color:var(--ink); font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Noto Sans,sans-serif; -webkit-text-size-adjust:100%; text-size-adjust:100%}
+a{color:inherit}
+button{font:inherit; color:inherit; cursor:pointer}
+
+header{
+  position:sticky; top:0; z-index:20;
+  background:rgba(12,15,20,.92);
+  backdrop-filter:blur(8px);
+  border-bottom:1px solid var(--border);
+}
+.header-inner{
+  max-width:960px; margin:0 auto;
+  display:flex; align-items:center; justify-content:space-between; gap:12px;
+  padding:12px 16px;
+}
+.brand{font-weight:1000; font-size:22px; letter-spacing:.2px}
+.badge{padding:6px 10px; border-radius:999px; background:#ff4d4f; color:#fff; font-weight:800; letter-spacing:.3px}
+.badge .ok{background:transparent; color:var(--accent2)}
+.ver{color:#9aa0a6; font-weight:700; font-size:12px}
+
+main{display:none; padding:16px 12px; overflow:auto; -webkit-overflow-scrolling:touch; overscroll-behavior:contain}
+main.active{display:block}
+.container{max-width:960px; margin:0 auto}
+
+.card, .card2, .hero2{
+  border:1px solid rgba(255,255,255,.10);
+  background:rgba(255,255,255,.03);
+  border-radius:16px;
+  box-shadow:var(--shadow);
+  padding:16px;
+}
+h2{margin:0 0 6px 0; font-size:clamp(20px,6vw,28px)}
+.muted{color:var(--muted)}
+
+.grid{display:grid; gap:12px}
+
+/* --- Home (matte) --- */
+.home-stack{display:flex; flex-direction:column; gap:12px; width:100%; max-width:720px; margin:0 auto;}
+.bar{position:relative; height:8px; border-radius:999px; background:rgba(255,255,255,.08); overflow:hidden}
+.bar > i{position:absolute; inset:0; width:0%; background:linear-gradient(90deg, var(--accent2), #66e6a899, var(--accent)); border-radius:999px}
+.pills{display:flex; gap:10px; overflow:auto; padding-bottom:4px}
+.pill{appearance:none; border:1px solid rgba(255,255,255,.14); background:rgba(255,255,255,.05); color:var(--ink);
+  padding:10px 14px; border-radius:999px; font-weight:900; white-space:nowrap}
+.pill.pro{opacity:.45}
+.btn{appearance:none; border:1px solid rgba(255,255,255,.18); background:rgba(255,255,255,.06); padding:10px 14px; border-radius:12px; color:var(--ink); font-weight:900; letter-spacing:.3px}
+.cta{display:inline-flex; align-items:center; gap:10px; padding:12px 16px; border-radius:12px; border:1px solid color-mix(in sRGB, var(--accent2) 60%, white);
+  background:var(--accent2); color:#0b0e12; font-weight:1000; letter-spacing:.3px; box-shadow:0 10px 24px color-mix(in sRGB, var(--accent2) 40%, transparent)}
+
+/* Chips */
+.chips{display:grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap:10px}
+.chip{padding:12px; border-radius:12px; background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.12); text-align:center}
+.chip strong{display:block; font-weight:900}
+@media (max-width:420px){ .chips{grid-template-columns:repeat(2,minmax(0,1fr))} }
+@media (max-width:340px){ .chips{grid-template-columns:1fr} }
+
+/* Badges row */
+.badges{display:flex; gap:10px; overflow:auto; padding-bottom:4px}
+.badge-i{min-width:92px; padding:12px; border-radius:14px; text-align:center; background:linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.02)); border:1px solid rgba(255,255,255,.14); opacity:.9; flex:0 0 auto}
+
+/* --- Trainer --- */
+.trainer-wrap{display:grid; place-items:center; gap:12px; padding-top:8px}
+.ring-wrap{position:relative; width:min(78vw, 420px); max-width:420px}
+.ring-wrap .time{margin-top:8px; text-align:center; color:var(--accent2); font-weight:900}
+.ring-wrap .start{position:absolute; inset:0; display:grid; place-items:center; font-weight:1000; letter-spacing:.6px; color:#ffb26a}
+#stopBtn{margin-top:8px; display:none}
+.locked-blur{filter:blur(2px); pointer-events:none;}
+
+/* Ring SVG sizing */
+svg{max-width:100%; height:auto; display:block}
+
+/* --- Bottom nav (matte pill active) --- */
+nav{
+  position:sticky; bottom:0; z-index:20;
+  background:rgba(12,15,20,.92);
+  backdrop-filter:blur(8px);
+  border-top:1px solid var(--border);
+  padding:6px 8px calc(8px + env(safe-area-inset-bottom, 0px));
+}
+.nav-inner{max-width:960px; margin:0 auto; display:flex; gap:8px; align-items:center; justify-content:space-around}
+nav button{position:relative; flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px; padding:8px 10px; border-radius:12px; border:1px solid transparent; background:transparent}
+nav button span{font-weight:1000}
+nav button.active{color:var(--ink); background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.12)}
+nav button.active::after{content:''; width:36px; height:3px; margin-top:6px; border-radius:999px; background:var(--accent2)}
+
+/* Utility */
+.center{display:grid; place-items:center}
+.hidden{display:none !important}
+.sep{height:2px; background:rgba(255,255,255,.06); margin:10px 0; border-radius:2px}
+</style>
+</head>
+<body>
+<header>
+  <div class="header-inner">
+    <div class="brand">KegelPilot</div>
+    <div class="ver">v39</div>
+    <div class="badge"><span>PRO</span> <span class="ok">aktivno</span></div>
+  </div>
+</header>
+
+<main id="home" class="active">
+  <div class="home-stack">
+    <section class="card" id="goal">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:10px">
+        <div style="font-weight:900">Trenutni cilj</div>
+        <div id="goalBadge" class="muted" style="font-size:12px"></div>
+      </div>
+      <div id="goalText" class="muted" style="margin:6px 0 10px 0">Rang 1 • Dan 1/5 — današnje sesije 0/2</div>
+      <div class="bar"><i id="goalBar" style="width:0%"></i></div>
+    </section>
+
+    <section class="hero2">
+      <h2>Treniraj pametno, napreduj sigurno</h2>
+      <p>Vođene Kegel vježbe sa vizuelnim feedbackom — diskretno, efikasno i prilagođeno tebi.</p>
+      <button id="ctaQuick" class="cta">Brzi start</button>
+    </section>
+
+    <section class="card">
+      <div style="display:flex;align-items:center;justify-content:space-between; margin-bottom:8px;">
+        <strong>Programi</strong><a id="seeAllProg" class="muted" style="text-decoration:none">Vidi sve</a>
+      </div>
+      <div class="pills">
+        <button class="pill" data-prog="base">Osnovni</button>
+        <button class="pill" data-prog="hold">Zadrži</button>
+        <button class="pill" data-prog="quick">Brzi stisak</button>
+        <button class="pill pro" disabled>Interval PRO</button>
+        <button class="pill pro" disabled>Tempo PRO</button>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="grid" style="gap:6px">
+        <div class="muted" style="font-weight:900">Sljedeći termin</div>
+        <div class="muted" id="nextTimesText">Danas u 10:30 i 19:00</div>
+        <div><button id="toggleRem" class="btn">Podsjetnici: ON</button></div>
+      </div>
+    </section>
+
+    <section class="card">
+      <div style="display:flex; align-items:center; justify-content:space-between">
+        <strong>Savjet dana</strong>
+        <div class="controls" style="display:flex; gap:8px">
+          <button id="advPrev" class="btn">◀</button>
+          <button id="advNext" class="btn">▶</button>
+        </div>
+      </div>
+      <div class="muted" id="adviceText" style="margin-top:6px">Diši mirno: nosom udah, ustima izdah. Izbjegavaj zadržavanje daha tokom stiska.</div>
+    </section>
+
+    <section class="card" id="stretchCard">
+      <div style="display:flex;align-items:center;justify-content:space-between; gap:10px;">
+        <div><strong>Istezanje & disanje</strong><div class="muted">Kratki setovi za opuštanje karlice i bolji osjećaj.</div></div>
+        <button id="openStretch" class="btn">Otvori</button>
+      </div>
+    </section>
+
+    <section class="card">
+      <div style="margin-bottom:8px; font-weight:900">Značke</div>
+      <div id="badges" class="badges"></div>
+    </section>
+
+    <section class="card">
+      <div style="display:flex;align-items:center;justify-content:space-between"><strong>Kalendar</strong><span class="muted" id="calMonth"></span></div>
+      <div id="miniCal" style="margin-top:8px; display:grid; grid-template-columns: repeat(7, 1fr); gap:6px;"></div>
+    </section>
+
+    <section id="cardLevel" class="card" role="button" tabindex="0">
+      <div><strong>Tvoj nivo</strong></div>
+      <div class="muted" id="homeLevelHint">Cilj: 2× dnevno • 5 dana zaredom</div>
+    </section>
+
+    <section id="cardEdu" class="card" role="button" tabindex="0">
+      <div><strong>O Kegel vježbama (za muškarce)</strong></div>
+      <div class="muted">Kratko, jasno i ohrabrujuće — kako, zašto i kome pomažu.</div>
+    </section>
+
+    <section id="cardQuick" class="card" role="button" tabindex="0">
+      <div><strong>Brzi start</strong></div>
+      <div class="muted">Tapni za pokretanje treninga.</div>
+    </section>
+  </div>
+</main>
+
+<main id="trainer">
+  <div class="container trainer-wrap">
+    <div class="ring-wrap">
+      <div class="start" id="startOverlay">START</div>
+      <svg id="ring" viewBox="0 0 200 200">
+        <!-- Fixed boundary -->
+        <circle cx="100" cy="100" r="86" fill="none" stroke="rgba(255,255,255,.15)" stroke-width="2"></circle>
+        <!-- Orange session progress around boundary -->
+        <circle id="track" cx="100" cy="100" r="86" fill="none" stroke="var(--accent)" stroke-width="4"
+                stroke-dasharray="540" stroke-dashoffset="540" transform="rotate(-90 100 100)"></circle>
+        <!-- Pulsating ring (prsten) -->
+        <circle id="pulse" cx="100" cy="100" r="50" fill="none" stroke="var(--accent2)" stroke-width="10" stroke-opacity=".3"></circle>
+      </svg>
+      <div class="time"><span id="phaseText">PRIPREMI SE</span> • <span id="timeLeft">00:00</span></div>
+    </div>
+    <button id="stopBtn" class="btn">Stop</button>
+    <div id="trainHint" class="muted center" style="text-align:center">Tokom treninga ostale kartice su zaključane.</div>
+  </div>
+</main>
+
+<main id="edu">
+  <div class="container grid">
+    <div class="card">
+      <details>
+        <summary><strong>Šta su Kegel vježbe?</strong></summary>
+        <div class="sep"></div>
+        <p>Zamisli dno karlice kao mrežu mišića od trtične do stidne kosti. Jačanjem tih mišića (posebno PC mišića) poboljšavaš kontrolu mokrenja, potporu prostati i kvalitet seksualne funkcije.</p>
+      </details>
+    </div>
+    <div class="card">
+      <details>
+        <summary><strong>Zašto rade?</strong></summary>
+        <div class="sep"></div>
+        <p>Istraživanja pokazuju napredak kod erektilne funkcije, prerane ejakulacije i kontrole mokrenja. Kao i svaki trening – ključ je dosljednost.</p>
+      </details>
+    </div>
+    <div class="card">
+      <details>
+        <summary><strong>Ko treba da preskoči?</strong></summary>
+        <div class="sep"></div>
+        <p>Ako imaš hronične bolove u karlici, jaku učestalost/urgenciju, svježu operaciju ili UTI – prvo se javi doktoru prije samostalnih vježbi.</p>
+      </details>
+    </div>
+  </div>
+</main>
+
+<main id="progress">
+  <div class="container grid">
+    <div class="card">
+      <div><strong>Sažetak</strong></div>
+      <div id="kpiRow" style="display:grid; grid-template-columns: repeat(2, 1fr); gap:10px; margin-top:8px"></div>
+    </div>
+
+    <div class="card">
+      <div style="display:flex;align-items:center;justify-content:space-between">
+        <strong>Dnevne sesije (14 dana)</strong><span class="muted" id="sparkRange"></span>
+      </div>
+      <div id="chart14" style="height:140px; margin-top:8px;"></div>
+    </div>
+
+    <div class="card" style="display:grid; grid-template-columns: 1fr 1fr; gap:16px;">
+      <div>
+        <div><strong>Nedjeljni pregled</strong></div>
+        <div id="barWeek" style="height:160px; margin-top:8px;"></div>
+      </div>
+      <div>
+        <div><strong>Napredak ranga</strong></div>
+        <div id="donut" style="height:160px; display:grid; place-items:center;"></div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<nav>
+  <div class="nav-inner">
+    <button class="active" data-tab="home"><span>Početna</span></button>
+    <button data-tab="trainer"><span>Trening</span></button>
+    <button data-tab="edu"><span>Edu</span></button>
+    <button data-tab="progress"><span>Napredak</span></button>
+  </div>
+</nav>
+
+<script>
+const APP_VERSION='v39';
+
+/* ----- STATE ----- */
+const state = JSON.parse(localStorage.getItem('kpState_v39')||'{}');
+if(!state.r1Start){ state.r1Start = new Date(new Date().setHours(0,0,0,0)).toISOString(); }
+if(!state.days){ state.days = {}; }
+if(!state.totals){ state.totals = {sessions:0}; }
+save();
+function save(){ localStorage.setItem('kpState_v39', JSON.stringify(state)); }
+function todayKey(){ return new Date(new Date().setHours(0,0,0,0)).toISOString().slice(0,10); }
+function dayIndexFromStart(){
+  const start = new Date(state.r1Start);
+  const diff = Math.floor((new Date() - start)/(1000*60*60*24)) + 1;
+  return Math.min(5, Math.max(1, diff));
+}
+
+/* ----- NAV ----- */
+const tabs = ['home','trainer','edu','progress'];
+document.querySelectorAll('nav button').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    if(document.body.classList.contains('locked') && btn.dataset.tab!=='trainer'){ return; }
+    document.querySelectorAll('nav button').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    tabs.forEach(id=>document.getElementById(id).classList.remove('active'));
+    document.getElementById(btn.dataset.tab).classList.add('active');
+    window.scrollTo({top:0, behavior:'instant'});
+  });
+});
+
+/* ----- HOME RENDER ----- */
+const adviceList = [
+  "Diši mirno: nosom udah, ustima izdah. Ne zadržavaj dah tokom stiska.",
+  "Manje je više: kratak ali kvalitetan stisak vredniji je od dugog bez kontrole.",
+  "Ramena i lice opušteni – radi samo karlica.",
+  "Ako se umoriš, smanji intenzitet, ne brzinu."
+];
+let adviceIdx = 0;
+document.getElementById('advPrev').onclick = ()=>{ adviceIdx=(adviceIdx-1+adviceList.length)%adviceList.length; renderAdvice(); };
+document.getElementById('advNext').onclick = ()=>{ adviceIdx=(adviceIdx+1)%adviceList.length; renderAdvice(); };
+function renderAdvice(){ document.getElementById('adviceText').textContent = adviceList[adviceIdx]; }
+renderAdvice();
+
+document.getElementById('ctaQuick').addEventListener('click', ()=>{
+  document.querySelector('nav button[data-tab="trainer"]').click();
+});
+document.getElementById('cardQuick').addEventListener('click', ()=>{
+  document.querySelector('nav button[data-tab="trainer"]').click();
+});
+document.getElementById('openStretch').addEventListener('click', ()=>{
+  document.querySelector('nav button[data-tab="edu"]').click();
+});
+document.querySelectorAll('.pill').forEach(el=>{
+  el.addEventListener('click', ()=>{
+    if(el.classList.contains('pro')){ if(navigator.vibrate) navigator.vibrate(8); return; }
+    document.querySelector('nav button[data-tab="trainer"]').click();
+  });
+});
+document.getElementById('cardEdu').addEventListener('click', ()=>{
+  document.querySelector('nav button[data-tab="edu"]').click();
+});
+
+function daysInMonth(y,m){ return new Date(y, m+1, 0).getDate(); }
+function makeMiniCalendar(host){
+  const now = new Date();
+  const y = now.getFullYear(), m = now.getMonth();
+  const dim = daysInMonth(y,m);
+  const first = (new Date(y,m,1).getDay()+6)%7; // Monday-first
+  document.getElementById('calMonth').textContent = now.toLocaleString('bs-BA', {month:'long', year:'numeric'});
+  host.innerHTML='';
+  for(let i=0;i<first;i++){ const ph = document.createElement('div'); ph.style.opacity='.25'; host.appendChild(ph); }
+  for(let d=1; d<=dim; d++){
+    const cell = document.createElement('div');
+    cell.style = 'aspect-ratio:1/1; border-radius:10px; display:grid; place-items:center; border:1px solid rgba(255,255,255,.10); background:rgba(255,255,255,.03)';
+    const key = new Date(y,m,d).toISOString().slice(0,10);
+    const c = (state.days[key]||0);
+    let dot = '';
+    if(c>=2) dot = '<div style="width:8px;height:8px;border-radius:50%;background:var(--accent2)"></div>';
+    else if(c===1) dot = '<div style="width:8px;height:8px;border-radius:50%;background:var(--accent)"></div>';
+    cell.innerHTML = '<div style="text-align:center;font-weight:900">'+d+'</div>' + (dot? '<div style="margin-top:2px;display:grid;place-items:center">'+dot+'</div>':'');
+    host.appendChild(cell);
+  }
+}
+
+function renderBadges(){
+  const host = document.getElementById('badges'); host.innerHTML='';
+  const k = todayKey(); const today = state.days[k]||0;
+  let streak=0;for(let i=0;i<60;i++){const d=new Date();d.setDate(d.getDate()-i);const key=d.toISOString().slice(0,10);if((state.days[key]||0)>=2) streak++; else break;}
+  const list = [
+    {t:"Prva sesija", ok: state.totals.sessions>=1},
+    {t:"3 dana zaredom", ok: streak>=3},
+    {t:"10 sesija", ok: state.totals.sessions>=10},
+    {t:"Danas 2/2", ok: today>=2},
+  ];
+  list.forEach(b=>{
+    const el = document.createElement('div'); el.className='badge-i';
+    el.innerHTML = `<div style="width:36px;height:36px;border-radius:50%;margin:0 auto;background:${b.ok?'var(--accent2)':'rgba(255,255,255,.14)'}"></div>
+                    <div class="muted" style="margin-top:6px">${b.t}</div>`;
+    host.appendChild(el);
+  });
+}
+
+function renderGoal(){
+  const dIdx = dayIndexFromStart();
+  const k = todayKey(); const today = state.days[k]||0;
+  document.getElementById('goalText').textContent = `Rang 1 • Dan ${dIdx}/5 — današnje sesije ${today}/2`;
+  let done=0; for(let i=0;i<5;i++){ const d=new Date(new Date(state.r1Start).setHours(0,0,0,0)); d.setDate(d.getDate()+i); const key=d.toISOString().slice(0,10); if((state.days[key]||0)>=2) done++; }
+  document.getElementById('goalBar').style.width = Math.round((done/5)*100)+'%';
+  document.getElementById('goalBadge').textContent = (dIdx===3||dIdx===5)?'Nova varijacija':'';
+}
+
+function lastNDays(n){
+  const arr=[]; for(let i=n-1;i>=0;i--){ const d=new Date(); d.setDate(d.getDate()-i); const key=d.toISOString().slice(0,10); arr.push({key, c:(state.days[key]||0)}); } return arr;
+}
+function svgEl(tag, attrs){ const el = document.createElementNS('http://www.w3.org/2000/svg', tag); for(const k in attrs){ el.setAttribute(k, attrs[k]); } return el; }
+
+function renderLine14(host, data){
+  host.innerHTML='';
+  const w = host.clientWidth || 320, h = host.clientHeight || 140, p=14;
+  const svg = svgEl('svg', {viewBox:`0 0 ${w} ${h}`, width:'100%', height:'100%'});
+  const gx = svgEl('path', {d:`M${p},${h-p} H${w-p}`, stroke:'rgba(255,255,255,.12)', 'stroke-width':'1', fill:'none'}); svg.appendChild(gx);
+  const maxV=2, dx=(w-2*p)/(data.length-1);
+  const pts=data.map((d,i)=>({x:p+i*dx, y:h-p - (d.c/maxV)*(h-2*p)}));
+  let dPath=`M ${p},${h-p} `; pts.forEach((pt,i)=>{ dPath += `L ${pt.x},${pt.y} `; }); dPath+=`L ${w-p},${h-p} Z`;
+  svg.appendChild(svgEl('path', {d:dPath, fill:'rgba(129,212,250,.20)'}));
+  let dLine = `M ${pts[0].x},${pts[0].y} `; for(let i=1;i<pts.length;i++){ dLine+=`L ${pts[i].x},${pts[i].y} `; }
+  svg.appendChild(svgEl('path', {d:dLine, stroke:'#81D4FA', 'stroke-width':'2.5', fill:'none'}));
+  pts.forEach((pt,i)=>{
+    const color = data[i].c>=2 ? 'var(--accent2)': (data[i].c===1? 'var(--accent)':'#2a3342');
+    svg.appendChild(svgEl('circle', {cx:pt.x, cy:pt.y, r:'3.5', fill:color}));
+  });
+  host.appendChild(svg);
+}
+function renderBarsWeek(host){
+  host.innerHTML='';
+  const w = host.clientWidth || 320, h = host.clientHeight || 160, p=14;
+  const svg = svgEl('svg', {viewBox:`0 0 ${w} ${h}`, width:'100%', height:'100%'});
+  const now=new Date(); const start=new Date(); start.setDate(now.getDate()-6);
+  const bw=(w-2*p)/7 - 6;
+  for(let i=0;i<7;i++){
+    const d=new Date(start); d.setDate(start.getDate()+i);
+    const key=d.toISOString().slice(0,10); const c = state.days[key]||0;
+    const x=p + i*((w-2*p)/7);
+    const hval = (c/2)*(h-2*p); const y=h-p-hval;
+    const col = c>=2? 'var(--accent2)': c===1? 'var(--accent)': 'rgba(255,255,255,.10)';
+    svg.appendChild(svgEl('rect', {x:String(x), y:String(y), width:String(bw), height:String(Math.max(2,hval)), rx:'6', fill:col}));
+  }
+  host.appendChild(svg);
+}
+function renderDonut(host){
+  host.innerHTML='';
+  let done=0; for(let i=0;i<5;i++){const d=new Date(new Date(state.r1Start).setHours(0,0,0,0)); d.setDate(d.getDate()+i); const key=d.toISOString().slice(0,10); if((state.days[key]||0)>=2) done++;}
+  const pct = Math.round((done/5)*100);
+  const size=140, r=52, cx=size/2, cy=size/2, C=2*Math.PI*r;
+  const svg = svgEl('svg', {viewBox:`0 0 ${size} ${size}`, width:'100%', height:'100%'});
+  svg.appendChild(svgEl('circle', {cx, cy, r, fill:'none', stroke:'rgba(255,255,255,.10)', 'stroke-width':'14'}));
+  const prog = svgEl('circle', {cx, cy, r, fill:'none', stroke:'var(--accent2)', 'stroke-width':'14', 'stroke-dasharray':String(C), 'stroke-dashoffset':String(C*(1-pct/100)), transform:`rotate(-90 ${cx} ${cy})`});
+  svg.appendChild(prog);
+  const text = svgEl('text', {x:cx, y:cy+5, 'text-anchor':'middle', 'font-size':'22', fill:'var(--ink)', 'font-weight':'800'}); text.textContent = pct+'%'; svg.appendChild(text);
+  const sub = svgEl('text', {x:cx, y:cy+26, 'text-anchor':'middle', 'font-size':'11', fill:'#9aa0a6'}); sub.textContent = `Dani: ${done}/5`; svg.appendChild(sub);
+  host.appendChild(svg);
+}
+
+function renderHome(){
+  renderGoal();
+  renderBadges();
+  makeMiniCalendar(document.getElementById('miniCal'));
+  const last14 = lastNDays(14); document.getElementById('sparkRange').textContent = last14[0].key+' — '+last14[last14.length-1].key;
+  renderLine14(document.getElementById('chart14'), last14);
+  renderBarsWeek(document.getElementById('barWeek'));
+  renderDonut(document.getElementById('donut'));
+}
+renderHome();
+
+/* ----- TRAINER LOGIC ----- */
+let training = null;
+const pulse = document.getElementById('pulse');
+const track = document.getElementById('track');
+const startOverlay = document.getElementById('startOverlay');
+const phaseText = document.getElementById('phaseText');
+const timeLeft = document.getElementById('timeLeft');
+const stopBtn = document.getElementById('stopBtn');
+
+const PROGRAMS = {
+  var1: {name:'Osnovni', pattern:[{p:'STEGNI',t:2},{p:'OPUSTI',t:2}], cycles:15},
+  var2: {name:'Zadrži', pattern:[{p:'STEGNI',t:2},{p:'ZADRŽI',t:1},{p:'OPUSTI',t:1}], cycles:12},
+  var3: {name:'Brzi',   pattern:[{p:'STEGNI',t:1},{p:'ZADRŽI',t:3},{p:'OPUSTI',t:2}], cycles:10},
+};
+function totalDuration(prog){ return prog.pattern.reduce((a,b)=>a+b.t,0)*prog.cycles; }
+
+function fmt(sec){ const m=Math.floor(sec/60), s=sec%60; return (m<10?'0':'')+m+':'+(s<10?'0':'')+s; }
+
+function prepLockUI(lock){
+  const ids=['home','edu','progress']; ids.forEach(id=>{
+    const el=document.getElementById(id);
+    if(lock){ el.classList.add('locked-blur'); } else { el.classList.remove('locked-blur'); }
+  });
+  document.body.classList.toggle('locked', lock);
+  stopBtn.style.display = lock ? 'inline-flex' : 'none';
+}
+
+function startTraining(){
+  if(training) return;
+  document.querySelector('nav button[data-tab="trainer"]').click();
+  const prog = PROGRAMS.var1; // Rang 1 default
+  const sessionTotal = totalDuration(prog);
+  let remaining = sessionTotal + 2; // +2s priprema
+  let t=0, cycleIdx=0, stepIdx=-1, inPrep=true, stepElapsed=0;
+  startOverlay.classList.add('hidden');
+  phaseText.textContent = 'PRIPREMI SE';
+  timeLeft.textContent = fmt(remaining);
+  let trackCirc = 2*Math.PI*86;
+  track.setAttribute('stroke-dasharray', String(trackCirc));
+  track.setAttribute('stroke-dashoffset', String(trackCirc));
+  prepLockUI(true);
+  const tick = ()=>{
+    remaining = Math.max(0, remaining-1);
+    timeLeft.textContent = fmt(remaining);
+    // Update track progress (skip during 2s prep)
+    const done = Math.min(sessionTotal, sessionTotal - Math.max(0, remaining-2));
+    const frac = done/sessionTotal;
+    track.setAttribute('stroke-dashoffset', String(trackCirc*(1-frac)));
+    // Pulse ring animation
+    const scale = inPrep ? (0.2 + 0.8*(1 - remaining/2)) : (phaseText.textContent==='STEGNI' || phaseText.textContent==='ZADRŽI' ? 1.0 : 0.6);
+    pulse.setAttribute('r', String(50*scale));
+    pulse.setAttribute('stroke-opacity', String(inPrep ? (0.3 + 0.5*(1 - remaining/2)) : (phaseText.textContent==='STEGNI'||phaseText.textContent==='ZADRŽI'?1:0.4)));
+    if(inPrep){
+      if(remaining<=sessionTotal){ inPrep=false; stepIdx=0; stepElapsed=0; phaseText.textContent=prog.pattern[0].p; }
+    }else{
+      stepElapsed++;
+      const step = prog.pattern[stepIdx];
+      if(stepElapsed>=step.t){
+        stepIdx++; stepElapsed=0;
+        if(stepIdx>=prog.pattern.length){ stepIdx=0; cycleIdx++; if(cycleIdx>=prog.cycles){ finishTraining(); return; } }
+        phaseText.textContent = prog.pattern[stepIdx].p;
+      }
+    }
+    if(remaining<=0){ finishTraining(); }
+  };
+  training = setInterval(tick, 1000);
+}
+function finishTraining(){
+  if(!training) return;
+  clearInterval(training); training=null;
+  phaseText.textContent='GOTOVO';
+  startOverlay.classList.remove('hidden'); startOverlay.textContent='START';
+  prepLockUI(false);
+  // upiši rezultat
+  const k=todayKey(); state.days[k]=(state.days[k]||0)+1; state.totals.sessions++; save();
+  renderHome();
+}
+stopBtn.addEventListener('click', ()=>{
+  if(training){ clearInterval(training); training=null; }
+  // reset vizuala
+  phaseText.textContent='PRIPREMI SE';
+  timeLeft.textContent=fmt(0);
+  document.getElementById('track').setAttribute('stroke-dashoffset', String(2*Math.PI*86));
+  document.getElementById('pulse').setAttribute('r', String(50));
+  document.getElementById('pulse').setAttribute('stroke-opacity', '.3');
+  startOverlay.classList.remove('hidden'); startOverlay.textContent='START';
+  prepLockUI(false);
+});
+document.getElementById('ring').addEventListener('click', startTraining);
+document.getElementById('startOverlay').addEventListener('click', startTraining);
+document.getElementById('cardLevel').addEventListener('click', ()=>{
+  alert('Rang 1: 5 dana • cilj 2 sesije/dan. Varijacije se uvode postepeno (dan 3 i 5).');
+});
+
+/* ----- PROGRESS initial render ----- */
+function renderKPIs(){
+  const k = todayKey();
+  const today = state.days[k]||0;
+  let streak=0;for(let i=0;i<60;i++){const d=new Date();d.setDate(d.getDate()-i);const key=d.toISOString().slice(0,10);if((state.days[key]||0)>=2) streak++; else break;}
+  const total=state.totals.sessions||0;
+  const dayIdx = dayIndexFromStart();
+  const row = document.getElementById('kpiRow'); row.innerHTML='';
+  const mk = (label,val)=>{
+    const box = document.createElement('div'); 
+    box.style = 'border:1px solid rgba(255,255,255,.12); border-radius:12px; padding:12px; background:rgba(255,255,255,.03)';
+    box.innerHTML = '<div style="font-size:22px;font-weight:1000">'+val+'</div><div class="muted">'+label+'</div>';
+    row.appendChild(box);
+  };
+  mk('Danas sesije', today+'/2');
+  mk('Uzastopni dani (2+/dan)', streak);
+  mk('Ukupno sesija', total);
+  mk('Dan ranga', dayIdx+'/5');
+}
+renderKPIs();
+
+/* ----- START text bigger and bold (first click) ----- */
+startOverlay.style.fontSize = 'clamp(22px, 7vw, 34px)';
+
+/* Ensure layout never overflows horizontally */
+function clampWidth(){
+  document.documentElement.style.overflowX='hidden';
+  document.body.style.overflowX='hidden';
+}
+clampWidth();
+window.addEventListener('resize', clampWidth);
+</script>
+</body>
+</html>
