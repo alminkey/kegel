@@ -1,6 +1,6 @@
 <!doctype html><html lang="bs"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>KegelPilot — v26</title>
+<title>KegelPilot — v27</title>
 <link rel="manifest" href="manifest.json"><meta name="theme-color" content="#0B0E12">
 <style>
 :root{
@@ -29,16 +29,25 @@ main{padding:16px;display:none} main.active{display:block} .grid{display:grid;ga
 .bg-level::before{background-image:url('art/card-level.svg')} .bg-edu::before{background-image:url('art/card-edu.svg')} .bg-quick::before{background-image:url('art/card-quick.svg')}
 .card > *{position:relative;z-index:1}
 
-/* Fixed glossy bottom nav bar WITHOUT per-button borders/backgrounds */
+/* Fixed glossy bottom nav bar with premium active "ambient" glow */
 nav{position:fixed;left:0;right:0;bottom:0;height:var(--nav-h);z-index:200;display:grid;grid-template-columns:repeat(4,1fr);align-items:center;gap:0;
-     background:linear-gradient(180deg, rgba(12,15,20,.55), rgba(12,15,20,.9)); backdrop-filter: blur(14px);
-     border-top:1px solid rgba(255,255,255,.08); padding:0 10px calc(10px + env(safe-area-inset-bottom, 0px));}
+     background:linear-gradient(180deg, rgba(12,15,20,.55), rgba(12,15,20,.92)); backdrop-filter: blur(16px);
+     border-top:1px solid rgba(255,255,255,.08); padding:0 10px calc(10px + env(safe-area-inset-bottom, 0px)); overflow:visible;}
 nav::before{content:'';position:absolute;left:0;right:0;top:-1px;height:1px;background:linear-gradient(90deg, transparent, rgba(255,255,255,.12), transparent);}
-nav button{appearance:none;border:0;background:transparent;color:#9aa0a6;
-           border-radius:12px; padding:12px 6px; font-weight:1000; font-size:18px; display:grid; place-items:center; gap:2px;
-           transform-origin:center; transition: color .15s ease, text-shadow .15s ease, transform .15s ease;}
-nav button.active{color:var(--ink); text-shadow:0 0 10px color-mix(in sRGB, var(--navGlow) 40%, transparent), 0 0 24px color-mix(in sRGB, var(--navGlow) 30%, transparent); transform: scale(1.06);}
-nav button.active::after{content:'';width:40px;height:3px;margin-top:6px;border-radius:999px;background:var(--navGlow);box-shadow:0 0 12px color-mix(in sRGB, var(--navGlow) 45%, transparent);}
+nav button{position:relative;appearance:none;border:0;background:transparent;color:#9aa0a6;
+           border-radius:14px; padding:12px 6px; font-weight:1000; font-size:18px; display:grid; place-items:center; gap:2px;
+           transform-origin:center; transition: color .2s ease, text-shadow .2s ease, transform .2s ease;}
+nav button::before{content:'';position:absolute;inset:auto;left:50%;top:50%;width:86px;height:34px;border-radius:999px;transform:translate(-50%,-50%);
+                   background:radial-gradient(62% 100% at 50% 50%, color-mix(in sRGB, var(--navGlow) 36%, transparent) 0%, transparent 70%);
+                   filter: blur(10px); opacity:0; pointer-events:none;}
+nav button.active{color:var(--ink); text-shadow:0 0 10px color-mix(in sRGB, var(--navGlow) 40%, transparent), 0 0 24px color-mix(in sRGB, var(--navGlow) 30%, transparent); transform: translateZ(0) scale(1.03);}
+nav button.active::before{opacity:.9;}
+nav button.active::after{content:'';width:44px;height:3px;margin-top:6px;border-radius:999px;background:var(--navGlow);box-shadow:0 0 12px color-mix(in sRGB, var(--navGlow) 45%, transparent);}
+
+/* Lock state while training */
+.app-locked main:not(#trainer){filter:blur(2px) saturate(.9) brightness(.85); pointer-events:none;}
+.app-locked nav button:not([data-tab="trainer"]){pointer-events:none; opacity:.45;}
+.app-locked nav button:not([data-tab="trainer"])::before{opacity:0;}
 
 /* Trainer */
 .status{font-weight:900;letter-spacing:.8px;color:var(--accent);text-align:center;text-shadow:0 2px 12px rgba(255,169,77,.25);font-size:clamp(20px,6vw,30px);}
@@ -54,6 +63,9 @@ nav button.active::after{content:'';width:40px;height:3px;margin-top:6px;border-
 .startLabel{position:absolute; inset:0; display:grid; place-items:center; z-index:3; font-weight:1000; letter-spacing:1.2px; color:var(--accent); text-shadow:0 2px 14px rgba(255,169,77,.25); animation: pulseText 1.6s ease-in-out infinite; font-size:clamp(24px,7.5vw,36px);}
 @keyframes pulseText{0%,100%{transform:scale(1);opacity:.9} 50%{transform:scale(1.06);opacity:1}}
 .timer{text-align:center;margin-top:4px;color:var(--accent2);font-weight:800;font-size:clamp(12px,3.2vw,16px);}
+.btn{appearance:none;border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.06);padding:10px 14px;border-radius:12px;color:var(--ink);font-weight:900;letter-spacing:.3px}
+.btn.stop{margin-top:8px;background:#ff6b6b;border-color:color-mix(in sRGB, #ff6b6b 60%, white);color:#0b0e12;box-shadow:0 8px 20px color-mix(in sRGB, #ff6b6b 40%, transparent);}
+.hidden{display:none}
 
 .accordion .ecard{border-radius:16px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.04); overflow:hidden} .ecard header{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:14px 16px;cursor:pointer;user-select:none}
 .ecard header h3{margin:0;font-size:16px} .caret{transition:transform .2s ease; opacity:.9} .ecard.open .caret{transform:rotate(90deg)}
@@ -64,7 +76,6 @@ nav button.active::after{content:'';width:40px;height:3px;margin-top:6px;border-
 .ob .wrap{max-width:820px;margin:0 auto;padding:20px 20px calc(20px + var(--nav-h));}
 .slide{position:relative;background:linear-gradient(180deg, rgba(255,255,255,.10), rgba(255,255,255,.03));border:1px solid rgba(255,255,255,.14);border-radius:18px;padding:22px;min-height:220px;box-shadow:0 16px 40px rgba(0,0,0,.45);}
 .controls{position:absolute;left:16px;right:16px;bottom:14px;display:flex;align-items:center;justify-content:space-between}
-.btn{appearance:none;border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.06);padding:10px 14px;border-radius:12px;color:var(--ink);font-weight:900;letter-spacing:.3px}
 .btn.mint{background:var(--accent2);border-color:color-mix(in sRGB, var(--accent2) 60%, white);color:#0b0e12;box-shadow:0 8px 20px color-mix(in sRGB, var(--accent2) 40%, transparent);}
 .dots{position:absolute;left:0;right:0;bottom:58px;display:flex;gap:8px;justify-content:center;align-items:center;opacity:.9}
 .dot{width:8px;height:8px;border-radius:999px;background:rgba(255,255,255,.35)}
@@ -76,7 +87,7 @@ nav button.active::after{content:'';width:40px;height:3px;margin-top:6px;border-
 <header>
   <div style="display:flex;align-items:center;gap:6px">
     <img id="brand" class="brandimg" alt="KegelPilot" loading="eager" fetchpriority="high" src="Logo.PNG">
-    <span class="ver">v26</span>
+    <span class="ver">v27</span>
   </div>
   <div class="protag"><span class="pro">PRO</span> <span class="on">aktivno</span></div>
 </header>
@@ -115,6 +126,7 @@ nav button.active::after{content:'';width:40px;height:3px;margin-top:6px;border-
           <div class="startLabel" id="startLabel">START</div>
         </div>
         <div id="timer" class="timer">--:--</div>
+        <button id="btnStop" class="btn stop hidden">Stop</button>
       </div>
     </div>
     <div class="card">
@@ -184,7 +196,7 @@ nav button.active::after{content:'';width:40px;height:3px;margin-top:6px;border-
 </div>
 
 <script>
-const APP_VERSION='v26';
+const APP_VERSION='v27';
 
 (async function(){try{const saved=localStorage.getItem('kp_app_version');if(saved!==APP_VERSION){if('caches'in window){const keys=await caches.keys();await Promise.all(keys.map(k=>caches.delete(k)));}if('serviceWorker'in navigator){const regs=await navigator.serviceWorker.getRegistrations();await Promise.all(regs.map(r=>r.unregister()));}localStorage.setItem('kp_app_version',APP_VERSION);const url=new URL(window.location.href);if(!url.searchParams.get('v')){url.searchParams.set('v',APP_VERSION);window.location.replace(url.toString());}}}catch(e){}})(); 
 (function(){const b=document.getElementById('brand');const i="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='132' height='28' viewBox='0 0 132 28' fill='none'><rect x='0' y='0' rx='8' ry='8' width='132' height='28' fill='rgba(15,20,27,0.85)'/><text x='14' y='19' font-family='Inter,Segoe UI,Arial,sans-serif' font-size='16' fill='%23A7F3D0' font-weight='700'>KegelPilot</text></svg>";function setInline(){b.src=i;}function tryAssets(){b.removeEventListener('error',tryAssets);b.addEventListener('error',setInline,{once:true});b.src='assets/logo_text.png';}b.addEventListener('error',tryAssets,{once:true});})();
@@ -206,9 +218,9 @@ const tabColor = {home:'#66E6A8', trainer:'#FFA94D', edu:'#81D4FA', progress:'#A
     document.documentElement.style.setProperty('--navGlow', tabColor[id]||'#66E6A8');
     if (navigator.vibrate) navigator.vibrate(12);
   }
-  navButtons.forEach(btn=>btn.addEventListener('click',e=>{e.preventDefault();showTab(btn.getAttribute('data-tab'));}));
-  document.getElementById('cardLevel').addEventListener('click',()=> showTab('progress'));
-  document.getElementById('cardEdu').addEventListener('click',()=> showTab('edu'));
+  navButtons.forEach(btn=>btn.addEventListener('click',e=>{e.preventDefault(); if(document.body.classList.contains('app-locked')) return; showTab(btn.getAttribute('data-tab'));}));
+  document.getElementById('cardLevel').addEventListener('click',()=> { if(!document.body.classList.contains('app-locked')) showTab('progress'); });
+  document.getElementById('cardEdu').addEventListener('click',()=> { if(!document.body.classList.contains('app-locked')) showTab('edu'); });
   document.getElementById('cardQuick').addEventListener('click',()=> showTab('trainer'));
   showTab('home');
 })();
@@ -243,6 +255,7 @@ renderHome(); renderProgress();
   const status=document.getElementById('status');
   const startLabel=document.getElementById('startLabel');
   const timerEl=document.getElementById('timer');
+  const btnStop=document.getElementById('btnStop');
 
   const VARS={1:{hold:1,keep:0,rest:2},2:{hold:1,keep:1,rest:1},3:{hold:0.5,keep:3,rest:2}};
   function planForDay(d){const total=30;if(d<=2)return[{var:1,reps:total}];if(d===3||d===4)return[{var:1,reps:total/2},{var:2,reps:total/2}];return[{var:1,reps:10},{var:2,reps:10},{var:3,reps:10}];}
@@ -252,8 +265,8 @@ renderHome(); renderProgress();
   let running=false,raf=0,last=0,session=null;
   function setStatusPhase(phase){ if(phase==='preroll'){ status.textContent='PRIPREMI SE'; status.classList.add('pulse'); } else if(phase==='hold'){ status.textContent='STEGNI'; status.classList.remove('pulse'); } else if(phase==='keep'){ status.textContent='ZADRŽI'; status.classList.remove('pulse'); } else if(phase==='rest'){ status.textContent='OPUSTI'; status.classList.remove('pulse'); } else { status.textContent='PRIPREMI SE'; status.classList.remove('pulse'); } }
   function setProgress(p){progress.setAttribute('stroke-dashoffset',(C*(1-p)).toFixed(2));}
-  function mapHold(t){return {ring:.2+.8*t,bg:.2+.8*t,ra:.3+.7*t,ba:.1+.4*t}} function mapKeep(t){return {ring:1,bg:1,ra:.95,ba:.5-.2*t}} function mapRest(t){return {ring:1-.8*t,bg:1-.8*t,ra:1-.7*t,ba:.5-.4*t}}
   function apply(m){document.documentElement.style.setProperty('--ring-scale',m.ring.toFixed(3));document.documentElement.style.setProperty('--bgPulse-scale',m.bg.toFixed(3));document.documentElement.style.setProperty('--ring-alpha',m.ra.toFixed(3));document.documentElement.style.setProperty('--bgPulse-alpha',m.ba.toFixed(3));}
+  function resetVisual(){ apply({ring:.2,bg:.2,ra:.3,ba:.1}); setProgress(0); timerEl.textContent='--:--'; setStatusPhase('idle'); startLabel.style.display='grid'; }
 
   function buildSession(){const d=dayIndexFromStart();const segs=planForDay(d).map(s=>Object.assign({},s));const tot=totalDuration(segs);return {segments:segs,seg:0,rep:1,phase:'preroll',remain:2,elapsed:0,total:tot,totalLeft:tot};}
 
@@ -277,7 +290,7 @@ renderHome(); renderProgress();
       const phaseLen=session.phase==='hold'?v.hold:session.phase==='keep'?v.keep:session.phase==='rest'?v.rest:0;
       const elapsedPhase=(phaseLen-session.remain);
       const t=Math.min(1,Math.max(0,elapsedPhase/phaseLen));
-      apply(session.phase==='hold'?mapHold(t):session.phase==='keep'?mapKeep(t):mapRest(t));
+      apply(session.phase==='hold'?{ring:.2+.8*t,bg:.2+.8*t,ra:.3+.7*t,ba:.1+.4*t}:session.phase==='keep'?{ring:1,bg:1,ra:.95,ba:.5-.2*t}:{ring:1-.8*t,bg:1-.8*t,ra:1-.7*t,ba:.5-.4*t});
       session.elapsed += dt;
       session.totalLeft = Math.max(0, session.total - session.elapsed);
       setProgress(Math.min(1, session.elapsed/session.total));
@@ -291,12 +304,16 @@ renderHome(); renderProgress();
     raf=requestAnimationFrame(loop);
   }
 
-  function start(){ if(running) return; session=buildSession(); last=0; running=true; startLabel.style.display='none'; setStatusPhase('preroll'); raf=requestAnimationFrame(loop); }
-  function finish(success){ running=false; cancelAnimationFrame(raf); startLabel.style.display='grid'; setStatusPhase('idle'); setProgress(1); if(success) markSessionComplete(); timerEl.textContent='--:--'; }
+  function lockUI(lock){ document.body.classList.toggle('app-locked', !!lock); }
+  function start(){ if(running) return; session=buildSession(); last=0; running=true; startLabel.style.display='none'; setStatusPhase('preroll'); btnStop.classList.remove('hidden'); lockUI(true); raf=requestAnimationFrame(loop); }
+  function finish(success){ running=false; cancelAnimationFrame(raf); btnStop.classList.add('hidden'); lockUI(false); resetVisual(); if(success) markSessionComplete(); }
 
   document.getElementById('startLabel').addEventListener('click', (e)=>{ e.preventDefault(); start(); });
   document.getElementById('ring').addEventListener('click', (e)=>{ e.preventDefault(); start(); });
+  btnStop.addEventListener('click', (e)=>{ e.preventDefault(); finish(false); });
 
+  // Ensure reset visuals initially
+  resetVisual();
 })(); // trainer
 
 (function(){
@@ -319,8 +336,8 @@ renderHome(); renderProgress();
     const id = 'ec'+idx;
     card.innerHTML = `<header role="button" aria-controls="${id}-content" aria-expanded="false" tabindex="0"><h3>${title}</h3><svg class="caret" width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M8 5v14l11-7z"/></svg></header><div id="${id}-content" class="content"><div class="muted" style="white-space:pre-line">${body}</div></div>`;
     function toggle(open){ card.classList.toggle('open', open); const h = card.querySelector('header'); h.setAttribute('aria-expanded', open? 'true':'false'); }
-    card.querySelector('header').addEventListener('click', ()=>{ const isOpen = card.classList.contains('open'); document.querySelectorAll('.ecard.open').forEach(el=>el.classList.remove('open')); toggle(!isOpen); });
-    card.querySelector('header').addEventListener('keydown', (e)=>{ if(e.key==='Enter' || e.key===' ') { e.preventDefault(); card.querySelector('header').click(); } });
+    card.querySelector('header').addEventListener('click', ()=>{ if(document.body.classList.contains('app-locked')) return; const isOpen = card.classList.contains('open'); document.querySelectorAll('.ecard.open').forEach(el=>el.classList.remove('open')); toggle(!isOpen); });
+    card.querySelector('header').addEventListener('keydown', (e)=>{ if(document.body.classList.contains('app-locked')) return; if(e.key==='Enter' || e.key===' ') { e.preventDefault(); card.querySelector('header').click(); } });
     host.appendChild(card);
   });
 })();
