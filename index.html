@@ -1,17 +1,26 @@
 <!doctype html><html lang="bs"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>KegelPilot — v24</title>
+<title>KegelPilot — v25</title>
 <link rel="manifest" href="manifest.json"><meta name="theme-color" content="#0B0E12">
 <style>
-:root{ --bg:#0b0e12; --ink:#e0e6ef; --muted:#9aa0a6; --accent:#FFA94D; --accent2:#66E6A8; --edu:#81D4FA; --prog:#A78BFA;
-       --ring-scale:.2; --ring-alpha:.3; --bgPulse-scale:.2; --bgPulse-alpha:.1; --navGlow:#66E6A8; }
-*{box-sizing:border-box} html,body{height:100%} body{margin:0;background:radial-gradient(1200px 600px at 20% -10%,#18202b 0%,#0b0e12 60%),var(--bg);color:var(--ink);font-family:Inter,system-ui,Segoe UI,Roboto,Arial,sans-serif;-webkit-tap-highlight-color:transparent;}
-.shell{min-height:100%;display:grid;grid-template-rows:auto 1fr auto} 
-header{position:sticky;top:0;background:rgba(12,15,20,.8);backdrop-filter:blur(8px);border-bottom:1px solid rgba(255,255,255,.06);padding:10px 14px;display:flex;align-items:center;justify-content:space-between;gap:12px;z-index:10}
-.brandimg{height:34px} .ver{font-size:11px;color:#9aa0a6;margin-left:6px;opacity:.8}
-.protag{font-weight:900;letter-spacing:.2px;padding:6px 10px;border-radius:999px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06)}
+:root{
+  --bg:#0b0e12; --ink:#e0e6ef; --muted:#9aa0a6; --accent:#FFA94D; --accent2:#66E6A8; --edu:#81D4FA; --prog:#A78BFA;
+  --ring-scale:.2; --ring-alpha:.3; --bgPulse-scale:.2; --bgPulse-alpha:.1; --navGlow:#66E6A8;
+  --nav-h: 80px;
+}
+*{box-sizing:border-box} html,body{height:100%} 
+body{margin:0;background:radial-gradient(1200px 600px at 20% -10%,#18202b 0%,#0b0e12 60%),var(--bg);color:var(--ink);font-family:Inter,system-ui,Segoe UI,Roboto,Arial,sans-serif;-webkit-tap-highlight-color:transparent;
+     padding-bottom: calc(var(--nav-h) + env(safe-area-inset-bottom, 0px));}
+
+.shell{min-height:100%;display:grid;grid-template-rows:auto 1fr;} 
+
+header{position:sticky;top:0;z-index:200;background:rgba(12,15,20,.85);backdrop-filter:blur(10px);
+        border-bottom:1px solid rgba(255,255,255,.08);padding:10px 14px;display:flex;align-items:center;justify-content:space-between;gap:12px;}
+.brandimg{height:34px} .ver{font-size:11px;color:#9aa0a6;margin-left:6px;opacity:.8} .protag{font-weight:900;letter-spacing:.2px;padding:6px 10px;border-radius:999px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06)}
 .protag .pro{color:#ff6b6b} .protag .on{color:#66E6A8}
+
 main{padding:16px;display:none} main.active{display:block} .grid{display:grid;gap:12px}
+
 .card{position:relative;border-radius:16px;padding:18px 16px;border:1px solid rgba(255,255,255,.14);overflow:hidden;cursor:pointer;
       background:linear-gradient(180deg, rgba(255,255,255,.10), rgba(255,255,255,.03));
       backdrop-filter: blur(14px); box-shadow:0 12px 36px rgba(0,0,0,.4), inset 0 0 0 1px rgba(255,255,255,.05);}
@@ -20,10 +29,16 @@ main{padding:16px;display:none} main.active{display:block} .grid{display:grid;ga
 .bg-level::before{background-image:url('art/card-level.svg')} .bg-edu::before{background-image:url('art/card-edu.svg')} .bg-quick::before{background-image:url('art/card-quick.svg')}
 .card > *{position:relative;z-index:1}
 
-nav{position:sticky;bottom:0;background:rgba(10,12,16,.86);backdrop-filter:blur(12px);border-top:1px solid rgba(255,255,255,.08);display:grid;grid-template-columns:repeat(4,1fr)}
-nav button{appearance:none;border:0;background:none;color:#9aa0a6;padding:10px 6px 14px;font-weight:900;font-size:15px;display:grid;place-items:center;gap:4px;position:relative;transition:color .15s ease, text-shadow .15s ease}
-nav button.active{color:var(--navGlow); text-shadow:0 0 10px color-mix(in sRGB, var(--navGlow) 40%, transparent), 0 0 24px color-mix(in sRGB, var(--navGlow) 30%, transparent)}
-nav button.active::after{content:'';position:absolute;bottom:6px;width:36px;height:3px;border-radius:999px;background:var(--navGlow);box-shadow:0 0 12px color-mix(in sRGB, var(--navGlow) 45%, transparent);}
+/* Fixed glass bottom nav */
+nav{position:fixed;left:0;right:0;bottom:0;height:var(--nav-h);z-index:200;display:grid;grid-template-columns:repeat(4,1fr);align-items:center;
+     background:linear-gradient(180deg, rgba(12,15,20,.65), rgba(12,15,20,.9)); backdrop-filter: blur(14px);
+     border-top:1px solid rgba(255,255,255,.08); padding:8px 10px calc(10px + env(safe-area-inset-bottom, 0px));}
+nav button{appearance:none;border:0;background:rgba(255,255,255,.06);color:#9aa0a6;border:1px solid rgba(255,255,255,.14);
+           margin:0 6px; border-radius:14px; padding:12px 6px; font-weight:1000; font-size:18px; display:grid; place-items:center; gap:2px; 
+           box-shadow: inset 0 0 0 1px rgba(255,255,255,.04), 0 6px 18px rgba(0,0,0,.35); transition:color .15s ease, text-shadow .15s ease, background .15s ease, border-color .15s ease;}
+nav button.active{color:var(--ink); background:rgba(255,255,255,.10); border-color:rgba(255,255,255,.22);
+                  text-shadow:0 0 10px color-mix(in sRGB, var(--navGlow) 40%, transparent), 0 0 24px color-mix(in sRGB, var(--navGlow) 30%, transparent)}
+nav button.active::after{content:'';width:40px;height:3px;margin-top:6px;border-radius:999px;background:var(--navGlow);box-shadow:0 0 12px color-mix(in sRGB, var(--navGlow) 45%, transparent);}
 
 .status{font-weight:900;letter-spacing:.8px;color:var(--accent);text-align:center;text-shadow:0 2px 12px rgba(255,169,77,.25);font-size:clamp(20px,6vw,30px);}
 .ring-wrap{display:grid;place-items:center;padding:12px}
@@ -42,7 +57,7 @@ nav button.active::after{content:'';position:absolute;bottom:6px;width:36px;heig
 .content{display:grid;gap:8px;padding:0 16px 14px 16px;max-height:0;overflow:hidden;transition:max-height .25s ease} .ecard.open .content{padding-top:0; max-height:600px} .muted{color:#9aa0a6}
 
 .ob{position:fixed;inset:0;background:rgba(5,7,10,.88);backdrop-filter:blur(10px);display:none;z-index:100}
-.ob .wrap{max-width:820px;margin:0 auto;padding:20px}
+.ob .wrap{max-width:820px;margin:0 auto;padding:20px 20px calc(20px + var(--nav-h));}
 .slide{position:relative;background:linear-gradient(180deg, rgba(255,255,255,.10), rgba(255,255,255,.03));border:1px solid rgba(255,255,255,.14);border-radius:18px;padding:22px;min-height:220px;box-shadow:0 16px 40px rgba(0,0,0,.45);}
 .controls{position:absolute;left:16px;right:16px;bottom:14px;display:flex;align-items:center;justify-content:space-between}
 .btn{appearance:none;border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.06);padding:10px 14px;border-radius:12px;color:var(--ink);font-weight:900;letter-spacing:.3px}
@@ -57,7 +72,7 @@ nav button.active::after{content:'';position:absolute;bottom:6px;width:36px;heig
 <header>
   <div style="display:flex;align-items:center;gap:6px">
     <img id="brand" class="brandimg" alt="KegelPilot" loading="eager" fetchpriority="high" src="Logo.PNG">
-    <span class="ver">v24</span>
+    <span class="ver">v25</span>
   </div>
   <div class="protag"><span class="pro">PRO</span> <span class="on">aktivno</span></div>
 </header>
@@ -165,7 +180,7 @@ nav button.active::after{content:'';position:absolute;bottom:6px;width:36px;heig
 </div>
 
 <script>
-const APP_VERSION='v24';
+const APP_VERSION='v25';
 (async function(){try{const saved=localStorage.getItem('kp_app_version');if(saved!==APP_VERSION){if('caches'in window){const keys=await caches.keys();await Promise.all(keys.map(k=>caches.delete(k)));}if('serviceWorker'in navigator){const regs=await navigator.serviceWorker.getRegistrations();await Promise.all(regs.map(r=>r.unregister()));}localStorage.setItem('kp_app_version',APP_VERSION);const url=new URL(window.location.href);if(!url.searchParams.get('v')){url.searchParams.set('v',APP_VERSION);window.location.replace(url.toString());}}}catch(e){}})(); 
 (function(){const b=document.getElementById('brand');const i="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='132' height='28' viewBox='0 0 132 28' fill='none'><rect x='0' y='0' rx='8' ry='8' width='132' height='28' fill='rgba(15,20,27,0.85)'/><text x='14' y='19' font-family='Inter,Segoe UI,Arial,sans-serif' font-size='16' fill='%23A7F3D0' font-weight='700'>KegelPilot</text></svg>";function setInline(){b.src=i;}function tryAssets(){b.removeEventListener('error',tryAssets);b.addEventListener('error',setInline,{once:true});b.src='assets/logo_text.png';}b.addEventListener('error',tryAssets,{once:true});})();
 
@@ -182,7 +197,7 @@ const tabColor = {home:'#66E6A8', trainer:'#FFA94D', edu:'#81D4FA', progress:'#A
   const navButtons=document.querySelectorAll('nav button');
   function showTab(id){
     pages.forEach(p=>p.classList.toggle('active',p.id===id));
-    navButtons.forEach(b=>{ const on=b.getAttribute('data-tab')===id; b.classList.toggle('active',on); });
+    navButtons.forEach(b=>b.classList.toggle('active', b.getAttribute('data-tab')===id));
     document.documentElement.style.setProperty('--navGlow', tabColor[id]||'#66E6A8');
     if (navigator.vibrate) navigator.vibrate(12);
   }
@@ -294,31 +309,33 @@ renderHome(); renderProgress();
  ["Plan i motivacija","Kreni s Rangom 1; aplikacija te vodi i postepeno uvodi varijacije. Cilj za prelazak: 2 sesije dnevno kroz 5 uzastopnih dana. Mnogi promjene primijete kroz nekoliko sedmica — strpljenje i kontinuitet su ključ."],
  ["Napomena","Ovaj sadržaj je informativan i ne zamjenjuje savjet ljekara. Ako imaš simptome koji te brinu ili osjetiš pogoršanje tokom vježbi, stani i potraži stručni savjet."]
 ];
-  const host=document.getElementById('eduAcc');
-  data.forEach((item,idx)=>{
-    const [title,body]=item;
-    const card=document.createElement('section'); card.className='ecard';
-    const id='ec'+idx;
-    card.innerHTML=`<header role="button" aria-controls="${id}-content" aria-expanded="false" tabindex="0"><h3>${title}</h3><svg class="caret" width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M8 5v14l11-7z"/></svg></header><div id="${id}-content" class="content"><div class="muted" style="white-space:pre-line">${body}</div></div>`;
-    function toggle(open){card.classList.toggle('open',open);const h=card.querySelector('header');h.setAttribute('aria-expanded',open?'true':'false');}
-    card.querySelector('header').addEventListener('click',()=>{const isOpen=card.classList.contains('open');document.querySelectorAll('.ecard.open').forEach(el=>el.classList.remove('open'));toggle(!isOpen);});
-    card.querySelector('header').addEventListener('keydown',(e)=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();card.querySelector('header').click();}});
+  const host = document.getElementById('eduAcc');
+  data.forEach((item, idx)=>{
+    const [title, body] = item;
+    const card = document.createElement('section'); card.className='ecard';
+    const id = 'ec'+idx;
+    card.innerHTML = `<header role="button" aria-controls="${id}-content" aria-expanded="false" tabindex="0"><h3>${title}</h3><svg class="caret" width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M8 5v14l11-7z"/></svg></header><div id="${id}-content" class="content"><div class="muted" style="white-space:pre-line">${body}</div></div>`;
+    function toggle(open){ card.classList.toggle('open', open); const h = card.querySelector('header'); h.setAttribute('aria-expanded', open? 'true':'false'); }
+    card.querySelector('header').addEventListener('click', ()=>{ const isOpen = card.classList.contains('open'); document.querySelectorAll('.ecard.open').forEach(el=>el.classList.remove('open')); toggle(!isOpen); });
+    card.querySelector('header').addEventListener('keydown', (e)=>{ if(e.key==='Enter' || e.key===' ') { e.preventDefault(); card.querySelector('header').click(); } });
     host.appendChild(card);
   });
 })();
 
 (function(){
-  const onb=document.getElementById('onb');
-  const done=localStorage.getItem('kp_onboard_v23_done')==='1';
-  if(!done){onb.style.display='block';}
-  function show(n){['s1','s2','s3'].forEach((id,i)=>{document.getElementById(id).style.display=(i===n-1?'block':'none');});}
+  const onb = document.getElementById('onb');
+  const done = localStorage.getItem('kp_onboard_v23_done')==='1';
+  if(!done){ onb.style.display='block'; }
+  function show(n){
+    ['s1','s2','s3'].forEach((id,i)=>{ document.getElementById(id).style.display = (i===n-1?'block':'none'); });
+  }
   document.getElementById('s1next').onclick=()=>show(2);
   document.getElementById('s2prev').onclick=()=>show(1);
   document.getElementById('s2next').onclick=()=>show(3);
   document.getElementById('s3prev').onclick=()=>show(2);
-  document.getElementById('s3done').onclick=()=>{localStorage.setItem('kp_onboard_v23_done','1');onb.style.display='none';};
+  document.getElementById('s3done').onclick=()=>{ localStorage.setItem('kp_onboard_v23_done','1'); onb.style.display='none'; };
 })();
 
-if('serviceWorker'in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('./service-worker.js?v='+APP_VERSION);});}
+if('serviceWorker' in navigator){ window.addEventListener('load', function(){ navigator.serviceWorker.register('./service-worker.js?v='+APP_VERSION); }); }
 </script>
 </body></html>
