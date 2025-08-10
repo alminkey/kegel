@@ -1,6 +1,6 @@
 <!doctype html><html lang="bs"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>KegelPilot — v28</title>
+<title>KegelPilot — v29</title>
 <link rel="manifest" href="manifest.json"><meta name="theme-color" content="#0B0E12">
 <style>
 :root{
@@ -8,18 +8,18 @@
   --ring-scale:.2; --ring-alpha:.3; --bgPulse-scale:.2; --bgPulse-alpha:.1; --navGlow:#66E6A8;
   --nav-h: 80px;
 }
-*{box-sizing:border-box} html,body{height:100%} 
+*{box-sizing:border-box} html,body{height:100%; -webkit-text-size-adjust:100%; text-size-adjust:100%} 
 body{margin:0;background:radial-gradient(1200px 600px at 20% -10%,#18202b 0%,#0b0e12 60%),var(--bg);color:var(--ink);font-family:Inter,system-ui,Segoe UI,Roboto,Arial,sans-serif;-webkit-tap-highlight-color:transparent;
      padding-bottom: calc(var(--nav-h) + env(safe-area-inset-bottom, 0px));}
 
-.shell{min-height:100%;display:grid;grid-template-rows:auto 1fr;} 
+.shell{min-height:100svh;display:grid;grid-template-rows:auto 1fr;} 
 
 header{position:sticky;top:0;z-index:200;background:rgba(12,15,20,.85);backdrop-filter:blur(10px);
         border-bottom:1px solid rgba(255,255,255,.08);padding:10px 14px;display:flex;align-items:center;justify-content:space-between;gap:12px;}
 .brandimg{height:34px} .ver{font-size:11px;color:#9aa0a6;margin-left:6px;opacity:.8} .protag{font-weight:900;letter-spacing:.2px;padding:6px 10px;border-radius:999px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06)}
 .protag .pro{color:#ff6b6b} .protag .on{color:#66E6A8}
 
-main{padding:16px;display:none} main.active{display:block} .grid{display:grid;gap:12px}
+main{padding:16px;display:none;overflow:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain} main.active{display:block} .grid{display:grid;gap:12px;max-width:960px;margin:0 auto}
 
 /* Glass cards */
 .card{position:relative;border-radius:16px;padding:18px 16px;border:1px solid rgba(255,255,255,.14);overflow:hidden;cursor:pointer;
@@ -113,13 +113,26 @@ nav button.active::after{content:'';width:44px;height:3px;margin-top:6px;border-
 .dot{width:8px;height:8px;border-radius:999px;background:rgba(255,255,255,.35)}
 .dot.active{background:var(--accent2); box-shadow:0 0 0 0 rgba(102,230,168,.45); animation: dotpulse 1.6s ease-in-out infinite}
 @keyframes dotpulse{0%{box-shadow:0 0 0 0 rgba(102,230,168,.45)} 70%{box-shadow:0 0 0 10px rgba(102,230,168,0)} 100%{box-shadow:0 0 0 0 rgba(102,230,168,0)}}
+
+@media (max-width: 420px){
+  .chips{grid-template-columns: repeat(2,1fr);}
+}
+@media (max-width: 340px){
+  .chips{grid-template-columns: 1fr;}
+}
+@media (max-height: 640px) and (orientation: portrait){
+  .hero{padding:16px;}
+  .hero h2{font-size:clamp(18px,5.2vw,24px)}
+  .hero p{font-size:0.95rem}
+}
+
 </style></head>
 <body>
 <div class="shell">
 <header>
   <div style="display:flex;align-items:center;gap:6px">
     <img id="brand" class="brandimg" alt="KegelPilot" loading="eager" fetchpriority="high" src="Logo.PNG">
-    <span class="ver">v28</span>
+    <span class="ver">v29</span>
   </div>
   <div class="protag"><span class="pro">PRO</span> <span class="on">aktivno</span></div>
 </header>
@@ -264,7 +277,7 @@ nav button.active::after{content:'';width:44px;height:3px;margin-top:6px;border-
 </div>
 
 <script>
-const APP_VERSION='v28';
+const APP_VERSION='v29';
 
 (async function(){try{const saved=localStorage.getItem('kp_app_version');if(saved!==APP_VERSION){if('caches'in window){const keys=await caches.keys();await Promise.all(keys.map(k=>caches.delete(k)));}if('serviceWorker'in navigator){const regs=await navigator.serviceWorker.getRegistrations();await Promise.all(regs.map(r=>r.unregister()));}localStorage.setItem('kp_app_version',APP_VERSION);const url=new URL(window.location.href);if(!url.searchParams.get('v')){url.searchParams.set('v',APP_VERSION);window.location.replace(url.toString());}}}catch(e){}})(); 
 (function(){const b=document.getElementById('brand');const i="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='132' height='28' viewBox='0 0 132 28' fill='none'><rect x='0' y='0' rx='8' ry='8' width='132' height='28' fill='rgba(15,20,27,0.85)'/><text x='14' y='19' font-family='Inter,Segoe UI,Arial,sans-serif' font-size='16' fill='%23A7F3D0' font-weight='700'>KegelPilot</text></svg>";function setInline(){b.src=i;}function tryAssets(){b.removeEventListener('error',tryAssets);b.addEventListener('error',setInline,{once:true});b.src='assets/logo_text.png';}b.addEventListener('error',tryAssets,{once:true});})();
