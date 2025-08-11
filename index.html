@@ -1,6 +1,6 @@
 <!doctype html><html lang="bs"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>KegelPilot — v38.4</title>
+<title>KegelPilot — v38.4.1</title>
 <link rel="manifest" href="manifest.json"><meta name="theme-color" content="#0B0E12">
 <style>
 :root{
@@ -703,6 +703,49 @@ if('serviceWorker' in navigator){ window.addEventListener('load', function(){ na
   });
   // Version label
   try{ localStorage.setItem('kp_last_version','v38.4'); }catch(e){}
+})();
+</script>
+
+
+<script>
+// v38.4.1 — bridge: sync legacy training -> statsStore
+(function(){
+  if (window.__KP_BRIDGE__) return; window.__KP_BRIDGE__=true;
+  function fire(){ 
+    try{
+      // prefer direct call if store exists
+      if (window.kpStore && typeof window.kpStore.recordSession === 'function'){
+        window.kpStore.recordSession({ variation: 'auto', success: true });
+      }
+      // also emit event (store also listens, harmless dup guarded internally)
+      window.dispatchEvent(new CustomEvent('kp:sessionCompleted', { detail:{ variation:'auto', success:true } }));
+    }catch(e){}
+  }
+  function tryPatch(){
+    try{
+      if (typeof window.markSessionComplete === 'function' && !window.__KP_BRIDGE_PATCHED__){
+        const orig = window.markSessionComplete;
+        window.markSessionComplete = function(){
+          try { return orig.apply(this, arguments); } finally { fire(); }
+        };
+        window.__KP_BRIDGE_PATCHED__ = true;
+      }
+    }catch(e){}
+  }
+  // try now and after small delay in case training code loads later
+  tryPatch(); setTimeout(tryPatch, 500); setTimeout(tryPatch, 1500);
+  // safety: if user taps STOP after a run, we still record once
+  document.addEventListener('click', function(ev){
+    const t = ev.target.closest('button, [role="button"]');
+    if(!t) return;
+    const txt = (t.textContent||'').trim().toLowerCase();
+    if (txt.includes('stop') || txt.includes('zavrsi') || txt.includes('završi')){
+      // record only if training circle has progressed (heuristic: presence of 'Stegni'/'Zadrži'/'Opusti' recently)
+      // simplified: fire once; store clamps values so ne duplira dnevno preko target-a
+      fire();
+    }
+  });
+  try{ localStorage.setItem('kp_last_version','v38.4.1'); }catch(e){}
 })();
 </script>
 
