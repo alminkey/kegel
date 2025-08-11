@@ -1,6 +1,6 @@
 <!doctype html><html lang="bs"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>KegelPilot — v38.1d</title>
+<title>KegelPilot — v38.2</title>
 <link rel="manifest" href="manifest.json"><meta name="theme-color" content="#0B0E12">
 <style>
 :root{
@@ -215,8 +215,25 @@ nav button { min-width: 0; max-width: 100%; overflow: hidden; text-overflow: cli
 .home2 .badge2 { min-width:92px; padding:12px; border-radius:14px; text-align:center; background:linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.02)); border:1px solid rgba(255,255,255,.14); opacity:.9; flex:0 0 auto; }
 
 
-/* === KP v38.1d: safe bottom space for nav === */
+/* === KP v38.2: safe bottom space for nav === */
 body{padding-bottom:72px;overflow-x:hidden}
+
+
+/* === KP v38.2: Trenutni cilj (goal strip) === */
+.goal-strip{margin:12px 16px 8px;border-radius:14px;border:1px solid rgba(255,255,255,.08);
+  background:linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02)); box-shadow:0 10px 22px rgba(0,0,0,.25);
+  padding:12px 14px}
+.goal-strip .gs-top{display:flex;align-items:baseline;justify-content:space-between;gap:8px;margin-bottom:10px}
+.goal-strip .gs-title{font-weight:800;font-size:14px;color:#cfece6;letter-spacing:.3px}
+.goal-strip .gs-small{font-weight:700;font-size:12px;color:#9fb9b3}
+.goal-strip .gs-bar{position:relative;height:7px;border-radius:999px;background:rgba(255,255,255,.08);overflow:hidden}
+.goal-strip .gs-fill{position:absolute;left:0;top:0;bottom:0;border-radius:999px;background:linear-gradient(90deg,#19d3b1,#2dd4bf);width:0%}
+.goal-strip .gs-meta{display:flex;justify-content:flex-end;font-size:12px;color:#b9c7c3;margin-top:8px}
+@media (max-width:360px){
+  .goal-strip{margin:10px 10px 6px;padding:10px 12px}
+  .goal-strip .gs-title{font-size:13px}
+  .goal-strip .gs-small,.goal-strip .gs-meta{font-size:11px}
+}
 
 </style></head>
 <body>
@@ -224,10 +241,21 @@ body{padding-bottom:72px;overflow-x:hidden}
 <header>
   <div style="display:flex;align-items:center;gap:6px">
     <img id="brand" class="brandimg" alt="KegelPilot" loading="eager" fetchpriority="high" src="Logo.PNG">
-    <span class="ver">v38.1d</span>
+    <span class="ver">v38.2</span>
   </div>
   <div class="protag"><span class="pro">PRO</span> <span class="on">aktivno</span></div>
 </header>
+
+<!-- KP v38.2: Goal strip -->
+<section class="goal-strip" id="kp-goal-strip" role="status" aria-live="polite">
+  <div class="gs-top">
+    <span class="gs-title">Trenutni cilj</span>
+    <span class="gs-small">Rang <strong id="gs-rank">1</strong> • Dan <strong id="gs-day">1</strong>/<span id="gs-max">5</span></span>
+  </div>
+  <div class="gs-bar"><div class="gs-fill" id="gs-fill" style="width:0%"></div></div>
+  <div class="gs-meta">Danas: <b id="gs-today">0</b>/2 sesije</div>
+</section>
+
 
 
 <main id="home" class="active home2">
@@ -371,7 +399,7 @@ body{padding-bottom:72px;overflow-x:hidden}
 </div>
 
 <script>
-const APP_VERSION='v38.1d';
+const APP_VERSION='v38.2';
 
 (async function(){try{const saved=localStorage.getItem('kp_app_version');if(saved!==APP_VERSION){if('caches'in window){const keys=await caches.keys();await Promise.all(keys.map(k=>caches.delete(k)));}if('serviceWorker'in navigator){const regs=await navigator.serviceWorker.getRegistrations();await Promise.all(regs.map(r=>r.unregister()));}localStorage.setItem('kp_app_version',APP_VERSION);const url=new URL(window.location.href);if(!url.searchParams.get('v')){url.searchParams.set('v',APP_VERSION);window.location.replace(url.toString());}}}catch(e){}})(); 
 (function(){const b=document.getElementById('brand');const i="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='132' height='28' viewBox='0 0 132 28' fill='none'><rect x='0' y='0' rx='8' ry='8' width='132' height='28' fill='rgba(15,20,27,0.85)'/><text x='14' y='19' font-family='Inter,Segoe UI,Arial,sans-serif' font-size='16' fill='%23A7F3D0' font-weight='700'>KegelPilot</text></svg>";function setInline(){b.src=i;}function tryAssets(){b.removeEventListener('error',tryAssets);b.addEventListener('error',setInline,{once:true});b.src='assets/logo_text.png';}b.addEventListener('error',tryAssets,{once:true});})();
@@ -617,8 +645,36 @@ if('serviceWorker' in navigator){ window.addEventListener('load', function(){ na
       localStorage.setItem('kp_flags', JSON.stringify(DEF));
     }
     // Track last deployed version
-    localStorage.setItem('kp_last_version', 'v38.1d.0-preflight');
+    localStorage.setItem('kp_last_version', 'v38.2.0-preflight');
   } catch(e){ /* no-op */ }
+})();
+</script>
+
+
+<script>
+// KP v38.2: Goal strip logic (non-invasive)
+(function(){
+  try{
+    var LS = localStorage;
+    var rank = +(LS.getItem('kp_rank')||1);
+    var day = +(LS.getItem('kp_rank_day')||1);
+    var max = +(LS.getItem('kp_rank_len')||5);
+    var today = +(LS.getItem('kp_sessions_today')||0);
+    // clamp
+    rank = Math.max(1, rank|0);
+    day = Math.min(max, Math.max(1, day|0));
+    today = Math.max(0, Math.min(2, today|0));
+    // Fill UI
+    var $ = function(id){ return document.getElementById(id); }
+    if($('gs-rank')) $('gs-rank').textContent = rank;
+    if($('gs-day')) $('gs-day').textContent = day;
+    if($('gs-max')) $('gs-max').textContent = max;
+    if($('gs-today')) $('gs-today').textContent = today;
+    // Progress: završeni dani (pretpostavimo da je dan završen kada je today>=2)
+    var done = (day-1) + (today>=2 ? 1 : 0);
+    var pct = Math.max(0, Math.min(100, Math.round(done/max*100)));
+    var fill = $('gs-fill'); if(fill) fill.style.width = pct + '%';
+  }catch(e){ console.warn('goal-strip', e); }
 })();
 </script>
 
