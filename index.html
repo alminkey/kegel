@@ -1,6 +1,6 @@
 <!doctype html><html lang="bs"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>KegelPilot — v38.3g</title>
+<title>KegelPilot — v38.4</title>
 <link rel="manifest" href="manifest.json"><meta name="theme-color" content="#0B0E12">
 <style>
 :root{
@@ -215,6 +215,7 @@ nav button { min-width: 0; max-width: 100%; overflow: hidden; text-overflow: cli
 .home2 .badge2 { min-width:92px; padding:12px; border-radius:14px; text-align:center; background:linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.02)); border:1px solid rgba(255,255,255,.14); opacity:.9; flex:0 0 auto; }
 
 
+/* KP v38.4 — Home summary cards */
 .goal-strip{margin:12px 16px 8px;border-radius:14px;border:1px solid rgba(255,255,255,.08);
   background:linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02)); box-shadow:0 10px 22px rgba(0,0,0,.25);
   padding:12px 14px}
@@ -224,6 +225,7 @@ nav button { min-width: 0; max-width: 100%; overflow: hidden; text-overflow: cli
 .goal-strip .gs-bar{position:relative;height:7px;border-radius:999px;background:rgba(255,255,255,.08);overflow:hidden}
 .goal-strip .gs-fill{position:absolute;left:0;top:0;bottom:0;border-radius:999px;background:linear-gradient(90deg,#19d3b1,#2dd4bf);width:0%}
 .goal-strip .gs-meta{display:flex;justify-content:flex-end;font-size:12px;color:#b9c7c3;margin-top:8px}
+
 .today-card{margin:8px 16px 10px;border-radius:14px;border:1px solid rgba(255,255,255,.08);
   background:linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02)); box-shadow:0 10px 22px rgba(0,0,0,.25);
   padding:12px 14px; display:flex; gap:14px; align-items:center}
@@ -257,6 +259,7 @@ nav button { min-width: 0; max-width: 100%; overflow: hidden; text-overflow: cli
   <div class="gs-bar"><div class="gs-fill" id="gs-fill" style="width:0%"></div></div>
   <div class="gs-meta">Danas: <b id="gs-today">0</b>/2 sesije</div>
 </section>
+
 <section class="today-card" id="kp-today-card" role="group" aria-labelledby="tc-title">
   <div class="tc-ind" aria-hidden="true">
     <svg viewBox="0 0 48 48">
@@ -650,112 +653,56 @@ document.getElementById('chipStreak').onclick=()=>{ if(document.body.classList.c
 if('serviceWorker' in navigator){ window.addEventListener('load', function(){ navigator.serviceWorker.register('./service-worker.js?v='+APP_VERSION); }); }
 </script>
 
+<script src="js/store.js"></script>
 <script>
+// KP v38.4 — bind cards to kpStore
 (function(){
-  if(window.__KP_V383G__) return; window.__KP_V383G__=true; // singleton
-
-  function clamp(n,a,b){ return Math.min(b, Math.max(a, n|0)); }
-  function S(id,v){ var e=document.getElementById(id); if(e) e.textContent=v; }
-
-  // Populate from LS
-  try{
-    var LS=localStorage;
-    var rank=+(LS.getItem('kp_rank')||1);
-    var day=+(LS.getItem('kp_rank_day')||1);
-    var max=+(LS.getItem('kp_rank_len')||5);
-    var today=+(LS.getItem('kp_sessions_today')||0);
-    var target=+(LS.getItem('kp_daily_target')||2);
-    var dur=+(LS.getItem('kp_session_minutes')||5);
-    rank=clamp(rank,1,99); day=clamp(day,1,max||5); today=clamp(today,0,4); target=clamp(target,1,4);
-    S('gs-rank',rank); S('gs-day',day); S('gs-max',max); S('gs-today',today);
-    var doneDays=(day-1)+(today>=2?1:0);
-    var pct=Math.max(0,Math.min(100,Math.round(doneDays/(max||5)*100)));
-    var fill=document.getElementById('gs-fill'); if(fill) fill.style.width=pct+'%';
-    S('tc-done',today); S('tc-target',target);
-    var m=document.getElementById('tc-meta'); if(m) m.textContent='Dan '+day+' • Rang '+rank;
-    var de=document.getElementById('tc-dur'); if(de) de.textContent='~'+dur+' min';
-    var C=2*Math.PI*21, pct2=(target?(today/target):0), offs=Math.round(C*(1-pct2));
-    var ring=document.getElementById('tc-ring'); if(ring){ ring.setAttribute('stroke-dasharray', C); ring.setAttribute('stroke-dashoffset', offs); }
-    var btn=document.getElementById('tc-start'); if(btn){ btn.addEventListener('click', function(){
-      var navBtn=document.querySelector('button[data-tab="trainer"]')||document.querySelector('[data-nav="trainer"]'); if(navBtn) navBtn.click();
-    });}
-    LS.setItem('kp_last_version','v38.3g');
-  }catch(e){}
-
-  // === Counts sync: prefer X/Y near "Danas sesije" with small denominator (<=4) ===
-  function norm(s){ try{return (s||'').toString().normalize('NFD').replace(/[\u0300-\u036f]/g,''); }catch(e){ return (s||''); } }
-  function findTodayTile(){
-    var nodes=document.body ? document.body.querySelectorAll('div,section,article,li') : [];
-    for(var i=0;i<nodes.length;i++){
-      var t=norm(nodes[i].textContent).toLowerCase();
-      if(t.includes('danas sesije')) return nodes[i];
-    }
-    return null;
-  }
-  function pickCountsFromText(txt){
-    var s=norm((txt||'')+'');
-    var re=/([0-9]+)\s*\/\s*([0-9]+)/g, m, best=null, minDen=1e9;
-    while((m=re.exec(s))){
-      var a=+m[1], b=+m[2];
-      if(b<=4){ best={done:a, target:b}; break; }
-      if(b<minDen){ minDen=b; best={done:a, target:b}; }
-    }
-    return best;
-  }
-  function extractCounts(tile){
-    if(!tile) return null;
-    var raw=tile.textContent||'';
-    // Prefer the first X/Y AFTER the phrase "danas sesije"
-    var nrm=norm(raw).toLowerCase();
-    var pos=nrm.indexOf('danas sesije');
-    var scope = pos>=0 ? raw.slice(pos) : raw;
-    var pick=pickCountsFromText(scope);
-    if(pick) return pick;
-    // Fallback: deep children scan (cheap)
-    var kids=tile.querySelectorAll('*');
-    for(var i=0;i<kids.length;i++){
-      var p=pickCountsFromText(kids[i].textContent);
-      if(p && p.target<=4) return p;
-    }
-    return null;
-  }
-  var lastDone=-1, lastTarget=-1, observer=null;
-  function updateUI(done,target){
-    if(done===lastDone && target===lastTarget) return;
-    lastDone=done; lastTarget=target;
-    var d=document.getElementById('tc-done'), t=document.getElementById('tc-target'), ring=document.getElementById('tc-ring');
-    if(d) d.textContent=done; if(t) t.textContent=target;
-    if(ring){ var C=2*Math.PI*21, pct=(target?(done/target):0), offs=Math.round(C*(1-pct));
-      ring.setAttribute('stroke-dasharray',C); ring.setAttribute('stroke-dashoffset',offs); }
-    try{ localStorage.setItem('kp_sessions_today', String(done)); localStorage.setItem('kp_daily_target', String(target)); }catch(e){}
-  }
-  function attachObserver(tile){
-    if(!tile) return;
+  function apply(state){
     try{
-      if(observer) observer.disconnect();
-      observer=new MutationObserver(function(){
-        var c=extractCounts(tile);
-        if(c) updateUI(c.done, c.target);
-      });
-      observer.observe(tile,{subtree:true, childList:true, characterData:true});
-      var c0=extractCounts(tile); if(c0) updateUI(c0.done, c0.target);
-    }catch(e){}
+      // Goal strip
+      var goal = window.kpStore.getRankGoal();
+      var fill = document.getElementById('gs-fill');
+      if(fill) fill.style.width = Math.round(goal.percent*100)+'%';
+      var setText = (id,v)=>{ var el=document.getElementById(id); if(el) el.textContent = v; };
+      setText('gs-rank', goal.rank);
+      setText('gs-day', goal.day);
+      setText('gs-max', goal.length);
+      // Today card
+      var prog = window.kpStore.getTodayProgress();
+      setText('tc-done', prog.done);
+      setText('tc-target', prog.target);
+      var ring = document.getElementById('tc-ring');
+      if(ring){
+        var C = 2*Math.PI*21;
+        ring.setAttribute('stroke-dasharray', C);
+        ring.setAttribute('stroke-dashoffset', Math.round(C*(1-prog.percent)));
+      }
+      var meta = document.getElementById('tc-meta');
+      if(meta){ meta.textContent = 'Dan '+goal.day+' • Rang '+goal.rank; }
+      var de = document.getElementById('tc-dur');
+      if(de){ de.textContent = '~'+(window.kpStore.getSessionDefaults().minutes)+' min'; }
+    }catch(e){ console.warn('bind apply err', e); }
   }
-  function slowRetry(){
-    var tile=findTodayTile();
-    if(tile){ attachObserver(tile); return; }
-    // Fallback once from LS
-    try{ updateUI(+(localStorage.getItem('kp_sessions_today')||0), +(localStorage.getItem('kp_daily_target')||2)); }catch(e){}
-    if(!window.__KP_V383G_TIMER__){
-      window.__KP_V383G_TIMER__=true;
-      setTimeout(function(){ window.__KP_V383G_TIMER__=false; slowRetry(); }, 10000);
-    }
-  }
-  if (document.readyState === 'loading'){
-    document.addEventListener('DOMContentLoaded', slowRetry, {once:true});
+  // subscribe
+  if(window.kpStore && window.kpStore.subscribe){
+    window.kpStore.subscribe(apply);
   } else {
-    slowRetry();
+    // wait until store loads
+    var iv = setInterval(function(){
+      if(window.kpStore && window.kpStore.subscribe){
+        clearInterval(iv); window.kpStore.subscribe(apply);
+      }
+    }, 100);
   }
+  // CTA → open Training tab
+  document.addEventListener('click', function(e){
+    var btn = e.target.closest('#tc-start');
+    if(!btn) return;
+    var navBtn = document.querySelector('button[data-tab="trainer"]')||document.querySelector('[data-nav="trainer"]');
+    if(navBtn) navBtn.click();
+  });
+  // Version label
+  try{ localStorage.setItem('kp_last_version','v38.4'); }catch(e){}
 })();
 </script>
 
