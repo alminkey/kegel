@@ -1,6 +1,6 @@
 <!doctype html><html lang="bs"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>KegelPilot — v38.2</title>
+<title>KegelPilot — v38.3</title>
 <link rel="manifest" href="manifest.json"><meta name="theme-color" content="#0B0E12">
 <style>
 :root{
@@ -215,10 +215,6 @@ nav button { min-width: 0; max-width: 100%; overflow: hidden; text-overflow: cli
 .home2 .badge2 { min-width:92px; padding:12px; border-radius:14px; text-align:center; background:linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.02)); border:1px solid rgba(255,255,255,.14); opacity:.9; flex:0 0 auto; }
 
 
-/* === KP v38.2: safe bottom space for nav === */
-body{padding-bottom:72px;overflow-x:hidden}
-
-
 /* === KP v38.2: Trenutni cilj (goal strip) === */
 .goal-strip{margin:12px 16px 8px;border-radius:14px;border:1px solid rgba(255,255,255,.08);
   background:linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02)); box-shadow:0 10px 22px rgba(0,0,0,.25);
@@ -235,13 +231,33 @@ body{padding-bottom:72px;overflow-x:hidden}
   .goal-strip .gs-small,.goal-strip .gs-meta{font-size:11px}
 }
 
+/* === KP v38.3: 'Training for Today' compact card === */
+.today-card{margin:8px 16px 10px;border-radius:14px;border:1px solid rgba(255,255,255,.08);
+  background:linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02)); box-shadow:0 10px 22px rgba(0,0,0,.25);
+  padding:12px 14px; display:flex; gap:14px; align-items:center}
+.today-card .tc-ind{width:64px;height:64px;position:relative;flex:0 0 64px}
+.today-card .tc-ind svg{width:64px;height:64px;display:block}
+.today-card .tc-ind .tc-num{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:14px;color:#d7eae6}
+.today-card .tc-body{display:flex;flex-direction:column;gap:6px;min-width:0}
+.today-card .tc-title{font-weight:800;font-size:16px;color:#eaf5f2}
+.today-card .tc-sub{font-weight:700;font-size:12px;color:#9fb9b3}
+.today-card .tc-cta{margin-left:auto}
+.today-card .btn-cta{appearance:none;border:none;border-radius:12px;padding:10px 14px;font-weight:900;letter-spacing:.3px;
+  background:#ff6448;color:#171a1f;box-shadow:0 8px 18px rgba(255,100,72,.35);}
+.today-card .btn-cta:active{transform:translateY(1px)}
+@media (max-width:360px){
+  .today-card{margin:6px 10px 8px;padding:10px 12px}
+  .today-card .tc-ind{width:56px;height:56px;flex-basis:56px}
+  .today-card .tc-title{font-size:15px}
+}
+
 </style></head>
 <body>
 <div class="shell">
 <header>
   <div style="display:flex;align-items:center;gap:6px">
     <img id="brand" class="brandimg" alt="KegelPilot" loading="eager" fetchpriority="high" src="Logo.PNG">
-    <span class="ver">v38.2</span>
+    <span class="ver">v38</span>
   </div>
   <div class="protag"><span class="pro">PRO</span> <span class="on">aktivno</span></div>
 </header>
@@ -254,6 +270,25 @@ body{padding-bottom:72px;overflow-x:hidden}
   </div>
   <div class="gs-bar"><div class="gs-fill" id="gs-fill" style="width:0%"></div></div>
   <div class="gs-meta">Danas: <b id="gs-today">0</b>/2 sesije</div>
+</section>
+
+<!-- KP v38.3: Training for Today -->
+<section class="today-card" id="kp-today-card" role="group" aria-labelledby="tc-title">
+  <div class="tc-ind" aria-hidden="true">
+    <svg viewBox="0 0 48 48">
+      <circle cx="24" cy="24" r="21" stroke="rgba(255,255,255,.10)" stroke-width="6" fill="none" />
+      <circle id="tc-ring" cx="24" cy="24" r="21" stroke="#ff8a65" stroke-width="6" fill="none" stroke-linecap="round"
+              stroke-dasharray="132" stroke-dashoffset="132" transform="rotate(-90 24 24)" />
+    </svg>
+    <div class="tc-num"><span id="tc-done">0</span>/<span id="tc-target">2</span></div>
+  </div>
+  <div class="tc-body">
+    <div class="tc-title" id="tc-title">Trening za danas</div>
+    <div class="tc-sub"><span id="tc-meta">Dan 1 • Rang 1</span> • <span id="tc-dur">~5 min</span></div>
+  </div>
+  <div class="tc-cta">
+    <button class="btn-cta" id="tc-start">Start</button>
+  </div>
 </section>
 
 
@@ -399,7 +434,7 @@ body{padding-bottom:72px;overflow-x:hidden}
 </div>
 
 <script>
-const APP_VERSION='v38.2';
+const APP_VERSION='v38';
 
 (async function(){try{const saved=localStorage.getItem('kp_app_version');if(saved!==APP_VERSION){if('caches'in window){const keys=await caches.keys();await Promise.all(keys.map(k=>caches.delete(k)));}if('serviceWorker'in navigator){const regs=await navigator.serviceWorker.getRegistrations();await Promise.all(regs.map(r=>r.unregister()));}localStorage.setItem('kp_app_version',APP_VERSION);const url=new URL(window.location.href);if(!url.searchParams.get('v')){url.searchParams.set('v',APP_VERSION);window.location.replace(url.toString());}}}catch(e){}})(); 
 (function(){const b=document.getElementById('brand');const i="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='132' height='28' viewBox='0 0 132 28' fill='none'><rect x='0' y='0' rx='8' ry='8' width='132' height='28' fill='rgba(15,20,27,0.85)'/><text x='14' y='19' font-family='Inter,Segoe UI,Arial,sans-serif' font-size='16' fill='%23A7F3D0' font-weight='700'>KegelPilot</text></svg>";function setInline(){b.src=i;}function tryAssets(){b.removeEventListener('error',tryAssets);b.addEventListener('error',setInline,{once:true});b.src='assets/logo_text.png';}b.addEventListener('error',tryAssets,{once:true});})();
@@ -632,27 +667,6 @@ if('serviceWorker' in navigator){ window.addEventListener('load', function(){ na
 </script>
 
 <script>
-// KP Step0: pre-flight flags (no UI). Safe to keep if not used.
-(function(){
-  try {
-    var DEF = { newHome:false, newProgress:false };
-    var raw = localStorage.getItem('kp_flags');
-    if (raw) {
-      var cur = {};
-      try { cur = JSON.parse(raw) || {}; } catch(e){ cur = {}; }
-      localStorage.setItem('kp_flags', JSON.stringify(Object.assign({}, DEF, cur)));
-    } else {
-      localStorage.setItem('kp_flags', JSON.stringify(DEF));
-    }
-    // Track last deployed version
-    localStorage.setItem('kp_last_version', 'v38.2.0-preflight');
-  } catch(e){ /* no-op */ }
-})();
-</script>
-
-
-<script>
-// KP v38.2: Goal strip logic (non-invasive)
 (function(){
   try{
     var LS = localStorage;
@@ -660,21 +674,33 @@ if('serviceWorker' in navigator){ window.addEventListener('load', function(){ na
     var day = +(LS.getItem('kp_rank_day')||1);
     var max = +(LS.getItem('kp_rank_len')||5);
     var today = +(LS.getItem('kp_sessions_today')||0);
-    // clamp
-    rank = Math.max(1, rank|0);
-    day = Math.min(max, Math.max(1, day|0));
-    today = Math.max(0, Math.min(2, today|0));
-    // Fill UI
-    var $ = function(id){ return document.getElementById(id); }
-    if($('gs-rank')) $('gs-rank').textContent = rank;
-    if($('gs-day')) $('gs-day').textContent = day;
-    if($('gs-max')) $('gs-max').textContent = max;
-    if($('gs-today')) $('gs-today').textContent = today;
-    // Progress: završeni dani (pretpostavimo da je dan završen kada je today>=2)
-    var done = (day-1) + (today>=2 ? 1 : 0);
-    var pct = Math.max(0, Math.min(100, Math.round(done/max*100)));
-    var fill = $('gs-fill'); if(fill) fill.style.width = pct + '%';
-  }catch(e){ console.warn('goal-strip', e); }
+    var target = +(LS.getItem('kp_daily_target')||2);
+    var dur = +(LS.getItem('kp_session_minutes')||5);
+    function clamp(n,a,b){ return Math.min(b, Math.max(a, n|0)); }
+    rank = clamp(rank,1,99); day = clamp(day,1,max||5); today = clamp(today,0,2); target = clamp(target,1,4);
+
+    function setText(id, val){ var el = document.getElementById(id); if(el) el.textContent = val; }
+    setText('gs-rank', rank); setText('gs-day', day); setText('gs-max', max); setText('gs-today', today);
+
+    var doneDays=(day-1)+(today>=2?1:0);
+    var pct=Math.max(0,Math.min(100,Math.round(doneDays/(max||5)*100)));
+    var fill=document.getElementById('gs-fill'); if(fill) fill.style.width=pct+'%';
+    setText('tc-done', today); setText('tc-target', target);
+    var meta=document.getElementById('tc-meta'); if(meta) meta.textContent='Dan '+day+' • Rang '+rank;
+    var durEl=document.getElementById('tc-dur'); if(durEl) durEl.textContent='~'+dur+' min';
+
+    var C=2*Math.PI*21, pct2=(target?(today/target):0), offs=Math.round(C*(1-pct2));
+    var ring=document.getElementById('tc-ring'); if(ring){ ring.setAttribute('stroke-dasharray', C); ring.setAttribute('stroke-dashoffset', offs); }
+
+    var btn=document.getElementById('tc-start');
+    if(btn){
+      btn.addEventListener('click', function(){
+        var navBtn=document.querySelector('button[data-tab="trainer"]')||document.querySelector('[data-nav="trainer"]');
+        if(navBtn){ navBtn.click(); }
+      });
+    }
+    try{ LS.setItem('kp_last_version','v38.3'); }catch(e){}
+  }catch(e){ console.warn('v38.3 logic error', e); }
 })();
 </script>
 
