@@ -1,6 +1,6 @@
 <!doctype html><html lang="bs"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>KegelPilot — v38.3c</title>
+<title>KegelPilot — v38.3d</title>
 <link rel="manifest" href="manifest.json"><meta name="theme-color" content="#0B0E12">
 <style>
 :root{
@@ -600,7 +600,6 @@ if('serviceWorker' in navigator){ window.addEventListener('load', function(){ na
 </script>
 
 <script>
-// v38.3c bundle
 (function(){
   try{
     var LS=localStorage;
@@ -624,17 +623,57 @@ if('serviceWorker' in navigator){ window.addEventListener('load', function(){ na
     var btn=document.getElementById('tc-start'); if(btn){ btn.addEventListener('click', function(){
       var navBtn=document.querySelector('button[data-tab="trainer"]')||document.querySelector('[data-nav="trainer"]'); if(navBtn) navBtn.click();
     });}
-    LS.setItem('kp_last_version','v38.3c');
+    LS.setItem('kp_last_version','v38.3d');
   }catch(e){}
   function norm(s){ try{return (s||'').toString().normalize('NFD').replace(/[\u0300-\u036f]/g,''); }catch(e){ return (s||''); } }
+  function tabKeyFromLabel(label){
+    var t=norm((label||'').toLowerCase().trim());
+    if(/pocetna|početna|home/.test(t)) return 'home';
+    if(/trening|trainer/.test(t)) return 'trainer';
+    if(/edu|eduk|tutorial|tutorijal/.test(t)) return 'edu';
+    if(/napredak|progress|progres/.test(t)) return 'progress';
+    return null;
+  }
+  function setBodyTab(key){ if(!key) return; document.body.setAttribute('data-tab', key); }
+  setBodyTab('home');
+  var nav=document.querySelector('nav');
+  if(nav){
+    nav.addEventListener('click', function(e){
+      var btn=e.target.closest('button,[role="tab"],a');
+      if(!btn) return;
+      var key = tabKeyFromLabel(btn.textContent);
+      if(key) setBodyTab(key);
+    }, true);
+  }
+  try{
+    var mo=new MutationObserver(function(){
+      var act = document.querySelector('nav .active, nav [aria-selected="true"]');
+      var key = act ? tabKeyFromLabel(act.textContent) : null;
+      if(key) setBodyTab(key);
+    });
+    if(nav) mo.observe(nav, {subtree:true, attributes:true, attributeFilter:['class','aria-selected']});
+  }catch(e){}
+  window.addEventListener('hashchange', function(){
+    var h=(location.hash||'').toLowerCase();
+    if(h.includes('trening')||h.includes('trainer')) setBodyTab('trainer');
+    else if(h.includes('edu')) setBodyTab('edu');
+    else if(h.includes('napredak')||h.includes('progress')) setBodyTab('progress');
+    else setBodyTab('home');
+  });
+  // --- Sync 0/2 from "Danas sesije" tile ---
   function findTodayTile(){
     var nodes=Array.from(document.querySelectorAll('div,section,article,li'));
-    for(var i=0;i<nodes.length;i++){ var t=norm(nodes[i].textContent).toLowerCase(); if(t.includes('danas sesije')) return nodes[i]; }
+    for(var i=0;i<nodes.length;i++){
+      var t=norm(nodes[i].textContent).toLowerCase();
+      if(t.includes('danas sesije')) return nodes[i];
+    }
     return null;
   }
   function extractCounts(root){
-    if(!root) return null; var t=norm(root.textContent); var m=t.match(/(\d+)\s*\/\s*(\d+)/);
-    if(m) return {done:+m[1], target:+m[2]}; var p=root.parentElement, hop=0;
+    if(!root) return null;
+    var t=norm(root.textContent); var m=t.match(/(\d+)\s*\/\s*(\d+)/);
+    if(m) return {done:+m[1], target:+m[2]};
+    var p=root.parentElement, hop=0;
     while(p && hop++<3){ var m2=norm(p.textContent).match(/(\d+)\s*\/\s*(\d+)/); if(m2) return {done:+m2[1], target:+m2[2]}; p=p.parentElement; }
     return null;
   }
@@ -651,27 +690,7 @@ if('serviceWorker' in navigator){ window.addEventListener('load', function(){ na
   }
   sync(); document.addEventListener('visibilitychange', function(){ if(!document.hidden) setTimeout(sync,60); });
   setInterval(sync,2000);
-  try{ var tile=findTodayTile(); if(tile){ var mo=new MutationObserver(function(){ sync(); }); mo.observe(tile,{subtree:true, childList:true, characterData:true}); } }catch(e){}
-
-  // Home-only hotfix
-  var ids=['kp-goal-strip','kp-today-card'];
-  function show(){ ids.forEach(function(id){ var el=document.getElementById(id); if(!el) return; el.classList.remove('kp-hide'); el.setAttribute('aria-hidden','false'); }); }
-  function hide(){ ids.forEach(function(id){ var el=document.getElementById(id); if(!el) return; el.classList.add('kp-hide'); el.setAttribute('aria-hidden','true'); }); }
-  function activeLabel(){ var btn=document.querySelector('nav button.active')||document.querySelector('nav .active'); if(!btn) return ''; return (btn.textContent||'').trim().toLowerCase(); }
-  function notHomeHeur(){
-    var lab=activeLabel();
-    if(/trening|trainer|edu|napredak|progress/.test(lab)) return true;
-    var h=(location.hash||'').toLowerCase();
-    if(h.includes('trening')||h.includes('trainer')||h.includes('edu')||h.includes('napredak')||h.includes('progress')) return true;
-    var ring=document.querySelector('.trainer-card, .training-card, .kp-trainer'); if(ring && ring.offsetParent!==null) return true;
-    return false;
-  }
-  function updateVis(){ if(notHomeHeur()) hide(); else show(); }
-  setTimeout(updateVis, 50);
-  var nav=document.querySelector('nav'); if(nav){ nav.addEventListener('click', function(){ setTimeout(updateVis,80); }, true); }
-  window.addEventListener('hashchange', updateVis);
-  document.addEventListener('visibilitychange', function(){ if(!document.hidden) setTimeout(updateVis,80); });
-  try{ var mo2=new MutationObserver(function(){ updateVis(); }); if(nav) mo2.observe(nav,{attributes:true, subtree:true, attributeFilter:['class','aria-selected']}); }catch(e){}
+  try{ var tile=findTodayTile(); if(tile){ var mo2=new MutationObserver(function(){ sync(); }); mo2.observe(tile,{subtree:true, childList:true, characterData:true}); } }catch(e){}
 })();
 </script>
 
