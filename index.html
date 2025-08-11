@@ -1,6 +1,6 @@
 <!doctype html><html lang="bs"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>KegelPilot — v38.3</title>
+<title>KegelPilot — v38.3a</title>
 <link rel="manifest" href="manifest.json"><meta name="theme-color" content="#0B0E12">
 <style>
 :root{
@@ -250,6 +250,10 @@ nav button { min-width: 0; max-width: 100%; overflow: hidden; text-overflow: cli
   .today-card .tc-ind{width:56px;height:56px;flex-basis:56px}
   .today-card .tc-title{font-size:15px}
 }
+
+
+/* v38.3a: utility */
+.kp-hide{display:none !important}
 
 </style></head>
 <body>
@@ -701,6 +705,44 @@ if('serviceWorker' in navigator){ window.addEventListener('load', function(){ na
     }
     try{ LS.setItem('kp_last_version','v38.3'); }catch(e){}
   }catch(e){ console.warn('v38.3 logic error', e); }
+})();
+</script>
+
+
+<script>
+// v38.3a: Show Goal + Today card only on Home (Početna)
+(function(){
+  function isHomeActive(){
+    try{
+      var actBtn = document.querySelector('nav button.active') || document.querySelector('nav .active');
+      if(!actBtn) return false;
+      var label = (actBtn.textContent || '').trim().toLowerCase();
+      return /početna|pocetna|home/.test(label);
+    }catch(e){ return false; }
+  }
+  function updateVis(){
+    var ids = ['kp-goal-strip','kp-today-card'];
+    var home = isHomeActive();
+    ids.forEach(function(id){
+      var el = document.getElementById(id);
+      if(!el) return;
+      if(home){ el.classList.remove('kp-hide'); el.setAttribute('aria-hidden','false'); }
+      else    { el.classList.add('kp-hide');    el.setAttribute('aria-hidden','true'); }
+    });
+  }
+  // initial
+  updateVis();
+  // listen for tab changes
+  try{
+    var nav = document.querySelector('nav');
+    if(nav){
+      nav.addEventListener('click', function(e){
+        setTimeout(updateVis, 50);
+      }, true);
+    }
+    // Also watch hash changes just in case
+    window.addEventListener('hashchange', updateVis);
+  }catch(e){}
 })();
 </script>
 
