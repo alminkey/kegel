@@ -215,12 +215,12 @@ nav button { min-width: 0; max-width: 100%; overflow: hidden; text-overflow: cli
 .home2 .badge2 { min-width:92px; padding:12px; border-radius:14px; text-align:center; background:linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.02)); border:1px solid rgba(255,255,255,.14); opacity:.9; flex:0 0 auto; }
 
 
-/* KP v38.5c FORCE vis */
+/* KP v38.5d FORCE vis */
 #kp-goal-strip,#kp-today-card{display:block !important; visibility:visible !important; opacity:1 !important;}
 #kp-today-card{display:flex !important;}
 
 
-/* KP v38.5c — Styled summary cards + home-only gating */
+/* KP v38.5d — Styled summary cards + home-only gating */
 #kp-goal-strip,#kp-today-card{display:none}
 body[data-kp-home="1"] #kp-goal-strip,
 body[data-kp-home="1"] #kp-today-card{display:block}
@@ -267,7 +267,7 @@ body[data-kp-home="1"] #kp-today-card{display:block}
   <div class="protag"><span class="pro">PRO</span> <span class="on">aktivno</span></div>
 </header>
 
-<!-- KP FORCE CARDS v38.5c -->
+<!-- KP FORCE CARDS v38.5d -->
 <section class="goal-strip" id="kp-goal-strip" role="status" aria-live="polite" style="display:block !important;">
   <div class="gs-top">
     <span class="gs-title">Trenutni cilj</span>
@@ -670,7 +670,7 @@ if('serviceWorker' in navigator){ window.addEventListener('load', function(){ na
 </script>
 <script src="js/store.js"></script>
 
-<!-- KP v38.5c binder -->
+<!-- KP v38.5d binder -->
 <script>
 (function(){
   function apply(){
@@ -696,13 +696,13 @@ if('serviceWorker' in navigator){ window.addEventListener('load', function(){ na
     if(navBtn) navBtn.click();
   });
   // Debug banner
-  try{ localStorage.setItem('kp_last_version','v38.5c'); }catch(e){}
+  try{ localStorage.setItem('kp_last_version','v38.5d'); }catch(e){}
 })();
 </script>
 
 
 <script>
-// KP v38.5c — Heuristic home-only gating
+// KP v38.5d — Heuristic home-only gating
 (function(){
   function isHome(){
     try{
@@ -721,7 +721,39 @@ if('serviceWorker' in navigator){ window.addEventListener('load', function(){ na
   document.addEventListener('click', ()=> setTimeout(apply,60), true);
   window.addEventListener('hashchange', apply);
   try{ var mo=new MutationObserver(()=> apply()); mo.observe(document.body, {subtree:true, childList:true}); }catch(e){}
-  try{ localStorage.setItem('kp_last_version','v38.5c'); }catch(e){}
+  try{ localStorage.setItem('kp_last_version','v38.5d'); }catch(e){}
+})();
+</script>
+
+
+<!-- KP v38.5d — robust home-only gating via #nav [data-tab="home"] -->
+<script>
+(function(){
+  const NAV_SEL = '#nav';
+  const HOME_SEL = '#nav [data-tab="home"]';
+  const ACTIVE_SEL = '.active,[aria-selected="true"],[aria-current="page"],[data-active="true"]';
+
+  function isHome(){
+    const home = document.querySelector(HOME_SEL);
+    if (!home) return /(home|pocetna|početna|naslovna)/i.test((location.hash||''));
+    return !!(home.matches(ACTIVE_SEL) || home.closest(ACTIVE_SEL));
+  }
+  function apply(){ document.body.setAttribute('data-kp-home', isHome() ? '1' : '0'); }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', apply);
+  } else { apply(); }
+
+  const nav = document.querySelector(NAV_SEL);
+  if (nav){
+    nav.addEventListener('click', ()=> setTimeout(apply, 30), true);
+    try{ new MutationObserver(apply).observe(nav, {
+      subtree: true, attributes: true,
+      attributeFilter: ['class','data-active','aria-selected','aria-current']
+    }); }catch(_){}
+  }
+  window.addEventListener('hashchange', apply);
+  try{ localStorage.setItem('kp_last_version','v38.5d'); }catch(e){}
 })();
 </script>
 
