@@ -215,12 +215,12 @@ nav button { min-width: 0; max-width: 100%; overflow: hidden; text-overflow: cli
 .home2 .badge2 { min-width:92px; padding:12px; border-radius:14px; text-align:center; background:linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.02)); border:1px solid rgba(255,255,255,.14); opacity:.9; flex:0 0 auto; }
 
 
-/* KP v38.5d FORCE vis */
+/* KP v38.5e FORCE vis */
 #kp-goal-strip,#kp-today-card{display:block !important; visibility:visible !important; opacity:1 !important;}
 #kp-today-card{display:flex !important;}
 
 
-/* KP v38.5d — Styled summary cards + home-only gating */
+/* KP v38.5e — Styled summary cards + home-only gating */
 #kp-goal-strip,#kp-today-card{display:none}
 body[data-kp-home="1"] #kp-goal-strip,
 body[data-kp-home="1"] #kp-today-card{display:block}
@@ -267,8 +267,8 @@ body[data-kp-home="1"] #kp-today-card{display:block}
   <div class="protag"><span class="pro">PRO</span> <span class="on">aktivno</span></div>
 </header>
 
-<!-- KP FORCE CARDS v38.5d -->
-<section class="goal-strip" id="kp-goal-strip" role="status" aria-live="polite" style="display:block !important;">
+<!-- KP FORCE CARDS v38.5e -->
+<section class="goal-strip" id="kp-goal-strip" role="status" aria-live="polite">
   <div class="gs-top">
     <span class="gs-title">Trenutni cilj</span>
     <span class="gs-small">Rang <strong id="gs-rank">1</strong> • Dan <strong id="gs-day">1</strong>/<span id="gs-max">5</span></span>
@@ -276,7 +276,7 @@ body[data-kp-home="1"] #kp-today-card{display:block}
   <div class="gs-bar"><div class="gs-fill" id="gs-fill" style="width:0%"></div></div>
   <div class="gs-meta">Danas: <b id="gs-today">0</b>/2 sesije</div>
 </section>
-<section class="today-card" id="kp-today-card" role="group" aria-labelledby="tc-title" style="display:flex !important;">
+<section class="today-card" id="kp-today-card" role="group" aria-labelledby="tc-title">
   <div class="tc-ind" aria-hidden="true">
     <svg viewBox="0 0 48 48">
       <circle cx="24" cy="24" r="21" stroke="rgba(255,255,255,.10)" stroke-width="6" fill="none" />
@@ -670,7 +670,7 @@ if('serviceWorker' in navigator){ window.addEventListener('load', function(){ na
 </script>
 <script src="js/store.js"></script>
 
-<!-- KP v38.5d binder -->
+<!-- KP v38.5e binder -->
 <script>
 (function(){
   function apply(){
@@ -696,13 +696,13 @@ if('serviceWorker' in navigator){ window.addEventListener('load', function(){ na
     if(navBtn) navBtn.click();
   });
   // Debug banner
-  try{ localStorage.setItem('kp_last_version','v38.5d'); }catch(e){}
+  try{ localStorage.setItem('kp_last_version','v38.5e'); }catch(e){}
 })();
 </script>
 
 
 <script>
-// KP v38.5d — Heuristic home-only gating
+// KP v38.5e — Heuristic home-only gating
 (function(){
   function isHome(){
     try{
@@ -721,39 +721,35 @@ if('serviceWorker' in navigator){ window.addEventListener('load', function(){ na
   document.addEventListener('click', ()=> setTimeout(apply,60), true);
   window.addEventListener('hashchange', apply);
   try{ var mo=new MutationObserver(()=> apply()); mo.observe(document.body, {subtree:true, childList:true}); }catch(e){}
-  try{ localStorage.setItem('kp_last_version','v38.5d'); }catch(e){}
+  try{ localStorage.setItem('kp_last_version','v38.5e'); }catch(e){}
 })();
 </script>
 
 
-<!-- KP v38.5d — robust home-only gating via #nav [data-tab="home"] -->
+
+<!-- KP v38.5e — nav-click gating (data-tab) -->
 <script>
 (function(){
-  const NAV_SEL = '#nav';
-  const HOME_SEL = '#nav [data-tab="home"]';
-  const ACTIVE_SEL = '.active,[aria-selected="true"],[aria-current="page"],[data-active="true"]';
-
-  function isHome(){
-    const home = document.querySelector(HOME_SEL);
-    if (!home) return /(home|pocetna|početna|naslovna)/i.test((location.hash||''));
-    return !!(home.matches(ACTIVE_SEL) || home.closest(ACTIVE_SEL));
+  const NAV = document.getElementById('nav');
+  function set(flag){ document.body.setAttribute('data-kp-home', flag ? '1' : '0'); }
+  function init(){
+    // initial: if Početna ima .active
+    set(!!document.querySelector('#nav [data-tab="home"].active'));
   }
-  function apply(){ document.body.setAttribute('data-kp-home', isHome() ? '1' : '0'); }
-
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', apply);
-  } else { apply(); }
-
-  const nav = document.querySelector(NAV_SEL);
-  if (nav){
-    nav.addEventListener('click', ()=> setTimeout(apply, 30), true);
-    try{ new MutationObserver(apply).observe(nav, {
-      subtree: true, attributes: true,
-      attributeFilter: ['class','data-active','aria-selected','aria-current']
-    }); }catch(_){}
+  init();
+  if (NAV){
+    NAV.addEventListener('click', function(e){
+      const btn = e.target.closest('[data-tab]');
+      if (!btn) return;
+      set(btn.dataset.tab === 'home');
+    }, true);
   }
-  window.addEventListener('hashchange', apply);
-  try{ localStorage.setItem('kp_last_version','v38.5d'); }catch(e){}
+  window.addEventListener('hashchange', function(){
+    const h=(location.hash||'').toLowerCase();
+    if (/(home|pocetna|početna|naslovna)/.test(h)) set(true);
+    else if (/(trainer|trening|edu|napredak|progress)/.test(h)) set(false);
+  });
+  try{ localStorage.setItem('kp_last_version','v38.5e'); }catch(e){}
 })();
 </script>
 
