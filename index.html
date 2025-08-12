@@ -215,12 +215,12 @@ nav button { min-width: 0; max-width: 100%; overflow: hidden; text-overflow: cli
 .home2 .badge2 { min-width:92px; padding:12px; border-radius:14px; text-align:center; background:linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.02)); border:1px solid rgba(255,255,255,.14); opacity:.9; flex:0 0 auto; }
 
 
-/* KP v38.5k FORCE vis */
+/* KP v38.5m FORCE vis */
 #kp-goal-strip,#kp-today-card{display:block !important; visibility:visible !important; opacity:1 !important;}
 #kp-today-card{display:flex !important;}
 
 
-/* KP v38.5k — Styled summary cards + home-only gating */
+/* KP v38.5m — Styled summary cards + home-only gating */
 
 .goal-strip, .today-card{
   margin: 12px 16px;
@@ -266,7 +266,7 @@ nav button { min-width: 0; max-width: 100%; overflow: hidden; text-overflow: cli
   <div class="protag"><span class="pro">PRO</span> <span class="on">aktivno</span></div>
 </header>
 
-<!-- KP FORCE CARDS v38.5k -->
+<!-- KP FORCE CARDS v38.5m -->
 <section class="goal-strip" id="kp-goal-strip" role="status" aria-live="polite">
   <div class="gs-top">
     <span class="gs-title">Trenutni cilj</span>
@@ -670,7 +670,7 @@ if('serviceWorker' in navigator){ window.addEventListener('load', function(){ na
 <script src="js/store.js"></script>
 
 
-<!-- KP v38.5k — relocate summary cards into Home container -->
+<!-- KP v38.5m — relocate summary cards into Home container -->
 <script>
 (function(){
   function q(sel, root){ return (root||document).querySelector(sel); }
@@ -810,7 +810,7 @@ if('serviceWorker' in navigator){ window.addEventListener('load', function(){ na
 </script>
 
 
-<!-- KP_BRIDGE_COMPLETE v38.5k -->
+<!-- KP_BRIDGE_COMPLETE v38.5m -->
 <script>
 (function(){
   if (window.__KP_BRIDGE_COMPLETE__) return;
@@ -844,7 +844,7 @@ if('serviceWorker' in navigator){ window.addEventListener('load', function(){ na
 </script>
 
 
-<!-- KP v38.5k — force-apply after recordSession -->
+<!-- KP v38.5m — force-apply after recordSession -->
 <script>
 (function(){
   function forceApplyBurst(){
@@ -874,7 +874,71 @@ if('serviceWorker' in navigator){ window.addEventListener('load', function(){ na
   // And on tab focus
   document.addEventListener('visibilitychange', () => { if(!document.hidden) forceApplyBurst(); });
   // version stamp
-  try{ localStorage.setItem('kp_last_version','v38.5k'); }catch(e){}
+  try{ localStorage.setItem('kp_last_version','v38.5m'); }catch(e){}
+})();
+</script>
+
+
+<!-- KP v38.5m — DOM mirror from "Dan ranga" / "Danas sesije" tiles -->
+<script>
+(function(){
+  function parseInts(str){ return (str.match(/\d+/g)||[]).map(n=>+n); }
+  function findTile(label){
+    var els = Array.from(document.querySelectorAll('*')).filter(el => {
+      var t=(el.textContent||'').toLowerCase();
+      return t.includes(label);
+    });
+    els.sort((a,b)=> (a.textContent||'').length - (b.textContent||'').length);
+    return els[0] || null;
+  }
+  function snapshotFromTiles(){
+    var res = { day: null, length: null, done: null, target: null };
+    try{
+      var dayTile = findTile('dan ranga');
+      if (dayTile){
+        var nums = parseInts(dayTile.textContent);
+        if (nums.length>=2){ res.day = nums[0]; res.length = nums[1]; }
+      }
+      var todayTile = findTile('danas sesije');
+      if (todayTile){
+        var nums2 = parseInts(todayTile.textContent);
+        if (nums2.length>=2){ res.done = nums2[0]; res.target = nums2[1]; }
+      }
+    }catch(e){}
+    return res;
+  }
+  function applyMirror(){
+    var s = snapshotFromTiles();
+    function setText(id,v){ var el=document.getElementById(id); if(el && v!=null) el.textContent = v; }
+    setText('gs-day', s.day);
+    setText('gs-max', s.length);
+    setText('gs-today', s.done);
+    try{
+      var fill = document.getElementById('gs-fill');
+      if (fill && s.day!=null && s.length){
+        var pct = Math.max(0, Math.min(1, (s.day-1 + Math.min(1, (s.done||0)/(s.target||2||1))) / (s.length||1)));
+        fill.style.width = Math.round(pct*100) + '%';
+      }
+    }catch(e){}
+    setText('tc-done', s.done);
+    setText('tc-target', s.target);
+    try{
+      var ring = document.getElementById('tc-ring');
+      if (ring && s.done!=null && s.target){
+        var C = 2*Math.PI*21, p = Math.max(0, Math.min(1, (s.done||0)/(s.target||1)));
+        ring.setAttribute('stroke-dasharray', C);
+        ring.setAttribute('stroke-dashoffset', Math.round(C*(1-p)));
+      }
+    }catch(e){}
+  }
+  var mo = new MutationObserver(function(muts){
+    clearTimeout(window.__kp_dom_mirror_t);
+    window.__kp_dom_mirror_t = setTimeout(applyMirror, 80);
+  });
+  try { mo.observe(document.body, {subtree:true, childList:true, characterData:true}); }catch(e){}
+  setInterval(applyMirror, 1500);
+  setTimeout(applyMirror, 300);
+  try{ localStorage.setItem('kp_last_version','v38.5m'); }catch(e){}
 })();
 </script>
 
