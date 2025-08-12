@@ -215,12 +215,12 @@ nav button { min-width: 0; max-width: 100%; overflow: hidden; text-overflow: cli
 .home2 .badge2 { min-width:92px; padding:12px; border-radius:14px; text-align:center; background:linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.02)); border:1px solid rgba(255,255,255,.14); opacity:.9; flex:0 0 auto; }
 
 
-/* KP v38.5r FORCE vis */
+/* KP v38.5s FORCE vis */
 #kp-goal-strip,#kp-today-card{display:block !important; visibility:visible !important; opacity:1 !important;}
 #kp-today-card{display:flex !important;}
 
 
-/* KP v38.5r — Styled summary cards + home-only gating */
+/* KP v38.5s — Styled summary cards + home-only gating */
 
 .goal-strip, .today-card{
   margin: 12px 16px;
@@ -254,7 +254,6 @@ nav button { min-width: 0; max-width: 100%; overflow: hidden; text-overflow: cli
 .today-card .tc-bonus{ font-weight:900;font-size:11px;padding:2px 8px;border-radius:999px;
   background:rgba(255,255,255,.12); color:#b7f7ea; letter-spacing:.3px; margin-left:8px}
 
-.today-card, .goal-strip{cursor:pointer;pointer-events:auto}
 </style></head>
 <body>
 <div class="shell">
@@ -266,7 +265,7 @@ nav button { min-width: 0; max-width: 100%; overflow: hidden; text-overflow: cli
   <div class="protag"><span class="pro">PRO</span> <span class="on">aktivno</span></div>
 </header>
 
-<!-- KP FORCE CARDS v38.5r -->
+<!-- KP FORCE CARDS v38.5s -->
 <section class="goal-strip" id="kp-goal-strip" role="status" aria-live="polite">
   <div class="gs-top">
     <span class="gs-title">Trenutni cilj</span>
@@ -670,7 +669,7 @@ if('serviceWorker' in navigator){ window.addEventListener('load', function(){ na
 <script src="js/store.js"></script>
 
 
-<!-- KP v38.5r — relocate summary cards into Home container -->
+<!-- KP v38.5s — relocate summary cards into Home container -->
 <script>
 (function(){
   function q(sel, root){ return (root||document).querySelector(sel); }
@@ -744,27 +743,83 @@ if('serviceWorker' in navigator){ window.addEventListener('load', function(){ na
     if (!q('#kp-today-card', home)) home.insertBefore(cards.today, home.children[1] || home.firstChild);
 
     // Bind CTA
-    
-    if (!window.__KP_HOME_CLICK_BOUND__){
-      window.__KP_HOME_CLICK_BOUND__=true;
-      document.addEventListener('click', function(e){
-        var toTrainer = e.target.closest('#tc-start, #kp-today-card');
-        if (toTrainer){
-          var navBtn=document.querySelector('#nav [data-tab="trainer"]');
-          if(navBtn){ navBtn.click(); }
-          return;
-        }
-        var toProgress = e.target.closest('#kp-goal-strip');
-        if (toProgress){
-          var navBtn2=document.querySelector('#nav [data-tab="progress"]');
-          if(navBtn2){ navBtn2.click(); }
-          return;
-        }
-      }, true);
-    }
+    document.addEventListener('click', function(e){
+      var btn=e.target.closest('#tc-start'); if(!btn) return;
+      var navBtn=document.querySelector('#nav [data-tab="trainer"]');
+      if(navBtn){ navBtn.click(); }
+    }, { once:true });
+
     // Subscribe to store (after a tick to ensure store.js loaded)
     function apply(){
       try{
+        // Hybrid metrics: prefer store, else read from DOM stats cards
+        function readFromStore(){
+          try{
+            var s = window.kpStore;
+            if(!s) return null;
+            var prog = s.getTodayProgress ? s.getTodayProgress() : null;
+            var goal = s.getRankGoal ? s.getRankGoal() : null;
+            if(!prog || !goal) return null;
+            return {
+              done: +((prog.done!=null)?prog.done:0),
+              target: +((prog.target!=null)?prog.target:2),
+              day: +((goal.day!=null)?goal.day:1),
+              length: +((goal.length!=null)?goal.length:5),
+              rank: +((goal.rank!=null)?goal.rank:1),
+              pGoal: +((goal.percent!=null)?goal.percent:0)
+            };
+          }catch(e){ return null; }
+        }
+        function findByText(txt){
+          txt = txt.toLowerCase();
+          var nodes = Array.from(document.querySelectorAll('section,div,article,li,span,p,h1,h2,h3,h4,h5,h6'));
+          return nodes.find(n=> (n.textContent||'').toLowerCase().includes(txt));
+        }
+        function extractXY(el){
+          if(!el) return null;
+          var text = el.textContent || '';
+          var m = text.match(/(\d+)\s*\/\s*(\d+)/);
+          if(m) return {a:parseInt(m[1],10), b:parseInt(m[2],10)};
+          // try nearest sibling/parent numbers
+          var scope = el.closest('section,article,div')||el;
+          var nums = (scope.textContent||'').match(/(\d+)\s*\/\s*(\d+)/);
+          if(nums) return {a:parseInt(nums[1],10), b:parseInt(nums[2],10)};
+          return null;
+        }
+        function readFromDOM(){
+          try{
+            var todayNode = findByText('danas sesije');
+            var today = extractXY(todayNode) || {a:0,b:2};
+            var dayNode = findByText('dan ranga');
+            var day = extractXY(dayNode) || {a:1,b:5};
+            // rank number might appear near "Rang"
+            var rankNode = findByText('rang ');
+            var rank = 1;
+            if(rankNode){
+              var m=(rankNode.textContent||'').match(/rang\s*(\d+)/i);
+              if(m) rank = parseInt(m[1],10);
+            }
+            return { done: today.a, target: today.b, day: day.a, length: day.b, rank: rank, pGoal: (day.a-1 + Math.min(1, today.a/Math.max(1,today.b))) / Math.max(1, day.b) };
+          }catch(e){ return null; }
+        }
+        var M = readFromStore() || readFromDOM() || {done:0,target:2,day:1,length:5,rank:1,pGoal:0};
+        // Render
+        var S=(id,v)=>{ var el=document.getElementById(id); if(el && v!=null) el.textContent=v; };
+        var done=M.done, target=M.target, pToday = target? Math.max(0,Math.min(1, done/target)) : 0;
+        var rank=M.rank, day=M.day, length=M.length, pGoal=M.pGoal||0;
+        // Today card
+        S('tc-done', done); S('tc-target', target);
+        var ring = document.getElementById('tc-ring');
+        if(ring){ var C=2*Math.PI*21; ring.setAttribute('stroke-dasharray',C); ring.setAttribute('stroke-dashoffset', Math.round(C*(1-pToday))); }
+        // Goal strip
+        S('gs-rank', rank); S('gs-day', day); S('gs-max', length); S('gs-today', done);
+        var fill=document.getElementById('gs-fill'); if(fill) fill.style.width=Math.round(pGoal*100)+'%';
+        // Meta
+        var meta=document.getElementById('tc-meta'); if(meta){ meta.textContent='Dan '+day+' • Rang '+rank; }
+        var de=document.getElementById('tc-dur'); if(de){ var mins=(window.kpStore&&window.kpStore.getSessionDefaults?window.kpStore.getSessionDefaults().minutes:5); de.textContent='~'+mins+' min'; }
+        var bonus=window.kpStore&&window.kpStore.getBonusState? window.kpStore.getBonusState(): {active:false};
+        var b=document.getElementById('tc-bonus'); if(b){ b.style.display=bonus.active?'inline-block':'none'; }
+      }catch(e){
         var prog = window.kpStore && window.kpStore.getTodayProgress ? window.kpStore.getTodayProgress() : {done:0,target:2,percent:0};
         var ring = document.getElementById('tc-ring');
         if(ring){ var C=2*Math.PI*21; ring.setAttribute('stroke-dasharray', C); ring.setAttribute('stroke-dashoffset', Math.round(C*(1-prog.percent))); }
@@ -790,4 +845,41 @@ if('serviceWorker' in navigator){ window.addEventListener('load', function(){ na
 })();
 </script>
 
+<script>
+// KP v38.5s — Hybrid updater: subscribe + DOM observer + gentle poll
+(function(){
+  function isHome(){
+    var h=(location.hash||'').toLowerCase();
+    if(h.includes('home')||h.includes('početna')||h.includes('pocetna')||h.includes('naslovna')) return true;
+    var me=document.getElementById('kp-today-card');
+    if(!me) return false;
+    return true;
+  }
+  (function bindStore(){
+    try{
+      if(window.kpStore && typeof window.kpStore.subscribe==='function' && !window.__KP_HOME_SUB__){
+        window.kpStore.subscribe(function(){ if(isHome()) apply(); });
+        window.__KP_HOME_SUB__=true;
+      }
+    }catch(e){}
+    setTimeout(bindStore, 800);
+  })();
+  try{
+    var mo = new MutationObserver(function(muts){
+      if(!isHome()) return;
+      for (const m of muts){
+        if (m.type==='childList' || m.type==='characterData'){
+          if ((m.target.textContent||'').match(/\d+\s*\/\s*\d+/)) { apply(); break; }
+        }
+      }
+    });
+    mo.observe(document.body, {subtree:true, childList:true, characterData:true});
+    window.__KP_HOME_MO__ = mo;
+  }catch(e){}
+  setInterval(function(){ if(isHome()) apply(); }, 1200);
+  document.addEventListener('visibilitychange', function(){ if(!document.hidden && isHome()) apply(); });
+  window.addEventListener('hashchange', function(){ if(isHome()) setTimeout(apply, 60); });
+  window.__kpHomeApply = apply;
+})();
+</script>
 </body></html>
