@@ -215,12 +215,12 @@ nav button { min-width: 0; max-width: 100%; overflow: hidden; text-overflow: cli
 .home2 .badge2 { min-width:92px; padding:12px; border-radius:14px; text-align:center; background:linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.02)); border:1px solid rgba(255,255,255,.14); opacity:.9; flex:0 0 auto; }
 
 
-/* KP v38.5n FORCE vis */
+/* KP v38.5p FORCE vis */
 #kp-goal-strip,#kp-today-card{display:block !important; visibility:visible !important; opacity:1 !important;}
 #kp-today-card{display:flex !important;}
 
 
-/* KP v38.5n — Styled summary cards + home-only gating */
+/* KP v38.5p — Styled summary cards + home-only gating */
 
 .goal-strip, .today-card{
   margin: 12px 16px;
@@ -255,6 +255,7 @@ nav button { min-width: 0; max-width: 100%; overflow: hidden; text-overflow: cli
   background:rgba(255,255,255,.12); color:#b7f7ea; letter-spacing:.3px; margin-left:8px}
 
 .today-card, .goal-strip { cursor: pointer; }
+.today-card, .goal-strip { cursor:pointer; }
 </style></head>
 <body>
 <div class="shell">
@@ -266,7 +267,7 @@ nav button { min-width: 0; max-width: 100%; overflow: hidden; text-overflow: cli
   <div class="protag"><span class="pro">PRO</span> <span class="on">aktivno</span></div>
 </header>
 
-<!-- KP FORCE CARDS v38.5n -->
+<!-- KP FORCE CARDS v38.5p -->
 <section class="goal-strip" id="kp-goal-strip" role="status" aria-live="polite">
   <div class="gs-top">
     <span class="gs-title">Trenutni cilj</span>
@@ -670,7 +671,7 @@ if('serviceWorker' in navigator){ window.addEventListener('load', function(){ na
 <script src="js/store.js"></script>
 
 
-<!-- KP v38.5n — relocate summary cards into Home container -->
+<!-- KP v38.5p — relocate summary cards into Home container -->
 <script>
 (function(){
   function q(sel, root){ return (root||document).querySelector(sel); }
@@ -766,8 +767,30 @@ if('serviceWorker' in navigator){ window.addEventListener('load', function(){ na
     }
     // Subscribe to store (after a tick to ensure store.js loaded)
     function apply(){
-      try{ window.__kpHomeApply = apply; }catch(e){}
+      // Variant A: direct pull from kpStore
       try{
+        var m = (function(){
+          var prog = (window.kpStore && window.kpStore.getTodayProgress) ? window.kpStore.getTodayProgress() : {done:0,target:2,percent:0};
+          var goal = (window.kpStore && window.kpStore.getRankGoal) ? window.kpStore.getRankGoal() : {rank:1,day:1,length:5,percent:0};
+          return {
+            done: prog.done, target: prog.target, pToday: (prog.target? Math.max(0,Math.min(1, prog.done/prog.target)) : 0),
+            day: goal.day, length: goal.length, rank: goal.rank, pGoal: goal.percent
+          };
+        })();
+        var S=(id,v)=>{ var el=document.getElementById(id); if(el && v!=null) el.textContent=v; };
+        // Today card
+        S('tc-done', m.done); S('tc-target', m.target);
+        var ring = document.getElementById('tc-ring');
+        if(ring){ var C=2*Math.PI*21; ring.setAttribute('stroke-dasharray',C); ring.setAttribute('stroke-dashoffset', Math.round(C*(1-m.pToday))); }
+        // Goal strip
+        S('gs-rank', m.rank); S('gs-day', m.day); S('gs-max', m.length); S('gs-today', m.done);
+        var fill=document.getElementById('gs-fill'); if(fill) fill.style.width=Math.round(m.pGoal*100)+'%';
+        // Meta
+        var meta=document.getElementById('tc-meta'); if(meta){ meta.textContent='Dan '+m.day+' • Rang '+m.rank; }
+        var de=document.getElementById('tc-dur'); if(de){ var mins=(window.kpStore&&window.kpStore.getSessionDefaults?window.kpStore.getSessionDefaults().minutes:5); de.textContent='~'+mins+' min'; }
+        var bonus=window.kpStore&&window.kpStore.getBonusState? window.kpStore.getBonusState(): {active:false};
+        var b=document.getElementById('tc-bonus'); if(b){ b.style.display=bonus.active?'inline-block':'none'; }
+      }catch(e){
         var prog = window.kpStore && window.kpStore.getTodayProgress ? window.kpStore.getTodayProgress() : {done:0,target:2,percent:0};
         var ring = document.getElementById('tc-ring');
         if(ring){ var C=2*Math.PI*21; ring.setAttribute('stroke-dasharray', C); ring.setAttribute('stroke-dashoffset', Math.round(C*(1-prog.percent))); }
@@ -783,22 +806,17 @@ if('serviceWorker' in navigator){ window.addEventListener('load', function(){ na
         var bEl = document.getElementById('tc-bonus'); if(bEl){ bEl.style.display = bonus.active ? 'inline-block' : 'none'; }
       }catch(e){}
     }
-    function _kpBind(){ 
-      try{ 
-        if (window.kpStore && typeof window.kpStore.subscribe==='function' && !window.__KP_HOME_SUB__) { 
-          window.kpStore.subscribe(apply); 
-          window.__KP_HOME_SUB__=true; 
-        } 
-      }catch(e){} 
-    }
-    _kpBind(); 
-    setTimeout(_kpBind, 200); 
-    setTimeout(_kpBind, 1000); 
-    // also react to our completion event and visibility change
-    try{ window.addEventListener('kp:sessionCompleted', function(){ setTimeout(apply, 30); setTimeout(apply, 250); }); }catch(e){}
-    document.addEventListener('visibilitychange', function(){ if(!document.hidden) setTimeout(apply, 60); });
-    // initial paint
-    setTimeout(apply, 200);
+    (function bindStore(){
+      try{
+        if (window.kpStore && typeof window.kpStore.subscribe==='function' && !window.__KP_HOME_SUB__){
+          window.kpStore.subscribe(apply);
+          window.__KP_HOME_SUB__=true;
+          apply();
+          return;
+        }
+      }catch(e){}
+      setTimeout(bindStore, 200);
+    })();
   }
 
   if (document.readyState === 'loading'){
@@ -810,7 +828,7 @@ if('serviceWorker' in navigator){ window.addEventListener('load', function(){ na
 </script>
 
 
-<!-- KP_BRIDGE_COMPLETE v38.5n -->
+<!-- KP_BRIDGE_COMPLETE v38.5p -->
 <script>
 (function(){
   if (window.__KP_BRIDGE_COMPLETE__) return;
@@ -840,179 +858,6 @@ if('serviceWorker' in navigator){ window.addEventListener('load', function(){ na
     }catch(e){}
   }
   tryPatch(); setTimeout(tryPatch, 300); setTimeout(tryPatch, 1200);
-})();
-</script>
-
-
-<!-- KP v38.5n — force-apply after recordSession -->
-<script>
-(function(){
-  function forceApplyBurst(){
-    try{ if (window.__kpHomeApply) window.__kpHomeApply(); }catch(e){}
-    setTimeout(()=>{ try{ if (window.__kpHomeApply) window.__kpHomeApply(); }catch(e){} }, 200);
-    setTimeout(()=>{ try{ if (window.__kpHomeApply) window.__kpHomeApply(); }catch(e){} }, 600);
-    setTimeout(()=>{ try{ if (window.__kpHomeApply) window.__kpHomeApply(); }catch(e){} }, 1200);
-  }
-  function hookRecord(){
-    try{
-      if (window.kpStore && typeof window.kpStore.recordSession === 'function' && !window.__KP_HOOKED_RECORD__){
-        const orig = window.kpStore.recordSession;
-        window.kpStore.recordSession = function(){
-          const r = orig.apply(this, arguments);
-          try{ forceApplyBurst(); }catch(e){}
-          return r;
-        };
-        window.__KP_HOOKED_RECORD__ = true;
-      }
-    }catch(e){}
-  }
-  hookRecord();
-  setTimeout(hookRecord, 200);
-  setTimeout(hookRecord, 1000);
-  // Also listen our custom event just in case
-  try{ window.addEventListener('kp:sessionCompleted', forceApplyBurst); }catch(e){}
-  // And on tab focus
-  document.addEventListener('visibilitychange', () => { if(!document.hidden) forceApplyBurst(); });
-  // version stamp
-  try{ localStorage.setItem('kp_last_version','v38.5n'); }catch(e){}
-})();
-</script>
-
-
-<!-- KP v38.5n — DOM mirror from "Dan ranga" / "Danas sesije" tiles -->
-<script>
-(function(){
-  function parseInts(str){ return (str.match(/\d+/g)||[]).map(n=>+n); }
-  function findTile(label){
-    var els = Array.from(document.querySelectorAll('*')).filter(el => {
-      var t=(el.textContent||'').toLowerCase();
-      return t.includes(label);
-    });
-    els.sort((a,b)=> (a.textContent||'').length - (b.textContent||'').length);
-    return els[0] || null;
-  }
-  function snapshotFromTiles(){
-    var res = { day: null, length: null, done: null, target: null };
-    try{
-      var dayTile = findTile('dan ranga');
-      if (dayTile){
-        var nums = parseInts(dayTile.textContent);
-        if (nums.length>=2){ res.day = nums[0]; res.length = nums[1]; }
-      }
-      var todayTile = findTile('danas sesije');
-      if (todayTile){
-        var nums2 = parseInts(todayTile.textContent);
-        if (nums2.length>=2){ res.done = nums2[0]; res.target = nums2[1]; }
-      }
-    }catch(e){}
-    return res;
-  }
-  function applyMirror(){
-    var s = snapshotFromTiles();
-    function setText(id,v){ var el=document.getElementById(id); if(el && v!=null) el.textContent = v; }
-    setText('gs-day', s.day);
-    setText('gs-max', s.length);
-    setText('gs-today', s.done);
-    try{
-      var fill = document.getElementById('gs-fill');
-      if (fill && s.day!=null && s.length){
-        var pct = Math.max(0, Math.min(1, (s.day-1 + Math.min(1, (s.done||0)/(s.target||2||1))) / (s.length||1)));
-        fill.style.width = Math.round(pct*100) + '%';
-      }
-    }catch(e){}
-    setText('tc-done', s.done);
-    setText('tc-target', s.target);
-    try{
-      var ring = document.getElementById('tc-ring');
-      if (ring && s.done!=null && s.target){
-        var C = 2*Math.PI*21, p = Math.max(0, Math.min(1, (s.done||0)/(s.target||1)));
-        ring.setAttribute('stroke-dasharray', C);
-        ring.setAttribute('stroke-dashoffset', Math.round(C*(1-p)));
-      }
-    }catch(e){}
-  }
-  var mo = new MutationObserver(function(muts){
-    clearTimeout(window.__kp_dom_mirror_t);
-    window.__kp_dom_mirror_t = setTimeout(applyMirror, 80);
-  });
-  try { mo.observe(document.body, {subtree:true, childList:true, characterData:true}); }catch(e){}
-  setInterval(applyMirror, 1500);
-  setTimeout(applyMirror, 300);
-  try{ localStorage.setItem('kp_last_version','v38.5n'); }catch(e){}
-})();
-</script>
-
-
-<!-- KP v38.5n — steady polling from Home tiles / Tvoj nivo -->
-<script>
-(function(){
-  function parseInts(str){ return (str.match(/\d+/g)||[]).map(n=>+n); }
-  function findByLabel(label){
-    var L = label.toLowerCase();
-    var els = Array.from(document.querySelectorAll('main * , .content * , body *')).filter(el=>{
-      var t=(el.textContent||'').toLowerCase();
-      if(!t) return false;
-      if (!t.includes(L)) return false;
-      if (el.closest('nav, footer')) return false;
-      return true;
-    });
-    els.sort((a,b)=> (a.textContent||'').length - (b.textContent||'').length);
-    return els[0]||null;
-  }
-  function readTiles(){
-    var res = { day:null, len:null, done:null, target:null };
-    try{
-      var dayTile = findByLabel('dan ranga');
-      if(dayTile){
-        var nums = parseInts(dayTile.textContent);
-        if(nums.length>=2){ res.day=nums[0]; res.len=nums[1]; }
-      }
-      var todayTile = findByLabel('danas sesije');
-      if(todayTile){
-        var nums2 = parseInts(todayTile.textContent);
-        if(nums2.length>=2){ res.done=nums2[0]; res.target=nums2[1]; }
-      }
-      if(res.day==null || res.done==null){
-        var level = findByLabel('tvoj nivo');
-        if(level){
-          var nums3 = parseInts(level.textContent);
-          if(nums3.length>=2){
-            if(res.day==null) res.day = nums3[0];
-            if(res.done==null) res.done = nums3[1];
-            if(nums3.length>=3 && res.target==null) res.target = nums3[2];
-          }
-        }
-      }
-      if(res.target==null) res.target = 2;
-    }catch(e){}
-    return res;
-  }
-  function updateCards(){
-    var s = readTiles();
-    function ST(id,v){ var el=document.getElementById(id); if(el && v!=null) el.textContent = v; }
-    ST('gs-day', s.day); ST('gs-max', s.len); ST('gs-today', s.done);
-    ST('tc-done', s.done); ST('tc-target', s.target);
-    try{
-      var fill = document.getElementById('gs-fill');
-      if(fill && s.day!=null && s.len){
-        var pct = Math.max(0, Math.min(1, (s.day-1 + Math.min(1, (s.done||0)/(s.target||1))) / (s.len||1)));
-        fill.style.width = Math.round(pct*100)+'%';
-      }
-    }catch(e){}
-    try{
-      var ring = document.getElementById('tc-ring');
-      if (ring && s.done!=null && s.target){
-        var C = 2*Math.PI*21, p = Math.max(0, Math.min(1, (s.done||0)/(s.target||1)));
-        ring.setAttribute('stroke-dasharray', C);
-        ring.setAttribute('stroke-dashoffset', Math.round(C*(1-p)));
-      }
-    }catch(e){}
-  }
-  setInterval(updateCards, 1200);
-  document.addEventListener('visibilitychange', function(){ if(!document.hidden) setTimeout(updateCards, 150);});
-  window.addEventListener('hashchange', function(){ setTimeout(updateCards, 200); });
-  setTimeout(updateCards, 400);
-  try{ localStorage.setItem('kp_last_version','v38.5n'); }catch(e){}
 })();
 </script>
 
