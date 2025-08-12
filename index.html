@@ -215,12 +215,12 @@ nav button { min-width: 0; max-width: 100%; overflow: hidden; text-overflow: cli
 .home2 .badge2 { min-width:92px; padding:12px; border-radius:14px; text-align:center; background:linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.02)); border:1px solid rgba(255,255,255,.14); opacity:.9; flex:0 0 auto; }
 
 
-/* KP v38.5i FORCE vis */
+/* KP v38.5j FORCE vis */
 #kp-goal-strip,#kp-today-card{display:block !important; visibility:visible !important; opacity:1 !important;}
 #kp-today-card{display:flex !important;}
 
 
-/* KP v38.5i — Styled summary cards + home-only gating */
+/* KP v38.5j — Styled summary cards + home-only gating */
 
 .goal-strip, .today-card{
   margin: 12px 16px;
@@ -266,7 +266,7 @@ nav button { min-width: 0; max-width: 100%; overflow: hidden; text-overflow: cli
   <div class="protag"><span class="pro">PRO</span> <span class="on">aktivno</span></div>
 </header>
 
-<!-- KP FORCE CARDS v38.5i -->
+<!-- KP FORCE CARDS v38.5j -->
 <section class="goal-strip" id="kp-goal-strip" role="status" aria-live="polite">
   <div class="gs-top">
     <span class="gs-title">Trenutni cilj</span>
@@ -670,7 +670,7 @@ if('serviceWorker' in navigator){ window.addEventListener('load', function(){ na
 <script src="js/store.js"></script>
 
 
-<!-- KP v38.5i — relocate summary cards into Home container -->
+<!-- KP v38.5j — relocate summary cards into Home container -->
 <script>
 (function(){
   function q(sel, root){ return (root||document).querySelector(sel); }
@@ -782,7 +782,22 @@ if('serviceWorker' in navigator){ window.addEventListener('load', function(){ na
         var bEl = document.getElementById('tc-bonus'); if(bEl){ bEl.style.display = bonus.active ? 'inline-block' : 'none'; }
       }catch(e){}
     }
-    if (window.kpStore && window.kpStore.subscribe){ window.kpStore.subscribe(apply); } else { setTimeout(apply, 200); }
+    function _kpBind(){ 
+      try{ 
+        if (window.kpStore && typeof window.kpStore.subscribe==='function' && !window.__KP_HOME_SUB__) { 
+          window.kpStore.subscribe(apply); 
+          window.__KP_HOME_SUB__=true; 
+        } 
+      }catch(e){} 
+    }
+    _kpBind(); 
+    setTimeout(_kpBind, 200); 
+    setTimeout(_kpBind, 1000); 
+    // also react to our completion event and visibility change
+    try{ window.addEventListener('kp:sessionCompleted', function(){ setTimeout(apply, 30); setTimeout(apply, 250); }); }catch(e){}
+    document.addEventListener('visibilitychange', function(){ if(!document.hidden) setTimeout(apply, 60); });
+    // initial paint
+    setTimeout(apply, 200);
   }
 
   if (document.readyState === 'loading'){
@@ -794,7 +809,7 @@ if('serviceWorker' in navigator){ window.addEventListener('load', function(){ na
 </script>
 
 
-<!-- KP_BRIDGE_COMPLETE v38.5i -->
+<!-- KP_BRIDGE_COMPLETE v38.5j -->
 <script>
 (function(){
   if (window.__KP_BRIDGE_COMPLETE__) return;
