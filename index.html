@@ -215,9 +215,46 @@ nav button { min-width: 0; max-width: 100%; overflow: hidden; text-overflow: cli
 .home2 .badge2 { min-width:92px; padding:12px; border-radius:14px; text-align:center; background:linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.02)); border:1px solid rgba(255,255,255,.14); opacity:.9; flex:0 0 auto; }
 
 
-/* KP v38.5b FORCE vis */
+/* KP v38.5c FORCE vis */
 #kp-goal-strip,#kp-today-card{display:block !important; visibility:visible !important; opacity:1 !important;}
 #kp-today-card{display:flex !important;}
+
+
+/* KP v38.5c — Styled summary cards + home-only gating */
+#kp-goal-strip,#kp-today-card{display:none}
+body[data-kp-home="1"] #kp-goal-strip,
+body[data-kp-home="1"] #kp-today-card{display:block}
+.goal-strip, .today-card{
+  margin: 12px 16px;
+  border-radius: 16px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.06);
+  box-shadow: 0 6px 18px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.04);
+  backdrop-filter: blur(8px);
+}
+.goal-strip{ padding: 14px 16px; }
+.goal-strip .gs-top{ display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; }
+.goal-strip .gs-title{ font-weight:800; font-size:15px; color:#d9fff6; letter-spacing:.2px; }
+.goal-strip .gs-small{ font-size:13px; color:#9ddacf; }
+.goal-strip .gs-bar{ height:8px; border-radius:8px; background:rgba(255,255,255,.08); overflow:hidden; }
+.goal-strip .gs-fill{ height:100%; background:linear-gradient(90deg,#2dd4bf,#22a3b9); border-radius:8px; width:0%; transition:width .4s ease; }
+.goal-strip .gs-meta{ margin-top:8px; font-size:13px; color:#bfeee5; opacity:.9; }
+
+.today-card{ display:flex; align-items:center; gap:12px; padding: 12px 14px; }
+.today-card .tc-ind{ width:64px; height:64px; position:relative; display:grid; place-items:center; }
+.today-card .tc-ind svg{ width:56px; height:56px; }
+.today-card .tc-num{ position:absolute; font-weight:900; color:#e9faf6; font-size:12px; letter-spacing:.3px; }
+.today-card .tc-body{ flex:1; min-width:0; }
+.today-card .tc-title{ font-weight:800; color:#e6fff9; font-size:16px; }
+.today-card .tc-sub{ font-size:13px; color:#a7e0d6; opacity:.95; margin-top:2px; }
+.today-card .tc-cta .btn-cta{
+  appearance:none; border:none; padding:10px 14px; border-radius:12px;
+  font-weight:800; font-size:15px; color:#1a1f22;
+  background: linear-gradient(180deg,#ffb079,#ff8a65);
+  box-shadow: 0 8px 20px rgba(255,138,101,.25);
+}
+.today-card .tc-bonus{ font-weight:900;font-size:11px;padding:2px 8px;border-radius:999px;
+  background:rgba(255,255,255,.12); color:#b7f7ea; letter-spacing:.3px; margin-left:8px}
 
 </style></head>
 <body>
@@ -230,7 +267,7 @@ nav button { min-width: 0; max-width: 100%; overflow: hidden; text-overflow: cli
   <div class="protag"><span class="pro">PRO</span> <span class="on">aktivno</span></div>
 </header>
 
-<!-- KP FORCE CARDS v38.5b -->
+<!-- KP FORCE CARDS v38.5c -->
 <section class="goal-strip" id="kp-goal-strip" role="status" aria-live="polite" style="display:block !important;">
   <div class="gs-top">
     <span class="gs-title">Trenutni cilj</span>
@@ -633,7 +670,7 @@ if('serviceWorker' in navigator){ window.addEventListener('load', function(){ na
 </script>
 <script src="js/store.js"></script>
 
-<!-- KP v38.5b binder -->
+<!-- KP v38.5c binder -->
 <script>
 (function(){
   function apply(){
@@ -659,11 +696,32 @@ if('serviceWorker' in navigator){ window.addEventListener('load', function(){ na
     if(navBtn) navBtn.click();
   });
   // Debug banner
-  (function(){ 
-     var b=document.createElement('div'); b.style='position:fixed;top:0;left:0;right:0;z-index:9999;background:#111C;border-bottom:1px solid #2dd4bf;color:#cfece6;font-weight:800;font-size:12px;padding:6px 10px;text-align:center';
-     b.innerHTML='KP debug: v38.5b • cards FORCED visible'; document.body.appendChild(b);
-  })();
-  try{ localStorage.setItem('kp_last_version','v38.5b'); }catch(e){}
+  try{ localStorage.setItem('kp_last_version','v38.5c'); }catch(e){}
+})();
+</script>
+
+
+<script>
+// KP v38.5c — Heuristic home-only gating
+(function(){
+  function isHome(){
+    try{
+      // Heuristic: Home has a "Brzi start" CTA or cards like "Savjet dana"/"Tvoj nivo"
+      var txts = Array.from(document.querySelectorAll('button, a, .card, .box, .tile, [class*="title"], [class*="subtitle"]'))
+        .map(el => (el.textContent||'').trim().toLowerCase());
+      var hit = txts.some(t => t.includes('brzi start') || t.includes('savjet dana') || t.includes('tvoj nivo') || t.includes('danas sesije'));
+      // Also allow hash routes like #home
+      var h=(location.hash||'').toLowerCase();
+      if(h.includes('home') || h.includes('pocetna') || h.includes('početna') || h.includes('naslovna')) return true;
+      return hit;
+    }catch(e){ return true; }
+  }
+  function apply(){ document.body.setAttribute('data-kp-home', isHome()? '1':'0'); }
+  apply();
+  document.addEventListener('click', ()=> setTimeout(apply,60), true);
+  window.addEventListener('hashchange', apply);
+  try{ var mo=new MutationObserver(()=> apply()); mo.observe(document.body, {subtree:true, childList:true}); }catch(e){}
+  try{ localStorage.setItem('kp_last_version','v38.5c'); }catch(e){}
 })();
 </script>
 
