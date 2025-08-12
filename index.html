@@ -215,12 +215,12 @@ nav button { min-width: 0; max-width: 100%; overflow: hidden; text-overflow: cli
 .home2 .badge2 { min-width:92px; padding:12px; border-radius:14px; text-align:center; background:linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.02)); border:1px solid rgba(255,255,255,.14); opacity:.9; flex:0 0 auto; }
 
 
-/* KP v38.5j FORCE vis */
+/* KP v38.5k FORCE vis */
 #kp-goal-strip,#kp-today-card{display:block !important; visibility:visible !important; opacity:1 !important;}
 #kp-today-card{display:flex !important;}
 
 
-/* KP v38.5j — Styled summary cards + home-only gating */
+/* KP v38.5k — Styled summary cards + home-only gating */
 
 .goal-strip, .today-card{
   margin: 12px 16px;
@@ -266,7 +266,7 @@ nav button { min-width: 0; max-width: 100%; overflow: hidden; text-overflow: cli
   <div class="protag"><span class="pro">PRO</span> <span class="on">aktivno</span></div>
 </header>
 
-<!-- KP FORCE CARDS v38.5j -->
+<!-- KP FORCE CARDS v38.5k -->
 <section class="goal-strip" id="kp-goal-strip" role="status" aria-live="polite">
   <div class="gs-top">
     <span class="gs-title">Trenutni cilj</span>
@@ -670,7 +670,7 @@ if('serviceWorker' in navigator){ window.addEventListener('load', function(){ na
 <script src="js/store.js"></script>
 
 
-<!-- KP v38.5j — relocate summary cards into Home container -->
+<!-- KP v38.5k — relocate summary cards into Home container -->
 <script>
 (function(){
   function q(sel, root){ return (root||document).querySelector(sel); }
@@ -766,6 +766,7 @@ if('serviceWorker' in navigator){ window.addEventListener('load', function(){ na
     }
     // Subscribe to store (after a tick to ensure store.js loaded)
     function apply(){
+      try{ window.__kpHomeApply = apply; }catch(e){}
       try{
         var prog = window.kpStore && window.kpStore.getTodayProgress ? window.kpStore.getTodayProgress() : {done:0,target:2,percent:0};
         var ring = document.getElementById('tc-ring');
@@ -809,7 +810,7 @@ if('serviceWorker' in navigator){ window.addEventListener('load', function(){ na
 </script>
 
 
-<!-- KP_BRIDGE_COMPLETE v38.5j -->
+<!-- KP_BRIDGE_COMPLETE v38.5k -->
 <script>
 (function(){
   if (window.__KP_BRIDGE_COMPLETE__) return;
@@ -839,6 +840,41 @@ if('serviceWorker' in navigator){ window.addEventListener('load', function(){ na
     }catch(e){}
   }
   tryPatch(); setTimeout(tryPatch, 300); setTimeout(tryPatch, 1200);
+})();
+</script>
+
+
+<!-- KP v38.5k — force-apply after recordSession -->
+<script>
+(function(){
+  function forceApplyBurst(){
+    try{ if (window.__kpHomeApply) window.__kpHomeApply(); }catch(e){}
+    setTimeout(()=>{ try{ if (window.__kpHomeApply) window.__kpHomeApply(); }catch(e){} }, 200);
+    setTimeout(()=>{ try{ if (window.__kpHomeApply) window.__kpHomeApply(); }catch(e){} }, 600);
+    setTimeout(()=>{ try{ if (window.__kpHomeApply) window.__kpHomeApply(); }catch(e){} }, 1200);
+  }
+  function hookRecord(){
+    try{
+      if (window.kpStore && typeof window.kpStore.recordSession === 'function' && !window.__KP_HOOKED_RECORD__){
+        const orig = window.kpStore.recordSession;
+        window.kpStore.recordSession = function(){
+          const r = orig.apply(this, arguments);
+          try{ forceApplyBurst(); }catch(e){}
+          return r;
+        };
+        window.__KP_HOOKED_RECORD__ = true;
+      }
+    }catch(e){}
+  }
+  hookRecord();
+  setTimeout(hookRecord, 200);
+  setTimeout(hookRecord, 1000);
+  // Also listen our custom event just in case
+  try{ window.addEventListener('kp:sessionCompleted', forceApplyBurst); }catch(e){}
+  // And on tab focus
+  document.addEventListener('visibilitychange', () => { if(!document.hidden) forceApplyBurst(); });
+  // version stamp
+  try{ localStorage.setItem('kp_last_version','v38.5k'); }catch(e){}
 })();
 </script>
 
