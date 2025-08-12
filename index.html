@@ -215,12 +215,12 @@ nav button { min-width: 0; max-width: 100%; overflow: hidden; text-overflow: cli
 .home2 .badge2 { min-width:92px; padding:12px; border-radius:14px; text-align:center; background:linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.02)); border:1px solid rgba(255,255,255,.14); opacity:.9; flex:0 0 auto; }
 
 
-/* KP v38.5p FORCE vis */
+/* KP v38.5q FORCE vis */
 #kp-goal-strip,#kp-today-card{display:block !important; visibility:visible !important; opacity:1 !important;}
 #kp-today-card{display:flex !important;}
 
 
-/* KP v38.5p — Styled summary cards + home-only gating */
+/* KP v38.5q — Styled summary cards + home-only gating */
 
 .goal-strip, .today-card{
   margin: 12px 16px;
@@ -254,7 +254,6 @@ nav button { min-width: 0; max-width: 100%; overflow: hidden; text-overflow: cli
 .today-card .tc-bonus{ font-weight:900;font-size:11px;padding:2px 8px;border-radius:999px;
   background:rgba(255,255,255,.12); color:#b7f7ea; letter-spacing:.3px; margin-left:8px}
 
-.today-card, .goal-strip { cursor: pointer; }
 .today-card, .goal-strip { cursor:pointer; }
 </style></head>
 <body>
@@ -267,7 +266,7 @@ nav button { min-width: 0; max-width: 100%; overflow: hidden; text-overflow: cli
   <div class="protag"><span class="pro">PRO</span> <span class="on">aktivno</span></div>
 </header>
 
-<!-- KP FORCE CARDS v38.5p -->
+<!-- KP FORCE CARDS v38.5q -->
 <section class="goal-strip" id="kp-goal-strip" role="status" aria-live="polite">
   <div class="gs-top">
     <span class="gs-title">Trenutni cilj</span>
@@ -570,7 +569,7 @@ document.getElementById('chipStreak').onclick=()=>{ if(document.body.classList.c
   const btnStop=document.getElementById('btnStop');
 
   const VARS={1:{hold:1,keep:0,rest:2},2:{hold:1,keep:1,rest:1},3:{hold:0.5,keep:3,rest:2}};
-  function planForDay(d){ if(d<=1) return [{var:1,reps:1}]; const total=30;if(d<=2)return[{var:1,reps:total}];if(d===3||d===4)return[{var:1,reps:total/2},{var:2,reps:total/2}];return[{var:1,reps:10},{var:2,reps:10},{var:3,reps:10}];}
+  function planForDay(d){const total=30;if(d<=2)return[{var:1,reps:total}];if(d===3||d===4)return[{var:1,reps:total/2},{var:2,reps:total/2}];return[{var:1,reps:10},{var:2,reps:10},{var:3,reps:10}];}
   function totalDuration(segments){let s=0;segments.forEach(x=>{const v=VARS[x.var];s+=x.reps*(v.hold+v.keep+v.rest);});return s;}
   function fmt(sec){sec=Math.max(0,Math.ceil(sec));const m=String(Math.floor(sec/60)).padStart(2,'0');const s=String(sec%60).padStart(2,'0');return m+':'+s;}
 
@@ -580,7 +579,7 @@ document.getElementById('chipStreak').onclick=()=>{ if(document.body.classList.c
   function apply(m){document.documentElement.style.setProperty('--ring-scale',m.ring.toFixed(3));document.documentElement.style.setProperty('--bgPulse-scale',m.bg.toFixed(3));document.documentElement.style.setProperty('--ring-alpha',m.ra.toFixed(3));document.documentElement.style.setProperty('--bgPulse-alpha',m.ba.toFixed(3));}
   function resetVisual(){ apply({ring:.2,bg:.2,ra:.3,ba:.1}); setProgress(0); timerEl.textContent='--:--'; setStatusPhase('idle'); startLabel.style.display='grid'; }
 
-  function buildSession(){const d=dayIndexFromStart();const segs=planForDay(d).map(s=>Object.assign({},s));const tot=totalDuration(segs);return {segments:segs,seg:0,rep:1,phase:'preroll',remain:(d<=1?0.5:2),elapsed:0,total:tot,totalLeft:tot};}
+  function buildSession(){const d=dayIndexFromStart();const segs=planForDay(d).map(s=>Object.assign({},s));const tot=totalDuration(segs);return {segments:segs,seg:0,rep:1,phase:'preroll',remain:2,elapsed:0,total:tot,totalLeft:tot};}
 
   function loop(ts){
     if(!running) return;
@@ -671,7 +670,7 @@ if('serviceWorker' in navigator){ window.addEventListener('load', function(){ na
 <script src="js/store.js"></script>
 
 
-<!-- KP v38.5p — relocate summary cards into Home container -->
+<!-- KP v38.5q — relocate summary cards into Home container -->
 <script>
 (function(){
   function q(sel, root){ return (root||document).querySelector(sel); }
@@ -749,14 +748,12 @@ if('serviceWorker' in navigator){ window.addEventListener('load', function(){ na
     if (!window.__KP_HOME_CLICK_BOUND__){
       window.__KP_HOME_CLICK_BOUND__=true;
       document.addEventListener('click', function(e){
-        // Start training if click on START or anywhere on Today card
         var toTrainer = e.target.closest('#tc-start, #kp-today-card');
         if (toTrainer){
           var navBtn=document.querySelector('#nav [data-tab="trainer"]');
           if(navBtn){ navBtn.click(); }
           return;
         }
-        // Open Progress if click on goal strip
         var toProgress = e.target.closest('#kp-goal-strip');
         if (toProgress){
           var navBtn2=document.querySelector('#nav [data-tab="progress"]');
@@ -765,28 +762,25 @@ if('serviceWorker' in navigator){ window.addEventListener('load', function(){ na
         }
       }, true);
     }
+    
+
     // Subscribe to store (after a tick to ensure store.js loaded)
     function apply(){
-      // Variant A: direct pull from kpStore
       try{
-        var m = (function(){
-          var prog = (window.kpStore && window.kpStore.getTodayProgress) ? window.kpStore.getTodayProgress() : {done:0,target:2,percent:0};
-          var goal = (window.kpStore && window.kpStore.getRankGoal) ? window.kpStore.getRankGoal() : {rank:1,day:1,length:5,percent:0};
-          return {
-            done: prog.done, target: prog.target, pToday: (prog.target? Math.max(0,Math.min(1, prog.done/prog.target)) : 0),
-            day: goal.day, length: goal.length, rank: goal.rank, pGoal: goal.percent
-          };
-        })();
+        var prog = (window.kpStore && window.kpStore.getTodayProgress) ? window.kpStore.getTodayProgress() : {done:0,target:2,percent:0};
+        var goal = (window.kpStore && window.kpStore.getRankGoal) ? window.kpStore.getRankGoal() : {rank:1,day:1,length:5,percent:0};
+        var done = prog.done||0, target = prog.target||2, pToday = target? Math.max(0,Math.min(1, done/target)) : 0;
+        var rank = goal.rank||1, day = goal.day||1, length = goal.length||5, pGoal = goal.percent||0;
         var S=(id,v)=>{ var el=document.getElementById(id); if(el && v!=null) el.textContent=v; };
         // Today card
-        S('tc-done', m.done); S('tc-target', m.target);
+        S('tc-done', done); S('tc-target', target);
         var ring = document.getElementById('tc-ring');
-        if(ring){ var C=2*Math.PI*21; ring.setAttribute('stroke-dasharray',C); ring.setAttribute('stroke-dashoffset', Math.round(C*(1-m.pToday))); }
+        if(ring){ var C=2*Math.PI*21; ring.setAttribute('stroke-dasharray',C); ring.setAttribute('stroke-dashoffset', Math.round(C*(1-pToday))); }
         // Goal strip
-        S('gs-rank', m.rank); S('gs-day', m.day); S('gs-max', m.length); S('gs-today', m.done);
-        var fill=document.getElementById('gs-fill'); if(fill) fill.style.width=Math.round(m.pGoal*100)+'%';
+        S('gs-rank', rank); S('gs-day', day); S('gs-max', length); S('gs-today', done);
+        var fill=document.getElementById('gs-fill'); if(fill) fill.style.width=Math.round((pGoal||0)*100)+'%';
         // Meta
-        var meta=document.getElementById('tc-meta'); if(meta){ meta.textContent='Dan '+m.day+' • Rang '+m.rank; }
+        var meta=document.getElementById('tc-meta'); if(meta){ meta.textContent='Dan '+day+' • Rang '+rank; }
         var de=document.getElementById('tc-dur'); if(de){ var mins=(window.kpStore&&window.kpStore.getSessionDefaults?window.kpStore.getSessionDefaults().minutes:5); de.textContent='~'+mins+' min'; }
         var bonus=window.kpStore&&window.kpStore.getBonusState? window.kpStore.getBonusState(): {active:false};
         var b=document.getElementById('tc-bonus'); if(b){ b.style.display=bonus.active?'inline-block':'none'; }
@@ -799,7 +793,6 @@ if('serviceWorker' in navigator){ window.addEventListener('load', function(){ na
         var goal = window.kpStore && window.kpStore.getRankGoal ? window.kpStore.getRankGoal() : {rank:1,day:1,length:5,percent:0};
         var fill = document.getElementById('gs-fill'); if(fill) fill.style.width = Math.round(goal.percent*100)+'%';
         setText('gs-rank', goal.rank); setText('gs-day', goal.day); setText('gs-max', goal.length);
-        setText('gs-today', prog.done);
         var meta=document.getElementById('tc-meta'); if(meta){ meta.textContent='Dan '+goal.day+' • Rang '+goal.rank; }
         var de=document.getElementById('tc-dur'); if(de){ var mins=(window.kpStore&&window.kpStore.getSessionDefaults?window.kpStore.getSessionDefaults().minutes:5); de.textContent='~'+mins+' min'; }
         var bonus = window.kpStore && window.kpStore.getBonusState ? window.kpStore.getBonusState() : {active:false};
@@ -828,7 +821,7 @@ if('serviceWorker' in navigator){ window.addEventListener('load', function(){ na
 </script>
 
 
-<!-- KP_BRIDGE_COMPLETE v38.5p -->
+<!-- KP_BRIDGE_COMPLETE v38.5q -->
 <script>
 (function(){
   if (window.__KP_BRIDGE_COMPLETE__) return;
@@ -840,7 +833,6 @@ if('serviceWorker' in navigator){ window.addEventListener('load', function(){ na
         if (window.__KP_LAST_REC__ && now - window.__KP_LAST_REC__ < 800) return;
         window.__KP_LAST_REC__ = now;
         window.kpStore.recordSession({ variation:'auto', success:true, completedAt: Date.now() });
-        // also emit a custom event for any legacy listeners
         try{ window.dispatchEvent(new CustomEvent('kp:sessionCompleted', { detail:{ completedAt: Date.now() } })); }catch(e){}
       }
     }catch(e){}
@@ -850,14 +842,13 @@ if('serviceWorker' in navigator){ window.addEventListener('load', function(){ na
       if (typeof window.markSessionComplete === 'function' && !window.__KP_BRIDGE_PATCHED__){
         const orig = window.markSessionComplete;
         window.markSessionComplete = function(){
-          try { return orig.apply(this, arguments); }
-          finally { recordOnce(); }
+          try { return orig.apply(this, arguments); } finally { recordOnce(); }
         };
         window.__KP_BRIDGE_PATCHED__ = true;
       }
     }catch(e){}
   }
-  tryPatch(); setTimeout(tryPatch, 300); setTimeout(tryPatch, 1200);
+  tryPatch(); setTimeout(tryPatch, 300); setTimeout(tryPatch, 1100);
 })();
 </script>
 
