@@ -1,6 +1,6 @@
 <!doctype html><html lang="bs"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>KegelPilot — v38</title>
+<title>KegelPilot — v38.5u</title>
 <link rel="manifest" href="manifest.json"><meta name="theme-color" content="#0B0E12">
 <style>
 :root{
@@ -215,12 +215,12 @@ nav button { min-width: 0; max-width: 100%; overflow: hidden; text-overflow: cli
 .home2 .badge2 { min-width:92px; padding:12px; border-radius:14px; text-align:center; background:linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.02)); border:1px solid rgba(255,255,255,.14); opacity:.9; flex:0 0 auto; }
 
 
-/* KP v38.5t FORCE vis */
+/*  FORCE vis */
 #kp-goal-strip,#kp-today-card{display:block !important; visibility:visible !important; opacity:1 !important;}
 #kp-today-card{display:flex !important;}
 
 
-/* KP v38.5t — Styled summary cards + home-only gating */
+/*  — Styled summary cards + home-only gating */
 
 .goal-strip, .today-card{
   margin: 12px 16px;
@@ -254,8 +254,9 @@ nav button { min-width: 0; max-width: 100%; overflow: hidden; text-overflow: cli
 .today-card .tc-bonus{ font-weight:900;font-size:11px;padding:2px 8px;border-radius:999px;
   background:rgba(255,255,255,.12); color:#b7f7ea; letter-spacing:.3px; margin-left:8px}
 
-</style><style>
-/* KP v38.5t cards */
+</style>
+<style>
+/* KP v38.5u minimal styles for home cards */
 .card{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.06);border-radius:16px;padding:14px;margin:14px 0;backdrop-filter:saturate(120%) blur(8px)}
 .goal-strip .gs-bar{width:100%;height:8px;background:rgba(255,255,255,0.06);border-radius:8px;overflow:hidden;margin-top:8px}
 .goal-strip .gs-fill{height:100%;background:var(--mint,#9CF0D0);width:0%;transition:width .4s ease}
@@ -265,8 +266,9 @@ nav button { min-width: 0; max-width: 100%; overflow: hidden; text-overflow: cli
 .pill{border:none;border-radius:999px;padding:10px 16px}
 .pill-accent{background:#ff9d6b;color:#111;font-weight:700;transition:transform .1s ease, box-shadow .25s ease}
 .pill-accent:active{transform:scale(.98)}
-.today-card,.goal-strip{cursor:pointer}
-</style></head>
+</style>
+
+</head>
 <body>
 <div class="shell">
 <header>
@@ -276,8 +278,32 @@ nav button { min-width: 0; max-width: 100%; overflow: hidden; text-overflow: cli
   </div>
   <div class="protag"><span class="pro">PRO</span> <span class="on">aktivno</span></div>
 </header>
+<!-- KP v38.5u :: HOME CARDS -->
+<section id="kp-goal-strip" class="goal-strip card">
+  <div class="gs-header">
+    <span>Rang <b id="gs-rank">1</b> • Dan <b id="gs-day">1</b>/<b id="gs-max">5</b></span>
+    <span style="float:right">Danas: <b id="gs-today">0</b>/2</span>
+  </div>
+  <div class="gs-bar"><div id="gs-fill" class="gs-fill" style="width:0%"></div></div>
+</section>
+<section id="kp-today-card" class="today-card card">
+  <div class="tc-left">
+    <svg width="56" height="56" viewBox="0 0 56 56">
+      <circle cx="28" cy="28" r="21" stroke="rgba(255,255,255,.1)" stroke-width="6" fill="none"/>
+      <circle id="tc-ring" cx="28" cy="28" r="21" stroke="var(--acc)" stroke-width="6" fill="none" stroke-linecap="round" transform="rotate(-90 28 28)"/>
+    </svg>
+    <div class="tc-count"><b id="tc-done">0</b>/<span id="tc-target">2</span></div>
+  </div>
+  <div class="tc-meta">
+    <div class="tc-title">Trening za danas</div>
+    <div class="tc-sub" id="tc-meta">Dan 1 • Rang 1</div>
+    <div class="tc-sub" id="tc-dur">~5 min</div>
+  </div>
+  <button id="tc-start" class="pill pill-accent">Start</button>
+</section>
 
-<!-- KP FORCE CARDS v38.5t -->
+
+<!-- KP FORCE CARDS v38.5s -->
 <section class="goal-strip" id="kp-goal-strip" role="status" aria-live="polite">
   <div class="gs-top">
     <span class="gs-title">Trenutni cilj</span>
@@ -328,33 +354,7 @@ nav button { min-width: 0; max-width: 100%; overflow: hidden; text-overflow: cli
 
     <section class="card2 advice2">
       <div style="display:flex; align-items:center; justify-content:space-between">
-        <strong>
-<!-- KP v38.5t :: HOME-ONLY CARDS START -->
-<section id="kp-goal-strip" class="goal-strip card kp-home-only">
-  <div class="gs-header">
-    <span>Rang <b id="gs-rank">1</b> • Dan <b id="gs-day">1</b>/<b id="gs-max">5</b></span>
-    <span style="float:right">Danas: <b id="gs-today">0</b>/2</span>
-  </div>
-  <div class="gs-bar"><div id="gs-fill" class="gs-fill" style="width:0%"></div></div>
-</section>
-
-<section id="kp-today-card" class="today-card card kp-home-only">
-  <div class="tc-left">
-    <svg width="56" height="56" viewBox="0 0 56 56">
-      <circle cx="28" cy="28" r="21" stroke="rgba(255,255,255,.1)" stroke-width="6" fill="none"/>
-      <circle id="tc-ring" cx="28" cy="28" r="21" stroke="var(--acc)" stroke-width="6" fill="none" stroke-linecap="round" transform="rotate(-90 28 28)"/>
-    </svg>
-    <div class="tc-count"><b id="tc-done">0</b>/<span id="tc-target">2</span></div>
-  </div>
-  <div class="tc-meta">
-    <div class="tc-title">Trening za danas</div>
-    <div class="tc-sub" id="tc-meta">Dan 1 • Rang 1 <span id="tc-bonus" class="tc-bonus" style="display:none">• bonus</span></div>
-    <div class="tc-sub" id="tc-dur">~5 min</div>
-  </div>
-  <button id="tc-start" class="pill pill-accent">Start</button>
-</section>
-<!-- KP v38.5t :: HOME-ONLY CARDS END -->
-Savjet dana</strong>
+        <strong>Savjet dana</strong>
         <div class="controls">
           <button id="advPrev" class="btn2">◀</button>
           <button id="advNext" class="btn2">▶</button>
@@ -707,184 +707,11 @@ if('serviceWorker' in navigator){ window.addEventListener('load', function(){ na
 <script src="js/store.js"></script>
 
 
-<!-- KP v38.5t — relocate summary cards into Home container -->
-<script>
-(function(){
-  function q(sel, root){ return (root||document).querySelector(sel); }
-  function qa(sel, root){ return Array.from((root||document).querySelectorAll(sel)); }
-  function findHomeContainer(){
-    // Prefer explicit containers if they exist
-    var c = q('#home, .home, [data-screen="home"], [data-page="home"], .screen-home, [data-tab-panel="home"]');
-    if (c) return c;
-    // Fallback: find an element that contains "Savjet dana" or "Brzi start" or "Tvoj nivo"
-    var hints = qa('main, .content, .container, .screen, .page, section, .cards, .grid');
-    var pick = hints.find(el => /savjet dana|brzi start|tvoj nivo/i.test((el.textContent||'')));
-    if (pick) {
-      // climb to a decent section-like container
-      var up = pick.closest('section, .screen, .page, .content, .container') || pick;
-      return up;
-    }
-    // Last resort: before first existing home card marker (if exists)
-    return q('main') || q('.content') || document.body;
-  }
+<!--  — relocate summary cards into Home container -->
 
-  function ensureCards(){
-    var strip = document.getElementById('kp-goal-strip');
-    var today = document.getElementById('kp-today-card');
-    if (!strip || !today){
-      // Create markup
-      var wrap = document.createElement('div');
-      wrap.innerHTML = '\
-<section class="goal-strip" id="kp-goal-strip" role="status" aria-live="polite">\
-  <div class="gs-top">\
-    <span class="gs-title">Trenutni cilj</span>\
-    <span class="gs-small">Rang <strong id="gs-rank">1</strong> • Dan <strong id="gs-day">1</strong>/<span id="gs-max">5</span></span>\
-  </div>\
-  <div class="gs-bar"><div class="gs-fill" id="gs-fill" style="width:0%"></div></div>\
-  <div class="gs-meta">Danas: <b id="gs-today">0</b>/2 sesije</div>\
-</section>\
-<section class="today-card" id="kp-today-card" role="group" aria-labelledby="tc-title">\
-  <div class="tc-ind" aria-hidden="true">\
-    <svg viewBox="0 0 48 48">\
-      <circle cx="24" cy="24" r="21" stroke="rgba(255,255,255,.10)" stroke-width="6" fill="none" />\
-      <circle id="tc-ring" cx="24" cy="24" r="21" stroke="#ff8a65" stroke-width="6" fill="none" stroke-linecap="round" stroke-dasharray="132" stroke-dashoffset="132" transform="rotate(-90 24 24)" />\
-    </svg>\
-    <div class="tc-num"><span id="tc-done">0</span>/<span id="tc-target">2</span></div>\
-  </div>\
-  <div class="tc-body">\
-    <div class="tc-title" id="tc-title">Trening za danas <span class="tc-bonus" id="tc-bonus" style="display:none">BONUS</span></div>\
-    <div class="tc-sub"><span id="tc-meta">Dan 1 • Rang 1</span> • <span id="tc-dur">~5 min</span></div>\
-  </div>\
-  <div class="tc-cta">\
-    <button class="btn-cta" id="tc-start">Start</button>\
-  </div>\
-</section>';
-      var nodes = wrap.children;
-      if (!strip) strip = nodes[0];
-      if (!today) today = nodes[1];
-    }
-    return { strip: strip, today: today };
-  }
-
-  function moveIntoHome(){
-    var home = findHomeContainer();
-    if (!home) return;
-    var cards = ensureCards();
-
-    // Remove existing instances to avoid duplicates
-    qa('#kp-goal-strip, #kp-today-card').forEach(function(n){
-      if (n.parentElement && n.parentElement !== home) n.parentElement.removeChild(n);
-    });
-
-    // Prepend into home container
-    if (!q('#kp-goal-strip', home)) home.insertBefore(cards.strip, home.firstChild);
-    if (!q('#kp-today-card', home)) home.insertBefore(cards.today, home.children[1] || home.firstChild);
-
-    // Bind CTA
-    document.addEventListener('click', function(e){
-      var btn=e.target.closest('#tc-start'); if(!btn) return;
-      var navBtn=document.querySelector('#nav [data-tab="trainer"]');
-      if(navBtn){ navBtn.click(); }
-    }, { once:true });
-
-    // Subscribe to store (after a tick to ensure store.js loaded)
-    function apply(){
-      try{
-        // Hybrid metrics: prefer store, else read from DOM stats cards
-        function readFromStore(){
-          try{
-            var s = window.kpStore;
-            if(!s) return null;
-            var prog = s.getTodayProgress ? s.getTodayProgress() : null;
-            var goal = s.getRankGoal ? s.getRankGoal() : null;
-            if(!prog || !goal) return null;
-            return {
-              done: +((prog.done!=null)?prog.done:0),
-              target: +((prog.target!=null)?prog.target:2),
-              day: +((goal.day!=null)?goal.day:1),
-              length: +((goal.length!=null)?goal.length:5),
-              rank: +((goal.rank!=null)?goal.rank:1),
-              pGoal: +((goal.percent!=null)?goal.percent:0)
-            };
-          }catch(e){ return null; }
-        }
-        function findByText(txt){
-          txt = txt.toLowerCase();
-          var nodes = Array.from(document.querySelectorAll('section,div,article,li,span,p,h1,h2,h3,h4,h5,h6'));
-          return nodes.find(n=> (n.textContent||'').toLowerCase().includes(txt));
-        }
-        function extractXY(el){
-          if(!el) return null;
-          var text = el.textContent || '';
-          var m = text.match(/(\d+)\s*\/\s*(\d+)/);
-          if(m) return {a:parseInt(m[1],10), b:parseInt(m[2],10)};
-          // try nearest sibling/parent numbers
-          var scope = el.closest('section,article,div')||el;
-          var nums = (scope.textContent||'').match(/(\d+)\s*\/\s*(\d+)/);
-          if(nums) return {a:parseInt(nums[1],10), b:parseInt(nums[2],10)};
-          return null;
-        }
-        function readFromDOM(){
-          try{
-            var todayNode = findByText('danas sesije');
-            var today = extractXY(todayNode) || {a:0,b:2};
-            var dayNode = findByText('dan ranga');
-            var day = extractXY(dayNode) || {a:1,b:5};
-            // rank number might appear near "Rang"
-            var rankNode = findByText('rang ');
-            var rank = 1;
-            if(rankNode){
-              var m=(rankNode.textContent||'').match(/rang\s*(\d+)/i);
-              if(m) rank = parseInt(m[1],10);
-            }
-            return { done: today.a, target: today.b, day: day.a, length: day.b, rank: rank, pGoal: (day.a-1 + Math.min(1, today.a/Math.max(1,today.b))) / Math.max(1, day.b) };
-          }catch(e){ return null; }
-        }
-        var M = readFromStore() || readFromDOM() || {done:0,target:2,day:1,length:5,rank:1,pGoal:0};
-        // Render
-        var S=(id,v)=>{ var el=document.getElementById(id); if(el && v!=null) el.textContent=v; };
-        var done=M.done, target=M.target, pToday = target? Math.max(0,Math.min(1, done/target)) : 0;
-        var rank=M.rank, day=M.day, length=M.length, pGoal=M.pGoal||0;
-        // Today card
-        S('tc-done', done); S('tc-target', target);
-        var ring = document.getElementById('tc-ring');
-        if(ring){ var C=2*Math.PI*21; ring.setAttribute('stroke-dasharray',C); ring.setAttribute('stroke-dashoffset', Math.round(C*(1-pToday))); }
-        // Goal strip
-        S('gs-rank', rank); S('gs-day', day); S('gs-max', length); S('gs-today', done);
-        var fill=document.getElementById('gs-fill'); if(fill) fill.style.width=Math.round(pGoal*100)+'%';
-        // Meta
-        var meta=document.getElementById('tc-meta'); if(meta){ meta.textContent='Dan '+day+' • Rang '+rank; }
-        var de=document.getElementById('tc-dur'); if(de){ var mins=(window.kpStore&&window.kpStore.getSessionDefaults?window.kpStore.getSessionDefaults().minutes:5); de.textContent='~'+mins+' min'; }
-        var bonus=window.kpStore&&window.kpStore.getBonusState? window.kpStore.getBonusState(): {active:false};
-        var b=document.getElementById('tc-bonus'); if(b){ b.style.display=bonus.active?'inline-block':'none'; }
-      }catch(e){
-        var prog = window.kpStore && window.kpStore.getTodayProgress ? window.kpStore.getTodayProgress() : {done:0,target:2,percent:0};
-        var ring = document.getElementById('tc-ring');
-        if(ring){ var C=2*Math.PI*21; ring.setAttribute('stroke-dasharray', C); ring.setAttribute('stroke-dashoffset', Math.round(C*(1-prog.percent))); }
-        var setText = (id,v)=>{ var el=document.getElementById(id); if(el) el.textContent=v; };
-        setText('tc-done', prog.done); setText('tc-target', prog.target);
-        var goal = window.kpStore && window.kpStore.getRankGoal ? window.kpStore.getRankGoal() : {rank:1,day:1,length:5,percent:0};
-        var fill = document.getElementById('gs-fill'); if(fill) fill.style.width = Math.round(goal.percent*100)+'%';
-        setText('gs-rank', goal.rank); setText('gs-day', goal.day); setText('gs-max', goal.length);
-        var meta=document.getElementById('tc-meta'); if(meta){ meta.textContent='Dan '+goal.day+' • Rang '+goal.rank; }
-        var de=document.getElementById('tc-dur'); if(de){ var mins=(window.kpStore&&window.kpStore.getSessionDefaults?window.kpStore.getSessionDefaults().minutes:5); de.textContent='~'+mins+' min'; }
-        var bonus = window.kpStore && window.kpStore.getBonusState ? window.kpStore.getBonusState() : {active:false};
-        var bEl = document.getElementById('tc-bonus'); if(bEl){ bEl.style.display = bonus.active ? 'inline-block' : 'none'; }
-      }catch(e){}
-    }
-    if (window.kpStore && window.kpStore.subscribe){ window.kpStore.subscribe(apply); } else { setTimeout(apply, 200); }
-  }
-
-  if (document.readyState === 'loading'){
-    document.addEventListener('DOMContentLoaded', moveIntoHome);
-  } else {
-    moveIntoHome();
-  }
-})();
-</script>
 
 <script>
-// KP v38.5t — Hybrid updater: subscribe + DOM observer + gentle poll
+//  — Hybrid updater: subscribe + DOM observer + gentle poll
 (function(){
   function isHome(){
     var h=(location.hash||'').toLowerCase();
@@ -923,72 +750,75 @@ if('serviceWorker' in navigator){ window.addEventListener('load', function(){ na
 
 <script>
 (function(){
-  const ACCENT = getComputedStyle(document.documentElement).getPropertyValue('--acc') || '#ff9d6b';
   const $ = s => document.querySelector(s);
-  const S = (id,val)=>{ const el=document.getElementById(id); if(el) el.textContent=val; };
+  const txt = (id,v)=>{ const el=document.getElementById(id); if(el) el.textContent=v; };
   const pct=(a,b)=> b>0? Math.max(0,Math.min(1,(+a||0)/(+b||0))) : 0;
 
-  function readStore(){
+  function update(){
     try{
-      const s = window.kpStore; if(!s) return null;
-      const p = s.getTodayProgress && s.getTodayProgress();
-      const g = s.getRankGoal && s.getRankGoal();
-      if(!p || !g) return null;
-      return {done:+(p.done??0), target:+(p.target??2), rank:+(g.rank??1), day:+(g.day??1), length:+(g.length??5), pGoal:+(g.percent??0)};
-    }catch(e){ return null; }
-  }
-  function readTiles(){
-    const find = rx => Array.from(document.querySelectorAll('div,section,article')).find(n=> rx.test(n.textContent||''));
-    const xy = t => { const m=(t||'').match(/(\d+)\s*\/\s*(\d+)/); return {a:+(m?.[1]||0), b:+(m?.[2]||2)}; };
-    const t = find(/danas\s+sesije/i), d = find(/dan\s+ranga/i);
-    const T = xy(t?.textContent), D = xy(d?.textContent);
-    return {done:T.a, target:T.b, rank:1, day:D.a, length:D.b, pGoal:(D.a-1 + Math.min(1, T.a/Math.max(1,T.b)))/Math.max(1, D.b)};
-  }
-
-  function apply(){
-    const M = readStore() || readTiles() || {done:0,target:2,rank:1,day:1,length:5,pGoal:0};
-    S('tc-done', M.done); S('tc-target', M.target);
-    const C = 2*Math.PI*21, ring = document.getElementById('tc-ring');
-    if(ring){ ring.setAttribute('stroke', ACCENT); ring.setAttribute('stroke-dasharray', C); ring.setAttribute('stroke-dashoffset', Math.round(C*(1-pct(M.done,M.target)))); }
-    S('gs-rank', M.rank); S('gs-day', M.day); S('gs-max', M.length); S('gs-today', M.done);
-    const fill = document.getElementById('gs-fill'); if(fill) fill.style.width = Math.round((M.pGoal||0)*100)+'%';
-    const meta = document.getElementById('tc-meta'); if(meta) meta.textContent = `Dan ${M.day} • Rang ${M.rank}`;
-    const dur = document.getElementById('tc-dur');
-    if(dur && window.kpStore?.getSessionDefaults){ const mins = kpStore.getSessionDefaults().minutes||5; dur.textContent = `~${mins} min`; }
+      const s=window.kpStore; if(!s||!s.getTodayProgress||!s.getRankGoal) return;
+      const p=s.getTodayProgress(), g=s.getRankGoal();
+      const done=+(p?.done||0), target=+(p?.target||2),
+            day=+(g?.day||1), len=+(g?.length||5), rank=+(g?.rank||1),
+            pGoal=+(g?.percent||0);
+      txt('tc-done',done); txt('tc-target',target);
+      const ring=document.getElementById('tc-ring');
+      if(ring){ const C=2*Math.PI*21; ring.setAttribute('stroke-dasharray',C); ring.setAttribute('stroke-dashoffset', Math.round(C*(1-pct(done,target)))); }
+      txt('gs-rank',rank); txt('gs-day',day); txt('gs-max',len); txt('gs-today',done);
+      const fill=document.getElementById('gs-fill'); if(fill) fill.style.width = Math.round((pGoal||0)*100)+'%';
+      const meta=document.getElementById('tc-meta'); if(meta) meta.textContent = `Dan ${day} • Rang ${rank}`;
+      const dur=document.getElementById('tc-dur');
+      if(dur && window.kpStore?.getSessionDefaults){ const mins=kpStore.getSessionDefaults().minutes||5; dur.textContent=`~${mins} min`; }
+    }catch(e){ /*noop*/ }
   }
 
-  // Klikovi
+  // Show only on Home
+  function syncHomeVisibility(){
+    const isHome = !!document.querySelector('#nav .active[data-tab="home"]');
+    ['kp-goal-strip','kp-today-card'].forEach(id=>{
+      const el=document.getElementById(id); if(el) el.style.display = isHome? '' : 'none';
+    });
+  }
+
+  // Bind clicks
   document.addEventListener('click', e=>{
-    if(e.target.closest('#tc-start, #kp-today-card')) { $('#nav [data-tab="trainer"]')?.click(); }
-    if(e.target.closest('#kp-goal-strip')) { $('#nav [data-tab="progress"]')?.click(); }
+    if(e.target.closest('#tc-start,#kp-today-card')) document.querySelector('#nav [data-tab="trainer"]')?.click();
+    if(e.target.closest('#kp-goal-strip')) document.querySelector('#nav [data-tab="progress"]')?.click();
+    setTimeout(()=>{ syncHomeVisibility(); update(); }, 60);
   }, true);
 
-  // Subscribe/poll
-  (function bindSub(){
-    try{ if(window.kpStore && typeof kpStore.subscribe==='function' && !window.__KP_HOME_SUB){ kpStore.subscribe(apply); window.__KP_HOME_SUB=true; } }catch(e){}
-    setTimeout(bindSub, 800);
+  // Subscribe if store supports it
+  (function loopBind(){
+    try{
+      if(window.kpStore && typeof kpStore.subscribe==='function' && !window.__KP_HOME_SUB){
+        kpStore.subscribe(()=>{ syncHomeVisibility(); update(); });
+        window.__KP_HOME_SUB=true;
+      }
+    }catch(e){}
+    setTimeout(loopBind, 800);
   })();
-  const mo = new MutationObserver(m=>{ if(m.some(x=> (x.target.textContent||'').match(/\d+\s*\/\s*\d+/))) apply(); });
-  mo.observe(document.body,{subtree:true,childList:true,characterData:true});
+
+  // Observe DOM changes + poll when Home is active
+  const mo = new MutationObserver(()=>{ syncHomeVisibility(); update(); });
+  mo.observe(document.body, {subtree:true, childList:true, characterData:true});
   setInterval(()=>{
-    const active = (document.querySelector('#nav .active[data-tab="home"]')!=null);
-    if (active && document.getElementById('kp-today-card')) apply();
+    if(document.querySelector('#nav .active[data-tab="home"]')) update();
   }, 1200);
 
-  // Dev: kratke sesije 3s (možeš ugasiti: localStorage.setItem('kp_dev_short','0'))
+  // Optional dev short session - ON by default for testing
   try{
     if(localStorage.getItem('kp_dev_short')===null) localStorage.setItem('kp_dev_short','1');
     if(localStorage.getItem('kp_dev_short')==='1' && window.kpStore?.getSessionDefaults){
-      const orig = kpStore.getSessionDefaults, base = orig();
-      const stub = {...base, minutes:0.05, totalSeconds:3, devShort:true};
-      kpStore.getSessionDefaults = ()=> stub;
+      const base=kpStore.getSessionDefaults();
+      const stub={...base, minutes:0.05, totalSeconds:3, devShort:true};
+      kpStore.getSessionDefaults=()=>stub;
       console.log('KP dev short session ACTIVE (3s)');
     }
   }catch(e){}
 
-  document.addEventListener('DOMContentLoaded', apply);
-  window.addEventListener('load', apply);
-  setTimeout(apply, 300);
+  window.addEventListener('load', ()=>{ syncHomeVisibility(); update(); });
+  document.addEventListener('DOMContentLoaded', ()=>{ syncHomeVisibility(); update(); });
+  setTimeout(()=>{ syncHomeVisibility(); update(); }, 200);
 })();
 </script>
 
