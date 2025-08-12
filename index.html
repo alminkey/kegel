@@ -215,15 +215,13 @@ nav button { min-width: 0; max-width: 100%; overflow: hidden; text-overflow: cli
 .home2 .badge2 { min-width:92px; padding:12px; border-radius:14px; text-align:center; background:linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.02)); border:1px solid rgba(255,255,255,.14); opacity:.9; flex:0 0 auto; }
 
 
-/* KP v38.5e FORCE vis */
+/* KP v38.5f FORCE vis */
 #kp-goal-strip,#kp-today-card{display:block !important; visibility:visible !important; opacity:1 !important;}
 #kp-today-card{display:flex !important;}
 
 
-/* KP v38.5e — Styled summary cards + home-only gating */
-#kp-goal-strip,#kp-today-card{display:none}
-body[data-kp-home="1"] #kp-goal-strip,
-body[data-kp-home="1"] #kp-today-card{display:block}
+/* KP v38.5f — Styled summary cards + home-only gating */
+
 .goal-strip, .today-card{
   margin: 12px 16px;
   border-radius: 16px;
@@ -267,7 +265,7 @@ body[data-kp-home="1"] #kp-today-card{display:block}
   <div class="protag"><span class="pro">PRO</span> <span class="on">aktivno</span></div>
 </header>
 
-<!-- KP FORCE CARDS v38.5e -->
+<!-- KP FORCE CARDS v38.5f -->
 <section class="goal-strip" id="kp-goal-strip" role="status" aria-live="polite">
   <div class="gs-top">
     <span class="gs-title">Trenutni cilj</span>
@@ -670,86 +668,112 @@ if('serviceWorker' in navigator){ window.addEventListener('load', function(){ na
 </script>
 <script src="js/store.js"></script>
 
-<!-- KP v38.5e binder -->
+
+<!-- KP v38.5f — relocate summary cards into Home container -->
 <script>
 (function(){
-  function apply(){
-    try{
-      var S=(id,v)=>{ var el=document.getElementById(id); if(el) el.textContent=v; };
-      var prog = (window.kpStore && window.kpStore.getTodayProgress)? window.kpStore.getTodayProgress(): {done:0,target:2,percent:0};
-      var ring = document.getElementById('tc-ring');
-      if(ring){ var C=2*Math.PI*21; ring.setAttribute('stroke-dasharray',C); ring.setAttribute('stroke-dashoffset', Math.round(C*(1-prog.percent))); }
-      S('tc-done', prog.done); S('tc-target', prog.target);
-      var goal = (window.kpStore && window.kpStore.getRankGoal)? window.kpStore.getRankGoal(): {rank:1,day:1,length:5,percent:0};
-      var fill = document.getElementById('gs-fill'); if(fill) fill.style.width = Math.round(goal.percent*100)+'%';
-      S('gs-rank', goal.rank); S('gs-day', goal.day); S('gs-max', goal.length);
-      var meta=document.getElementById('tc-meta'); if(meta){ meta.textContent='Dan '+goal.day+' • Rang '+goal.rank; }
-      var de=document.getElementById('tc-dur'); if(de){ var mins=(window.kpStore&&window.kpStore.getSessionDefaults?window.kpStore.getSessionDefaults().minutes:5); de.textContent='~'+mins+' min'; }
-      var b=document.getElementById('tc-bonus'); if(b){ b.style.display = (window.kpStore && window.kpStore.getBonusState && window.kpStore.getBonusState().active)?'inline-block':'none'; }
-    }catch(e){ console.log('binder err',e); }
+  function q(sel, root){ return (root||document).querySelector(sel); }
+  function qa(sel, root){ return Array.from((root||document).querySelectorAll(sel)); }
+  function findHomeContainer(){
+    // Prefer explicit containers if they exist
+    var c = q('#home, .home, [data-screen="home"], [data-page="home"], .screen-home, [data-tab-panel="home"]');
+    if (c) return c;
+    // Fallback: find an element that contains "Savjet dana" or "Brzi start" or "Tvoj nivo"
+    var hints = qa('main, .content, .container, .screen, .page, section, .cards, .grid');
+    var pick = hints.find(el => /savjet dana|brzi start|tvoj nivo/i.test((el.textContent||'')));
+    if (pick) {
+      // climb to a decent section-like container
+      var up = pick.closest('section, .screen, .page, .content, .container') || pick;
+      return up;
+    }
+    // Last resort: before first existing home card marker (if exists)
+    return q('main') || q('.content') || document.body;
   }
-  if(window.kpStore && window.kpStore.subscribe){ window.kpStore.subscribe(apply); }
-  else { setTimeout(apply, 300); }
-  document.addEventListener('click', function(e){
-    var btn=e.target.closest('#tc-start'); if(!btn) return;
-    var navBtn=document.querySelector('button[data-tab="trainer"]')||document.querySelector('[data-nav="trainer"]');
-    if(navBtn) navBtn.click();
-  });
-  // Debug banner
-  try{ localStorage.setItem('kp_last_version','v38.5e'); }catch(e){}
-})();
-</script>
 
-
-<script>
-// KP v38.5e — Heuristic home-only gating
-(function(){
-  function isHome(){
-    try{
-      // Heuristic: Home has a "Brzi start" CTA or cards like "Savjet dana"/"Tvoj nivo"
-      var txts = Array.from(document.querySelectorAll('button, a, .card, .box, .tile, [class*="title"], [class*="subtitle"]'))
-        .map(el => (el.textContent||'').trim().toLowerCase());
-      var hit = txts.some(t => t.includes('brzi start') || t.includes('savjet dana') || t.includes('tvoj nivo') || t.includes('danas sesije'));
-      // Also allow hash routes like #home
-      var h=(location.hash||'').toLowerCase();
-      if(h.includes('home') || h.includes('pocetna') || h.includes('početna') || h.includes('naslovna')) return true;
-      return hit;
-    }catch(e){ return true; }
+  function ensureCards(){
+    var strip = document.getElementById('kp-goal-strip');
+    var today = document.getElementById('kp-today-card');
+    if (!strip || !today){
+      // Create markup
+      var wrap = document.createElement('div');
+      wrap.innerHTML = '\
+<section class="goal-strip" id="kp-goal-strip" role="status" aria-live="polite">\
+  <div class="gs-top">\
+    <span class="gs-title">Trenutni cilj</span>\
+    <span class="gs-small">Rang <strong id="gs-rank">1</strong> • Dan <strong id="gs-day">1</strong>/<span id="gs-max">5</span></span>\
+  </div>\
+  <div class="gs-bar"><div class="gs-fill" id="gs-fill" style="width:0%"></div></div>\
+  <div class="gs-meta">Danas: <b id="gs-today">0</b>/2 sesije</div>\
+</section>\
+<section class="today-card" id="kp-today-card" role="group" aria-labelledby="tc-title">\
+  <div class="tc-ind" aria-hidden="true">\
+    <svg viewBox="0 0 48 48">\
+      <circle cx="24" cy="24" r="21" stroke="rgba(255,255,255,.10)" stroke-width="6" fill="none" />\
+      <circle id="tc-ring" cx="24" cy="24" r="21" stroke="#ff8a65" stroke-width="6" fill="none" stroke-linecap="round" stroke-dasharray="132" stroke-dashoffset="132" transform="rotate(-90 24 24)" />\
+    </svg>\
+    <div class="tc-num"><span id="tc-done">0</span>/<span id="tc-target">2</span></div>\
+  </div>\
+  <div class="tc-body">\
+    <div class="tc-title" id="tc-title">Trening za danas <span class="tc-bonus" id="tc-bonus" style="display:none">BONUS</span></div>\
+    <div class="tc-sub"><span id="tc-meta">Dan 1 • Rang 1</span> • <span id="tc-dur">~5 min</span></div>\
+  </div>\
+  <div class="tc-cta">\
+    <button class="btn-cta" id="tc-start">Start</button>\
+  </div>\
+</section>';
+      var nodes = wrap.children;
+      if (!strip) strip = nodes[0];
+      if (!today) today = nodes[1];
+    }
+    return { strip: strip, today: today };
   }
-  function apply(){ document.body.setAttribute('data-kp-home', isHome()? '1':'0'); }
-  apply();
-  document.addEventListener('click', ()=> setTimeout(apply,60), true);
-  window.addEventListener('hashchange', apply);
-  try{ var mo=new MutationObserver(()=> apply()); mo.observe(document.body, {subtree:true, childList:true}); }catch(e){}
-  try{ localStorage.setItem('kp_last_version','v38.5e'); }catch(e){}
-})();
-</script>
 
+  function moveIntoHome(){
+    var home = findHomeContainer();
+    if (!home) return;
+    var cards = ensureCards();
 
+    // Remove existing instances to avoid duplicates
+    qa('#kp-goal-strip, #kp-today-card').forEach(function(n){
+      if (n.parentElement && n.parentElement !== home) n.parentElement.removeChild(n);
+    });
 
-<!-- KP v38.5e — nav-click gating (data-tab) -->
-<script>
-(function(){
-  const NAV = document.getElementById('nav');
-  function set(flag){ document.body.setAttribute('data-kp-home', flag ? '1' : '0'); }
-  function init(){
-    // initial: if Početna ima .active
-    set(!!document.querySelector('#nav [data-tab="home"].active'));
+    // Prepend into home container
+    if (!q('#kp-goal-strip', home)) home.insertBefore(cards.strip, home.firstChild);
+    if (!q('#kp-today-card', home)) home.insertBefore(cards.today, home.children[1] || home.firstChild);
+
+    // Bind CTA
+    document.addEventListener('click', function(e){
+      var btn=e.target.closest('#tc-start'); if(!btn) return;
+      var navBtn=document.querySelector('#nav [data-tab="trainer"]');
+      if(navBtn){ navBtn.click(); }
+    }, { once:true });
+
+    // Subscribe to store (after a tick to ensure store.js loaded)
+    function apply(){
+      try{
+        var prog = window.kpStore && window.kpStore.getTodayProgress ? window.kpStore.getTodayProgress() : {done:0,target:2,percent:0};
+        var ring = document.getElementById('tc-ring');
+        if(ring){ var C=2*Math.PI*21; ring.setAttribute('stroke-dasharray', C); ring.setAttribute('stroke-dashoffset', Math.round(C*(1-prog.percent))); }
+        var setText = (id,v)=>{ var el=document.getElementById(id); if(el) el.textContent=v; };
+        setText('tc-done', prog.done); setText('tc-target', prog.target);
+        var goal = window.kpStore && window.kpStore.getRankGoal ? window.kpStore.getRankGoal() : {rank:1,day:1,length:5,percent:0};
+        var fill = document.getElementById('gs-fill'); if(fill) fill.style.width = Math.round(goal.percent*100)+'%';
+        setText('gs-rank', goal.rank); setText('gs-day', goal.day); setText('gs-max', goal.length);
+        var meta=document.getElementById('tc-meta'); if(meta){ meta.textContent='Dan '+goal.day+' • Rang '+goal.rank; }
+        var de=document.getElementById('tc-dur'); if(de){ var mins=(window.kpStore&&window.kpStore.getSessionDefaults?window.kpStore.getSessionDefaults().minutes:5); de.textContent='~'+mins+' min'; }
+        var bonus = window.kpStore && window.kpStore.getBonusState ? window.kpStore.getBonusState() : {active:false};
+        var bEl = document.getElementById('tc-bonus'); if(bEl){ bEl.style.display = bonus.active ? 'inline-block' : 'none'; }
+      }catch(e){}
+    }
+    if (window.kpStore && window.kpStore.subscribe){ window.kpStore.subscribe(apply); } else { setTimeout(apply, 200); }
   }
-  init();
-  if (NAV){
-    NAV.addEventListener('click', function(e){
-      const btn = e.target.closest('[data-tab]');
-      if (!btn) return;
-      set(btn.dataset.tab === 'home');
-    }, true);
+
+  if (document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', moveIntoHome);
+  } else {
+    moveIntoHome();
   }
-  window.addEventListener('hashchange', function(){
-    const h=(location.hash||'').toLowerCase();
-    if (/(home|pocetna|početna|naslovna)/.test(h)) set(true);
-    else if (/(trainer|trening|edu|napredak|progress)/.test(h)) set(false);
-  });
-  try{ localStorage.setItem('kp_last_version','v38.5e'); }catch(e){}
 })();
 </script>
 
