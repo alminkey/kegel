@@ -215,12 +215,12 @@ nav button { min-width: 0; max-width: 100%; overflow: hidden; text-overflow: cli
 .home2 .badge2 { min-width:92px; padding:12px; border-radius:14px; text-align:center; background:linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.02)); border:1px solid rgba(255,255,255,.14); opacity:.9; flex:0 0 auto; }
 
 
-/* KP v38.5q FORCE vis */
+/* KP v38.5r FORCE vis */
 #kp-goal-strip,#kp-today-card{display:block !important; visibility:visible !important; opacity:1 !important;}
 #kp-today-card{display:flex !important;}
 
 
-/* KP v38.5q — Styled summary cards + home-only gating */
+/* KP v38.5r — Styled summary cards + home-only gating */
 
 .goal-strip, .today-card{
   margin: 12px 16px;
@@ -254,7 +254,7 @@ nav button { min-width: 0; max-width: 100%; overflow: hidden; text-overflow: cli
 .today-card .tc-bonus{ font-weight:900;font-size:11px;padding:2px 8px;border-radius:999px;
   background:rgba(255,255,255,.12); color:#b7f7ea; letter-spacing:.3px; margin-left:8px}
 
-.today-card, .goal-strip { cursor:pointer; }
+.today-card, .goal-strip{cursor:pointer;pointer-events:auto}
 </style></head>
 <body>
 <div class="shell">
@@ -266,7 +266,7 @@ nav button { min-width: 0; max-width: 100%; overflow: hidden; text-overflow: cli
   <div class="protag"><span class="pro">PRO</span> <span class="on">aktivno</span></div>
 </header>
 
-<!-- KP FORCE CARDS v38.5q -->
+<!-- KP FORCE CARDS v38.5r -->
 <section class="goal-strip" id="kp-goal-strip" role="status" aria-live="polite">
   <div class="gs-top">
     <span class="gs-title">Trenutni cilj</span>
@@ -670,7 +670,7 @@ if('serviceWorker' in navigator){ window.addEventListener('load', function(){ na
 <script src="js/store.js"></script>
 
 
-<!-- KP v38.5q — relocate summary cards into Home container -->
+<!-- KP v38.5r — relocate summary cards into Home container -->
 <script>
 (function(){
   function q(sel, root){ return (root||document).querySelector(sel); }
@@ -762,29 +762,9 @@ if('serviceWorker' in navigator){ window.addEventListener('load', function(){ na
         }
       }, true);
     }
-    
-
     // Subscribe to store (after a tick to ensure store.js loaded)
     function apply(){
       try{
-        var prog = (window.kpStore && window.kpStore.getTodayProgress) ? window.kpStore.getTodayProgress() : {done:0,target:2,percent:0};
-        var goal = (window.kpStore && window.kpStore.getRankGoal) ? window.kpStore.getRankGoal() : {rank:1,day:1,length:5,percent:0};
-        var done = prog.done||0, target = prog.target||2, pToday = target? Math.max(0,Math.min(1, done/target)) : 0;
-        var rank = goal.rank||1, day = goal.day||1, length = goal.length||5, pGoal = goal.percent||0;
-        var S=(id,v)=>{ var el=document.getElementById(id); if(el && v!=null) el.textContent=v; };
-        // Today card
-        S('tc-done', done); S('tc-target', target);
-        var ring = document.getElementById('tc-ring');
-        if(ring){ var C=2*Math.PI*21; ring.setAttribute('stroke-dasharray',C); ring.setAttribute('stroke-dashoffset', Math.round(C*(1-pToday))); }
-        // Goal strip
-        S('gs-rank', rank); S('gs-day', day); S('gs-max', length); S('gs-today', done);
-        var fill=document.getElementById('gs-fill'); if(fill) fill.style.width=Math.round((pGoal||0)*100)+'%';
-        // Meta
-        var meta=document.getElementById('tc-meta'); if(meta){ meta.textContent='Dan '+day+' • Rang '+rank; }
-        var de=document.getElementById('tc-dur'); if(de){ var mins=(window.kpStore&&window.kpStore.getSessionDefaults?window.kpStore.getSessionDefaults().minutes:5); de.textContent='~'+mins+' min'; }
-        var bonus=window.kpStore&&window.kpStore.getBonusState? window.kpStore.getBonusState(): {active:false};
-        var b=document.getElementById('tc-bonus'); if(b){ b.style.display=bonus.active?'inline-block':'none'; }
-      }catch(e){
         var prog = window.kpStore && window.kpStore.getTodayProgress ? window.kpStore.getTodayProgress() : {done:0,target:2,percent:0};
         var ring = document.getElementById('tc-ring');
         if(ring){ var C=2*Math.PI*21; ring.setAttribute('stroke-dasharray', C); ring.setAttribute('stroke-dashoffset', Math.round(C*(1-prog.percent))); }
@@ -799,17 +779,7 @@ if('serviceWorker' in navigator){ window.addEventListener('load', function(){ na
         var bEl = document.getElementById('tc-bonus'); if(bEl){ bEl.style.display = bonus.active ? 'inline-block' : 'none'; }
       }catch(e){}
     }
-    (function bindStore(){
-      try{
-        if (window.kpStore && typeof window.kpStore.subscribe==='function' && !window.__KP_HOME_SUB__){
-          window.kpStore.subscribe(apply);
-          window.__KP_HOME_SUB__=true;
-          apply();
-          return;
-        }
-      }catch(e){}
-      setTimeout(bindStore, 200);
-    })();
+    if (window.kpStore && window.kpStore.subscribe){ window.kpStore.subscribe(apply); } else { setTimeout(apply, 200); }
   }
 
   if (document.readyState === 'loading'){
@@ -817,38 +787,6 @@ if('serviceWorker' in navigator){ window.addEventListener('load', function(){ na
   } else {
     moveIntoHome();
   }
-})();
-</script>
-
-
-<!-- KP_BRIDGE_COMPLETE v38.5q -->
-<script>
-(function(){
-  if (window.__KP_BRIDGE_COMPLETE__) return;
-  window.__KP_BRIDGE_COMPLETE__ = true;
-  function recordOnce(){
-    try{
-      if (window.kpStore && typeof window.kpStore.recordSession==='function'){
-        var now = (performance && performance.now)? performance.now(): Date.now();
-        if (window.__KP_LAST_REC__ && now - window.__KP_LAST_REC__ < 800) return;
-        window.__KP_LAST_REC__ = now;
-        window.kpStore.recordSession({ variation:'auto', success:true, completedAt: Date.now() });
-        try{ window.dispatchEvent(new CustomEvent('kp:sessionCompleted', { detail:{ completedAt: Date.now() } })); }catch(e){}
-      }
-    }catch(e){}
-  }
-  function tryPatch(){
-    try{
-      if (typeof window.markSessionComplete === 'function' && !window.__KP_BRIDGE_PATCHED__){
-        const orig = window.markSessionComplete;
-        window.markSessionComplete = function(){
-          try { return orig.apply(this, arguments); } finally { recordOnce(); }
-        };
-        window.__KP_BRIDGE_PATCHED__ = true;
-      }
-    }catch(e){}
-  }
-  tryPatch(); setTimeout(tryPatch, 300); setTimeout(tryPatch, 1100);
 })();
 </script>
 
