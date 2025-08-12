@@ -1,6 +1,6 @@
 <!doctype html><html lang="bs"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>KegelPilot — v38.4.2</title>
+<title>KegelPilot — v38</title>
 <link rel="manifest" href="manifest.json"><meta name="theme-color" content="#0B0E12">
 <style>
 :root{
@@ -214,32 +214,6 @@ nav button { min-width: 0; max-width: 100%; overflow: hidden; text-overflow: cli
 .home2 .badges2 { display:flex; gap:10px; overflow-x:auto; overflow-y:hidden; padding-bottom:4px; }
 .home2 .badge2 { min-width:92px; padding:12px; border-radius:14px; text-align:center; background:linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.02)); border:1px solid rgba(255,255,255,.14); opacity:.9; flex:0 0 auto; }
 
-
-/* KP v38.4 — Home summary cards */
-.goal-strip{margin:12px 16px 8px;border-radius:14px;border:1px solid rgba(255,255,255,.08);
-  background:linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02)); box-shadow:0 10px 22px rgba(0,0,0,.25);
-  padding:12px 14px}
-.goal-strip .gs-top{display:flex;align-items:baseline;justify-content:space-between;gap:8px;margin-bottom:10px}
-.goal-strip .gs-title{font-weight:800;font-size:14px;color:#cfece6;letter-spacing:.3px}
-.goal-strip .gs-small{font-weight:700;font-size:12px;color:#9fb9b3}
-.goal-strip .gs-bar{position:relative;height:7px;border-radius:999px;background:rgba(255,255,255,.08);overflow:hidden}
-.goal-strip .gs-fill{position:absolute;left:0;top:0;bottom:0;border-radius:999px;background:linear-gradient(90deg,#19d3b1,#2dd4bf);width:0%}
-.goal-strip .gs-meta{display:flex;justify-content:flex-end;font-size:12px;color:#b9c7c3;margin-top:8px}
-
-.today-card{margin:8px 16px 10px;border-radius:14px;border:1px solid rgba(255,255,255,.08);
-  background:linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02)); box-shadow:0 10px 22px rgba(0,0,0,.25);
-  padding:12px 14px; display:flex; gap:14px; align-items:center}
-.today-card .tc-ind{width:64px;height:64px;position:relative;flex:0 0 64px}
-.today-card .tc-ind svg{width:64px;height:64px;display:block}
-.today-card .tc-ind .tc-num{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:14px;color:#d7eae6}
-.today-card .tc-body{display:flex;flex-direction:column;gap:6px;min-width:0}
-.today-card .tc-title{font-weight:800;font-size:16px;color:#eaf5f2}
-.today-card .tc-sub{font-weight:700;font-size:12px;color:#9fb9b3}
-.today-card .tc-cta{margin-left:auto}
-.today-card .btn-cta{appearance:none;border:none;border-radius:12px;padding:10px 14px;font-weight:900;letter-spacing:.3px;
-  background:#ff6448;color:#171a1f;box-shadow:0 8px 18px rgba(255,100,72,.35);}
-.today-card .btn-cta:active{transform:translateY(1px)}
-
 </style></head>
 <body>
 <div class="shell">
@@ -250,34 +224,6 @@ nav button { min-width: 0; max-width: 100%; overflow: hidden; text-overflow: cli
   </div>
   <div class="protag"><span class="pro">PRO</span> <span class="on">aktivno</span></div>
 </header>
-
-<section class="goal-strip" id="kp-goal-strip" role="status" aria-live="polite">
-  <div class="gs-top">
-    <span class="gs-title">Trenutni cilj</span>
-    <span class="gs-small">Rang <strong id="gs-rank">1</strong> • Dan <strong id="gs-day">1</strong>/<span id="gs-max">5</span></span>
-  </div>
-  <div class="gs-bar"><div class="gs-fill" id="gs-fill" style="width:0%"></div></div>
-  <div class="gs-meta">Danas: <b id="gs-today">0</b>/2 sesije</div>
-</section>
-
-<section class="today-card" id="kp-today-card" role="group" aria-labelledby="tc-title">
-  <div class="tc-ind" aria-hidden="true">
-    <svg viewBox="0 0 48 48">
-      <circle cx="24" cy="24" r="21" stroke="rgba(255,255,255,.10)" stroke-width="6" fill="none" />
-      <circle id="tc-ring" cx="24" cy="24" r="21" stroke="#ff8a65" stroke-width="6" fill="none" stroke-linecap="round"
-              stroke-dasharray="132" stroke-dashoffset="132" transform="rotate(-90 24 24)" />
-    </svg>
-    <div class="tc-num"><span id="tc-done">0</span>/<span id="tc-target">2</span></div>
-  </div>
-  <div class="tc-body">
-    <div class="tc-title" id="tc-title">Trening za danas</div>
-    <div class="tc-sub"><span id="tc-meta">Dan 1 • Rang 1</span> • <span id="tc-dur">~5 min</span></div>
-  </div>
-  <div class="tc-cta">
-    <button class="btn-cta" id="tc-start">Start</button>
-  </div>
-</section>
-
 
 
 <main id="home" class="active home2">
@@ -652,94 +598,4 @@ document.getElementById('chipStreak').onclick=()=>{ if(document.body.classList.c
 
 if('serviceWorker' in navigator){ window.addEventListener('load', function(){ navigator.serviceWorker.register('./service-worker.js?v='+APP_VERSION); }); }
 </script>
-
-<script src="js/store.js"></script>
-<script>
-// KP v38.4 — bind cards to kpStore
-(function(){
-  function apply(state){
-    try{
-      // Goal strip
-      var goal = window.kpStore.getRankGoal();
-      var fill = document.getElementById('gs-fill');
-      if(fill) fill.style.width = Math.round(goal.percent*100)+'%';
-      var setText = (id,v)=>{ var el=document.getElementById(id); if(el) el.textContent = v; };
-      setText('gs-rank', goal.rank);
-      setText('gs-day', goal.day);
-      setText('gs-max', goal.length);
-      // Today card
-      var prog = window.kpStore.getTodayProgress();
-      setText('tc-done', prog.done);
-      setText('tc-target', prog.target);
-      var ring = document.getElementById('tc-ring');
-      if(ring){
-        var C = 2*Math.PI*21;
-        ring.setAttribute('stroke-dasharray', C);
-        ring.setAttribute('stroke-dashoffset', Math.round(C*(1-prog.percent)));
-      }
-      var meta = document.getElementById('tc-meta');
-      if(meta){ meta.textContent = 'Dan '+goal.day+' • Rang '+goal.rank; }
-      var de = document.getElementById('tc-dur');
-      if(de){ de.textContent = '~'+(window.kpStore.getSessionDefaults().minutes)+' min'; }
-    }catch(e){ console.warn('bind apply err', e); }
-  }
-  // subscribe
-  if(window.kpStore && window.kpStore.subscribe){
-    window.kpStore.subscribe(apply);
-  } else {
-    // wait until store loads
-    var iv = setInterval(function(){
-      if(window.kpStore && window.kpStore.subscribe){
-        clearInterval(iv); window.kpStore.subscribe(apply);
-      }
-    }, 100);
-  }
-  // CTA → open Training tab
-  document.addEventListener('click', function(e){
-    var btn = e.target.closest('#tc-start');
-    if(!btn) return;
-    var navBtn = document.querySelector('button[data-tab="trainer"]')||document.querySelector('[data-nav="trainer"]');
-    if(navBtn) navBtn.click();
-  });
-  // Version label
-  try{ localStorage.setItem('kp_last_version','v38.4'); }catch(e){}
-})();
-</script>
-
-
-
-
-
-<script>
-// v38.4.2 — bridge fix: count once on true completion; STOP no longer counts
-(function(){
-  if (window.__KP_BRIDGE__) return; window.__KP_BRIDGE__=true;
-  function recordOnce(){
-    try{
-      var now = (performance && performance.now) ? performance.now() : Date.now();
-      if (window.__KP_LAST_REC__ && now - window.__KP_LAST_REC__ < 800) return; // debounce
-      window.__KP_LAST_REC__ = now;
-      if (window.kpStore && typeof window.kpStore.recordSession === 'function'){
-        window.kpStore.recordSession({ variation: 'auto', success: true });
-      }
-    }catch(e){}
-  }
-  function tryPatch(){
-    try{
-      if (typeof window.markSessionComplete === 'function' && !window.__KP_BRIDGE_PATCHED__){
-        const orig = window.markSessionComplete;
-        window.markSessionComplete = function(){
-          try { return orig.apply(this, arguments); }
-          finally { recordOnce(); }
-        };
-        window.__KP_BRIDGE_PATCHED__ = true;
-      }
-    }catch(e){}
-  }
-  // try now and a bit later (in case trainer loads async)
-  tryPatch(); setTimeout(tryPatch, 400); setTimeout(tryPatch, 1200);
-  try{ localStorage.setItem('kp_last_version','v38.4.2'); }catch(e){}
-})();
-</script>
-
 </body></html>
