@@ -215,12 +215,12 @@ nav button { min-width: 0; max-width: 100%; overflow: hidden; text-overflow: cli
 .home2 .badge2 { min-width:92px; padding:12px; border-radius:14px; text-align:center; background:linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.02)); border:1px solid rgba(255,255,255,.14); opacity:.9; flex:0 0 auto; }
 
 
-/* KP v38.5f FORCE vis */
+/* KP v38.5g FORCE vis */
 #kp-goal-strip,#kp-today-card{display:block !important; visibility:visible !important; opacity:1 !important;}
 #kp-today-card{display:flex !important;}
 
 
-/* KP v38.5f — Styled summary cards + home-only gating */
+/* KP v38.5g — Styled summary cards + home-only gating */
 
 .goal-strip, .today-card{
   margin: 12px 16px;
@@ -254,6 +254,7 @@ nav button { min-width: 0; max-width: 100%; overflow: hidden; text-overflow: cli
 .today-card .tc-bonus{ font-weight:900;font-size:11px;padding:2px 8px;border-radius:999px;
   background:rgba(255,255,255,.12); color:#b7f7ea; letter-spacing:.3px; margin-left:8px}
 
+.today-card, .goal-strip { cursor: pointer; }
 </style></head>
 <body>
 <div class="shell">
@@ -265,7 +266,7 @@ nav button { min-width: 0; max-width: 100%; overflow: hidden; text-overflow: cli
   <div class="protag"><span class="pro">PRO</span> <span class="on">aktivno</span></div>
 </header>
 
-<!-- KP FORCE CARDS v38.5f -->
+<!-- KP FORCE CARDS v38.5g -->
 <section class="goal-strip" id="kp-goal-strip" role="status" aria-live="polite">
   <div class="gs-top">
     <span class="gs-title">Trenutni cilj</span>
@@ -669,7 +670,7 @@ if('serviceWorker' in navigator){ window.addEventListener('load', function(){ na
 <script src="js/store.js"></script>
 
 
-<!-- KP v38.5f — relocate summary cards into Home container -->
+<!-- KP v38.5g — relocate summary cards into Home container -->
 <script>
 (function(){
   function q(sel, root){ return (root||document).querySelector(sel); }
@@ -743,12 +744,26 @@ if('serviceWorker' in navigator){ window.addEventListener('load', function(){ na
     if (!q('#kp-today-card', home)) home.insertBefore(cards.today, home.children[1] || home.firstChild);
 
     // Bind CTA
-    document.addEventListener('click', function(e){
-      var btn=e.target.closest('#tc-start'); if(!btn) return;
-      var navBtn=document.querySelector('#nav [data-tab="trainer"]');
-      if(navBtn){ navBtn.click(); }
-    }, { once:true });
-
+    
+    if (!window.__KP_HOME_CLICK_BOUND__){
+      window.__KP_HOME_CLICK_BOUND__=true;
+      document.addEventListener('click', function(e){
+        // Start training if click on START or anywhere on Today card
+        var toTrainer = e.target.closest('#tc-start, #kp-today-card');
+        if (toTrainer){
+          var navBtn=document.querySelector('#nav [data-tab="trainer"]');
+          if(navBtn){ navBtn.click(); }
+          return;
+        }
+        // Open Progress if click on goal strip
+        var toProgress = e.target.closest('#kp-goal-strip');
+        if (toProgress){
+          var navBtn2=document.querySelector('#nav [data-tab="progress"]');
+          if(navBtn2){ navBtn2.click(); }
+          return;
+        }
+      }, true);
+    }
     // Subscribe to store (after a tick to ensure store.js loaded)
     function apply(){
       try{
