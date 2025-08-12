@@ -214,6 +214,11 @@ nav button { min-width: 0; max-width: 100%; overflow: hidden; text-overflow: cli
 .home2 .badges2 { display:flex; gap:10px; overflow-x:auto; overflow-y:hidden; padding-bottom:4px; }
 .home2 .badge2 { min-width:92px; padding:12px; border-radius:14px; text-align:center; background:linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.02)); border:1px solid rgba(255,255,255,.14); opacity:.9; flex:0 0 auto; }
 
+
+/* KP v38.5b FORCE vis */
+#kp-goal-strip,#kp-today-card{display:block !important; visibility:visible !important; opacity:1 !important;}
+#kp-today-card{display:flex !important;}
+
 </style></head>
 <body>
 <div class="shell">
@@ -224,6 +229,34 @@ nav button { min-width: 0; max-width: 100%; overflow: hidden; text-overflow: cli
   </div>
   <div class="protag"><span class="pro">PRO</span> <span class="on">aktivno</span></div>
 </header>
+
+<!-- KP FORCE CARDS v38.5b -->
+<section class="goal-strip" id="kp-goal-strip" role="status" aria-live="polite" style="display:block !important;">
+  <div class="gs-top">
+    <span class="gs-title">Trenutni cilj</span>
+    <span class="gs-small">Rang <strong id="gs-rank">1</strong> • Dan <strong id="gs-day">1</strong>/<span id="gs-max">5</span></span>
+  </div>
+  <div class="gs-bar"><div class="gs-fill" id="gs-fill" style="width:0%"></div></div>
+  <div class="gs-meta">Danas: <b id="gs-today">0</b>/2 sesije</div>
+</section>
+<section class="today-card" id="kp-today-card" role="group" aria-labelledby="tc-title" style="display:flex !important;">
+  <div class="tc-ind" aria-hidden="true">
+    <svg viewBox="0 0 48 48">
+      <circle cx="24" cy="24" r="21" stroke="rgba(255,255,255,.10)" stroke-width="6" fill="none" />
+      <circle id="tc-ring" cx="24" cy="24" r="21" stroke="#ff8a65" stroke-width="6" fill="none" stroke-linecap="round"
+              stroke-dasharray="132" stroke-dashoffset="132" transform="rotate(-90 24 24)" />
+    </svg>
+    <div class="tc-num"><span id="tc-done">0</span>/<span id="tc-target">2</span></div>
+  </div>
+  <div class="tc-body">
+    <div class="tc-title" id="tc-title">Trening za danas <span class="tc-bonus" id="tc-bonus" style="display:none">BONUS</span></div>
+    <div class="tc-sub"><span id="tc-meta">Dan 1 • Rang 1</span> • <span id="tc-dur">~5 min</span></div>
+  </div>
+  <div class="tc-cta">
+    <button class="btn-cta" id="tc-start">Start</button>
+  </div>
+</section>
+
 
 
 <main id="home" class="active home2">
@@ -598,4 +631,40 @@ document.getElementById('chipStreak').onclick=()=>{ if(document.body.classList.c
 
 if('serviceWorker' in navigator){ window.addEventListener('load', function(){ navigator.serviceWorker.register('./service-worker.js?v='+APP_VERSION); }); }
 </script>
+<script src="js/store.js"></script>
+
+<!-- KP v38.5b binder -->
+<script>
+(function(){
+  function apply(){
+    try{
+      var S=(id,v)=>{ var el=document.getElementById(id); if(el) el.textContent=v; };
+      var prog = (window.kpStore && window.kpStore.getTodayProgress)? window.kpStore.getTodayProgress(): {done:0,target:2,percent:0};
+      var ring = document.getElementById('tc-ring');
+      if(ring){ var C=2*Math.PI*21; ring.setAttribute('stroke-dasharray',C); ring.setAttribute('stroke-dashoffset', Math.round(C*(1-prog.percent))); }
+      S('tc-done', prog.done); S('tc-target', prog.target);
+      var goal = (window.kpStore && window.kpStore.getRankGoal)? window.kpStore.getRankGoal(): {rank:1,day:1,length:5,percent:0};
+      var fill = document.getElementById('gs-fill'); if(fill) fill.style.width = Math.round(goal.percent*100)+'%';
+      S('gs-rank', goal.rank); S('gs-day', goal.day); S('gs-max', goal.length);
+      var meta=document.getElementById('tc-meta'); if(meta){ meta.textContent='Dan '+goal.day+' • Rang '+goal.rank; }
+      var de=document.getElementById('tc-dur'); if(de){ var mins=(window.kpStore&&window.kpStore.getSessionDefaults?window.kpStore.getSessionDefaults().minutes:5); de.textContent='~'+mins+' min'; }
+      var b=document.getElementById('tc-bonus'); if(b){ b.style.display = (window.kpStore && window.kpStore.getBonusState && window.kpStore.getBonusState().active)?'inline-block':'none'; }
+    }catch(e){ console.log('binder err',e); }
+  }
+  if(window.kpStore && window.kpStore.subscribe){ window.kpStore.subscribe(apply); }
+  else { setTimeout(apply, 300); }
+  document.addEventListener('click', function(e){
+    var btn=e.target.closest('#tc-start'); if(!btn) return;
+    var navBtn=document.querySelector('button[data-tab="trainer"]')||document.querySelector('[data-nav="trainer"]');
+    if(navBtn) navBtn.click();
+  });
+  // Debug banner
+  (function(){ 
+     var b=document.createElement('div'); b.style='position:fixed;top:0;left:0;right:0;z-index:9999;background:#111C;border-bottom:1px solid #2dd4bf;color:#cfece6;font-weight:800;font-size:12px;padding:6px 10px;text-align:center';
+     b.innerHTML='KP debug: v38.5b • cards FORCED visible'; document.body.appendChild(b);
+  })();
+  try{ localStorage.setItem('kp_last_version','v38.5b'); }catch(e){}
+})();
+</script>
+
 </body></html>
